@@ -127,7 +127,7 @@ announce:
       ```
 
     # The name of the channel that the user selected as a destination for webhook messages.
-    channel: '#fhir-rmk-test'
+    channel: '#fhir-rmk'
     # Set your Webhook's username.
     username: 'GoReleaser'
     # Emoji to use as the icon for this message. Overrides icon_url.
