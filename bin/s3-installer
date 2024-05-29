@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-S3_BUCKET_NAME=edenlabllc-rmk-tools-infra
+S3_BUCKET_NAME=edenlabllc-rmk
 S3_URL="https://${S3_BUCKET_NAME}.s3.eu-north-1.amazonaws.com/rmk"
 VERSION="${1:-latest}"
 LOCAL_BIN_DIR="${HOME}"/.local/bin

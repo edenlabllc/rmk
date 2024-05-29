@@ -121,7 +121,7 @@ announce:
       ```
       rmk update --version vX.X.X
       ```
-      *Required actions after updating in project repositories:*
+      *Actions required in project repositories after an update:*
       ```
       rmk config init
       ```
