@@ -1,0 +1,138 @@
+project_name: rmk
+release:
+  disable: false
+  ids:
+    - rmk
+  github:
+    owner: edenlabllc
+    name: rmk
+  name_template: '{{.ProjectName}}-v{{.Version}}'
+before:
+  hooks:
+#    - go get ./...
+    - go mod tidy
+builds:
+  - goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+    gomips:
+      - hardfloat
+    targets:
+      - linux_amd64
+      - darwin_amd64
+    dir: .
+    main: .
+    ldflags:
+      - -s -w -X main.version={{.Tag}} -X main.commit={{.ShortCommit}} -X main.date={{.Date}}
+      - -X main.timestamp={{.Timestamp}} -X main.name={{.Binary}} -X main.builtBy=goreleaser
+      - -X main.target={{.Os}}_{{.Arch}}
+    binary: rmk
+    env:
+      - CGO_ENABLED=0
+    builder: go
+    gobinary: go
+archives:
+  - id: rmk
+    format: binary
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+blobs:
+  - bucket: edenlabllc-rmk
+    provider: s3
+    region: eu-north-1
+    disableSSL: true
+    folder: '{{ .ProjectName }}/latest-rc'
+    disable: '{{ envOrDefault "DISABLE_BLOB_RMK_RC" "false" }}'
+    ids:
+      - rmk
+    extra_files:
+      - glob: ./bin/metadata.json
+  - bucket: edenlabllc-rmk
+    provider: s3
+    region: eu-north-1
+    disableSSL: true
+    folder: '{{ .ProjectName }}/latest'
+    disable: '{{ envOrDefault "DISABLE_BLOB_RMK" "false" }}'
+    ids:
+      - rmk
+    extra_files:
+      - glob: ./bin/metadata.json
+  - provider: s3
+    region: eu-north-1
+    disableSSL: true
+    bucket: edenlabllc-rmk
+    ids:
+      - rmk
+  - provider: s3
+    region: eu-north-1
+    disableSSL: true
+    bucket: edenlabllc-rmk
+    folder: "{{ .ProjectName }}"
+    ids:
+      - none
+    extra_files:
+      - glob: ./bin/s3-installer
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+dist: dist
+gomod:
+  gobinary: go
+  env:
+    - GOPROXY=direct
+snapshot:
+  name_template: 'v{{ incpatch .Version }}-next'
+source:
+  enabled: false
+changelog:
+  skip: true
+announce:
+  twitter:
+    enabled: false
+  reddit:
+    enabled: false
+  slack:
+    enabled: true
+    # Message template to use while publishing.
+    # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
+    message_template: |
+      *Released new version of {{ .ProjectName }}: `{{.Tag}}`*
+      *Release notes:*
+        - Code base transferred from private to public GitHub repository.
+        - Changed S3 bucket name for RMK artifact.  
+
+
+      Installation of latest RMK version:
+      ```
+      curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash
+      rmk --version
+      ```
+      Installation of specific RMK version:
+      ```
+      curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash -s -- "${RMK_VERSION}"
+      rmk --version
+      ```
+      Update to latest RMK version:
+      ```
+      rmk update
+      ```
+      Update to the specific RMK version:
+      ```
+      rmk update --version vX.X.X
+      ```
+      *Actions required in project repositories after an update:*
+      ```
+      rmk config init
+      ```
+
+    # The name of the channel that the user selected as a destination for webhook messages.
+    channel: '#fhir-rmk'
+    # Set your Webhook's username.
+    username: 'GoReleaser'
+    # Emoji to use as the icon for this message. Overrides icon_url.
+    icon_emoji: "package"
+  discord:
+    enabled: false
+  teams:
+    enabled: false

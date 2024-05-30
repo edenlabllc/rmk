@@ -1,0 +1,102 @@
+name: Release RMK using GoReleaser
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+
+permissions:
+  contents: write
+
+env:
+  # AWS region of the AWS account storing images in ECR.
+  CORE_AWS_REGION: eu-north-1
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.CORE_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.RMK_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.RMK_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Get and push new tag version
+        run: |
+          # constants for selecting branches
+          readonly GIT_BRANCH="${GITHUB_REF_NAME}"
+          readonly GITHUB_ORG="${GITHUB_REPOSITORY_OWNER}"
+          
+          function release() {
+            echo "Git commit message:"
+            GIT_COMMIT_MSG="$(git log -1 --pretty=format:"%s")"
+            echo "${GIT_COMMIT_MSG}"
+          
+            if [[ ! "${GIT_COMMIT_MSG}" =~ ^Merge\ pull\ request\ #[0-9]+\ from\ ${GITHUB_ORG}/release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              >&2 echo "Pushes to master should be done via merges of PR requests from release/vN.N.N branches only."
+              >&2 echo "The expected message format (will be used for parsing a release tag):"
+              >&2 echo "Merge pull request #N from edenlabllc/release/vN.N.N"
+              exit 1
+            fi
+          
+            VERSION="${BASH_REMATCH[1]}"
+            echo "DISABLE_BLOB_RMK_RC=true" >> "${GITHUB_ENV}"
+          }
+          
+          case "${GIT_BRANCH}" in
+            release/*)
+              VERSION="${GIT_BRANCH#release/}-rc"
+              echo "DISABLE_BLOB_RMK=true" >> "${GITHUB_ENV}"
+              echo "Release candidate version: ${VERSION}"
+              git fetch --tags &> /dev/null
+              if (git tag | grep "${VERSION}" &> /dev/null); then 
+                git tag --delete "${VERSION}"
+                git push --delete origin "${VERSION}"
+              fi
+              ;;
+            master)
+              release
+              ;;
+          esac
+
+          echo "Configure Git user.name and user.email."
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          echo "Add Git tag ${VERSION}."
+          git tag "${VERSION}"
+          git push origin "${VERSION}" -f
+
+      - name: Run GoReleaser artifact build
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: v1.23.0
+          args: build --clean
+
+      - name: Copy metadata RMK release
+        run: |
+          cp ./dist/metadata.json ./bin/metadata.json
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: v1.23.0
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
