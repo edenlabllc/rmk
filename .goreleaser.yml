@@ -97,7 +97,7 @@ announce:
     # Message template to use while publishing.
     # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
     message_template: |
-      *Released new version of {{ .ProjectName }}: `{{.Tag}}`*
+      *Released a new version of {{ toupper .ProjectName }}: `{{.Tag}}`*
       *Release notes:*
         - Code base transferred from private to public GitHub repository.
         - Changed S3 bucket name for RMK artifact.  
