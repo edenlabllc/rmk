@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+S3_BUCKET_NAME=edenlabllc-rmk
+S3_URL="https://${S3_BUCKET_NAME}.s3.eu-north-1.amazonaws.com/rmk"
+VERSION="${1:-latest}"
+LOCAL_BIN_DIR="${HOME}"/.local/bin
+
+case "${OSTYPE}" in
+  darwin*)
+    FILE=rmk_darwin_amd64
+    ;;
+  linux*)
+    FILE=rmk_linux_amd64
+    ;;
+  *)
+    FILE=rmk_linux_amd64
+    ;;
+esac
+
+mkdir -p "${LOCAL_BIN_DIR}"
+
+curl -fL "${S3_URL}/${VERSION}/${FILE}" > "${LOCAL_BIN_DIR}/rmk" && chmod +x "${LOCAL_BIN_DIR}/rmk"
+
+# Linux case, you need to create a symlink manually due to
+# restrictions on permissions in the /usr/local/bin directory
+if [[ ! -f /usr/local/bin/rmk ]]; then
+  if ! (ln -s "${LOCAL_BIN_DIR}"/rmk /usr/local/bin/rmk &> /dev/null) then
+    printf "\nWARNING: The symlink was not created automatically, please complete the installation by running the command: %s\n" \
+      "sudo ln -s ${LOCAL_BIN_DIR}/rmk /usr/local/bin/rmk"
+    exit 0
+  fi
+fi
