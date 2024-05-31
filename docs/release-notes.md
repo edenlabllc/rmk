@@ -1,0 +1,1 @@
+- #2 - Added release notes file, changed release notes publishing template via GoReleaser.

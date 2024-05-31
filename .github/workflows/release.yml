@@ -90,6 +90,7 @@ jobs:
       - name: Copy metadata RMK release
         run: |
           cp ./dist/metadata.json ./bin/metadata.json
+          echo "RELEASE_NOTES=$(cat docs/release-notes.md)" >> "${GITHUB_ENV}"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
