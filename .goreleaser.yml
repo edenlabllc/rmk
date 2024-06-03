@@ -7,6 +7,12 @@ release:
     owner: edenlabllc
     name: rmk
   name_template: '{{.ProjectName}}-v{{.Version}}'
+  prerelease: auto
+  header: |
+    ## Release notes:
+      {{ .Env.RELEASE_NOTES }}
+
+    [More info...](https://github.com/edenlabllc/{{ .ProjectName }}/blob/v{{ .Version }}/README.md)
 before:
   hooks:
 #    - go get ./...
@@ -97,27 +103,28 @@ announce:
     # Message template to use while publishing.
     # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
     message_template: |
-      *Released new version of {{ .ProjectName }}: `{{.Tag}}`*
+      *Released a new version of {{ toupper .ProjectName }}: `{{ .Tag }}`*
       *Release notes:*
-        - Code base transferred from private to public GitHub repository.
-        - Changed S3 bucket name for RMK artifact.  
+      {{- range (split .Env.RELEASE_NOTES "\n") }}
+        {{ . }}
+      {{- end }}
 
 
-      Installation of latest RMK version:
+      Installation of the latest RMK version:
       ```
       curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash
       rmk --version
       ```
-      Installation of specific RMK version:
+      Installation of a specific RMK version:
       ```
       curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash -s -- "${RMK_VERSION}"
       rmk --version
       ```
-      Update to latest RMK version:
+      Update to the latest RMK version:
       ```
       rmk update
       ```
-      Update to the specific RMK version:
+      Update to a specific RMK version:
       ```
       rmk update --version vX.X.X
       ```
