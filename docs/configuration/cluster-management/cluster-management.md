@@ -21,7 +21,7 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   ```
   
   > The matching is **case-insensitive**. \
-  > `^` means the beginning of text or a line. \
+  > `^` means the **beginning** of text or a line. \
   > `\b` means the **ASCII word boundary** (`\w` on one side and `\W`, `\A`, or `\z` on the other).
   
   For example, if you are in the `project1` repository in the `develop` branch, the following Kubernetes contexts might be accepted:
@@ -39,6 +39,7 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
 
   An [initialization](../rmk-configuration-management.md#initialization-of-rmk-configuration) might be required,
   if the RMK configuration for this cluster has not been created before:
+  
   ```shell
   rmk config init
   ```
@@ -54,9 +55,8 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   
   * **K3D:**
 
-    ```shell
-    rmk cluster switch
-    ```
+    Explicit switching to the Kubernetes context is not required, if a K3D cluster has been created already. 
+    RMK will switch implicitly, when running any of the `rmk release` commands.
   
 Finally, run an RMK release command to verify the preparation of the Kubernetes context, e.g.:
 
