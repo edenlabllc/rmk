@@ -1,7 +1,7 @@
 # RMK configuration management
 
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
-At the time of configuration initialization launch, the RMK prepares
+At the time of configuration initialization launch, RMK prepares
 the state in the form of the current environment config with all the required attributes for further work.
 It also downloads and resolves and installs all necessary dependencies and tools described 
 in the [project.yaml](project-management/preparation-of-project-repository.md#projectyaml) file in the root of the project repository.
@@ -50,9 +50,9 @@ based on their values. Otherwise, the interactive mode will begin.
 
 ### Support for Multi-Factor Authentication (MFA)
 
-The RMK automatically check for an MFA device, when the following command is executed: `rmk config init`.
+RMK automatically check for an MFA device, when the following command is executed: `rmk config init`.
 
-To setup an MFA device, if it is required by the administrator, the following actions should be executed:
+To set up an MFA device, if it is required by the administrator, the following actions should be executed:
 
 1. First, sign in to the AWS Management Console.
 2. Then, go to the following page to set up security

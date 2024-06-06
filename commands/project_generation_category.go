@@ -112,7 +112,7 @@ helmfiles: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameE
 	helmfileCommonLabels = `commonLabels:
   scope: {{ .TenantName }}
   namespace: {{ .TenantName }}
-  bin: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameEnvStyle }}` + escapeOpen + `_HOOKS_DIR" | default (env "HELMFILE_HOOKS_DIR") }}/bin` + escapeClose + `
+  bin: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameEnvStyle }}` + escapeOpen + `_HOOKS_DIR" }}/bin` + escapeClose + `
   repo: core-charts
   appChartVersion: 1.6.0
   host: ` + escapeOpen + `{{ env "ROOT_DOMAIN" }}` + escapeClose + `

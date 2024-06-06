@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/edenlabllc/rmk.svg?style=for-the-badge)](https://github.com/edenlabllc/rmk/releases/latest)
 [![Software License](https://img.shields.io/github/license/edenlabllc/rmk.svg?style=for-the-badge)](LICENSE)
-[![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-edenlab-8A2BE2.svg?style=for-the-badge)](https://edenlab.io)
+[![Powered By: Edenlab](https://img.shields.io/badge/powered%20by-edenlab-8A2BE2.svg?style=for-the-badge)](https://edenlab.io)
 
 Command line tool for reduced management and provisioning of Kubernetes clusters and environments, Helm secrets and releases.
 

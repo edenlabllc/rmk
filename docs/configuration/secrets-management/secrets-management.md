@@ -64,7 +64,7 @@ needed for secrets encryption or decryption.
 
 ## Generating all secrets from scratch in a batch manner using the RMK secrets manager
 
-In case of a creating tenant from scratch all the needed directories like `etc/<scope>/<env>/secrets/` should first
+In case of a creating tenant from scratch all the needed directories, such as `etc/<scope>/<env>/secrets/` should first
 be populated with an empty `.sops.yaml` file (acts as an indicator that this scope and environment will have the secrets).
 Also, before generating the secret files, you must create or complete a secret `.spec.yaml.gotmpl` file per each scope.
 `.spec.yaml.gotmpl` is a template that runs the [sprig](https://masterminds.github.io/sprig) engine with additional functions.
