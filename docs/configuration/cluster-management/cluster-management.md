@@ -5,10 +5,66 @@ RMK uses [Terraform](https://www.terraform.io/) and [K3D](https://k3d.io) for cl
 RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through native Helmfile functionality.
 
 The 2 scenarios are:
-- **A cluster has already been provisioned:** An existing Kubernetes context will be used by RMK.
-- **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster provider like AWS, K3D etc. will be utilized.
+- **A cluster has already been provisioned via a 3rd-party tool/service:** An existing Kubernetes context will be used by RMK.
+- **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as AWS, K3D, etc. will be utilized.
 
-## RMK cluster providers
+## Switch the context to an existing Kubernetes cluster
+
+Switching to an existing Kubernetes cluster depends on how it has been provisioned:
+
+* **Using a 3rd party tool:**
+  
+  Create a context with the name matching the pattern:
+  
+  ```
+  ^<project_name>-<environment>\b
+  ```
+  
+  > The matching is **case-insensitive**. \
+  > `^` means the **beginning** of text or a line. \
+  > `\b` means the **ASCII word boundary** (`\w` on one side and `\W`, `\A`, or `\z` on the other).
+  
+  For example, if you are in the `project1` repository in the `develop` branch, the following Kubernetes contexts might be accepted:
+  
+  ```
+  project1-develop
+  PROJECT1-DEVELOP
+  project1-develop-cluster
+  PROJECT1-DEVELOP-CLUSTER
+  ```
+
+* **Using RMK cluster provider**:
+
+  Checkout to the branch from which the K8S cluster was previously created. 
+
+  An [initialization](../rmk-configuration-management.md#initialization-of-rmk-configuration) might be required,
+  if the RMK configuration for this cluster has not been created before:
+  
+  ```shell
+  rmk config init
+  ```
+   
+  The next command depends on whether a remote cluster provider (e.g., AWS) or a local one (e.g., K3D) has been used:
+
+  * **AWS:**
+
+    ```shell
+    # --force might required to refresh the credentials after a long period of inactivity
+    rmk cluster switch --force
+    ```
+  
+  * **K3D:**
+
+    Explicit switching to the Kubernetes context is not required, if a K3D cluster has been created already. 
+    RMK will switch implicitly, when running any of the `rmk release` commands.
+  
+Finally, run an RMK release command to verify the preparation of the Kubernetes context, e.g.:
+
+```shell
+rmk release list
+```
+
+## Use RMK cluster providers to provision and destroy Kubernetes clusters
 
 Currently, the following cluster providers are supported by RMK:
 - [aws.provisioner.infra](https://github.com/edenlabllc/aws.provisioner.infra): Configuration for managing AWS EKS
@@ -86,16 +142,6 @@ To destroy a Kubernetes cluster, run the command:
 
 ```shell
 rmk cluster destroy
-```
-
-#### Switch the kubectl context to an already created K8S cluster
-
-Checkout to the branch from which the K8S cluster was previously created, then run the following commands:
-
-```shell
-# required if the RMK configuration for this cluster has not been created before
-rmk config init
-rmk cluster switch --force
 ```
 
 ### Create or delete K3D Kubernetes clusters
