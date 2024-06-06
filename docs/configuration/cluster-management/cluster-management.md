@@ -29,8 +29,8 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   ```
   project1-develop
   PROJECT1-DEVELOP
-  project1-develop-eks
-  PROJECT1-DEVELOP-EKS
+  project1-develop-cluster
+  PROJECT1-DEVELOP-CLUSTER
   ```
 
 * **Using RMK cluster provider**:
