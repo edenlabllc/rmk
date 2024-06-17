@@ -1,1 +1,1 @@
-- #10 - Improved documentation for cluster switch depending on an RMK cluster provider.
+- #12 - Implemented logic for strict selection of Kubernetes contexts to prevent conflicts during context selection.

@@ -263,7 +263,7 @@ func (rc *ReleaseCommands) releaseHelmfile(args ...string) error {
 }
 
 func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
-	var contextName string
+	var contextNames []string
 	kubeConfig := &KubeConfig{}
 
 	rc.SpecCMD = rc.kubeConfig()
@@ -276,23 +276,28 @@ func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
 		return "", "", err
 	}
 
-	re, err := regexp.Compile(`(?i)` + rc.Conf.Name + `\b`)
+	re, err := regexp.Compile(`(?i)\b` + rc.Conf.Name + `\b`)
 	if err != nil {
 		return "", "", err
 	}
 
 	for _, val := range kubeConfig.Contexts {
 		if re.MatchString(val.Name) {
-			contextName = val.Name
-			break
+			contextNames = append(contextNames, val.Name)
 		}
 	}
 
-	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, system.K3DConfigPrefix) {
-		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextName)
+	if len(contextNames) > 1 {
+		return "", "",
+			fmt.Errorf("detected more than one Kubernetes context with names %s leading to conflict, "+
+				"please delete or rename all contexts except one", strings.Join(contextNames, ", "))
 	}
 
-	return contextName, kubeConfig.CurrentContext, nil
+	if rc.K3DCluster && len(contextNames) == 1 && !strings.Contains(contextNames[0], system.K3DConfigPrefix) {
+		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextNames[0])
+	}
+
+	return contextNames[0], kubeConfig.CurrentContext, nil
 }
 
 func (rc *ReleaseCommands) releaseKubeContext() error {
