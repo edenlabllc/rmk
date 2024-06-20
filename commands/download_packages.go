@@ -120,7 +120,7 @@ func (s *SpecDownload) download(silent bool) error {
 	}
 
 	if !silent {
-		zap.S().Infof("starting download package: %s", s.PkgName)
+		zap.S().Infof("starting package download: %s", s.PkgName)
 	}
 
 	return s.downloadErrorHandler(
@@ -816,7 +816,7 @@ func rmkURLFormation(paths ...string) string {
 }
 
 func updateRMK(pkgName, version string, silent, progressBar bool, ctx *cli.Context) error {
-	zap.S().Infof("starting download package: %s", pkgName)
+	zap.S().Infof("starting package download: %s", pkgName)
 	pkgDst := system.GetHomePath(filepath.Join(".local", system.ToolsBinDir))
 	if err := go_getter.DownloadArtifact(
 		rmkURLFormation(system.RMKBin, version, pkgName),
