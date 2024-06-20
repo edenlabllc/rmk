@@ -17,21 +17,31 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   Create a context with the name matching the pattern:
   
   ```
-  ^<project_name>-<environment>\b
+  \b<project_name>-<environment>\b
   ```
   
   > The matching is **case-insensitive**. \
-  > `^` means the **beginning** of text or a line. \
   > `\b` means the **ASCII word boundary** (`\w` on one side and `\W`, `\A`, or `\z` on the other).
   
-  For example, if you are in the `project1` repository in the `develop` branch, the following Kubernetes contexts might be accepted:
+  For example, if you are in the `project1` repository in the `develop` branch, any of the following Kubernetes contexts will be accepted:
   
   ```
   project1-develop
+  Project1-Develop
   PROJECT1-DEVELOP
   project1-develop-cluster
+  Project1-Develop-Cluster
   PROJECT1-DEVELOP-CLUSTER
+  k3d-project1-develop
+  arn:aws:eks:us-east-1:123456789000:cluster/PROJECT1-DEVELOP-CLUSTER
   ```
+  
+  > If there are **more than one** Kubernetes context which match the regular expression **simultaneously**, 
+  > an **error** will be thrown indicating a conflict. For example, the following names will conflict:
+  > ```shell
+  > project1-develop
+  > k3d-project1-develop
+  > ```
 
 * **Using RMK cluster provider**:
 
