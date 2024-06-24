@@ -263,7 +263,11 @@ func (rc *ReleaseCommands) releaseHelmfile(args ...string) error {
 }
 
 func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
-	var contextNames []string
+	var (
+		contextNames []string
+		contextName  string
+	)
+
 	kubeConfig := &KubeConfig{}
 
 	rc.SpecCMD = rc.kubeConfig()
@@ -287,17 +291,22 @@ func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
 		}
 	}
 
-	if len(contextNames) > 1 {
+	switch {
+	case len(contextNames) > 1:
 		return "", "",
 			fmt.Errorf("detected more than one Kubernetes context with names %s leading to conflict, "+
 				"please delete or rename all contexts except one", strings.Join(contextNames, ", "))
+	case len(contextNames) > 0:
+		contextName = contextNames[0]
+	default:
+		contextName = ""
 	}
 
-	if rc.K3DCluster && len(contextNames) == 1 && !strings.Contains(contextNames[0], system.K3DConfigPrefix) {
-		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextNames[0])
+	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, system.K3DConfigPrefix) {
+		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextName)
 	}
 
-	return contextNames[0], kubeConfig.CurrentContext, nil
+	return contextName, kubeConfig.CurrentContext, nil
 }
 
 func (rc *ReleaseCommands) releaseKubeContext() error {
@@ -315,6 +324,10 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 		}
 
 		return nil
+	}
+
+	if strings.Contains(contextName, system.K3DConfigPrefix) && rc.UpdateContext {
+		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
 
 	cc := &ClusterCommands{
