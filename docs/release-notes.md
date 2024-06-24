@@ -1,1 +1,1 @@
-- #12 - Implemented logic for strict selection of Kubernetes contexts to prevent conflicts during context selection.
+- #12 - Fixed a "panic" log output that occurred when the Kubernetes context was not created before.
