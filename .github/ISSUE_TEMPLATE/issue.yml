@@ -4,6 +4,8 @@ labels: [enhancement]
 assignees:
   - anovikov-el
   - apanasiuk-el
+projects:
+  - edenlabllc/43
 body:
   - type: markdown
     attributes:
