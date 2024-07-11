@@ -1,1 +1,2 @@
-- #18 - Added the files recommended by the GitHub's community profiles. Improved the cluster management instructions regarding recommended AMI images.
+- #18 - Added the files recommended by the GitHub's community profiles. 
+- #18 - Improved the cluster management instructions regarding recommended AMI images.
