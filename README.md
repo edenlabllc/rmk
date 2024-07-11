@@ -10,6 +10,7 @@ Command line tool for reduced management and provisioning of Kubernetes clusters
   * [Overview](#overview)
     * [Advantages](#advantages)
     * [Edenlab LLC use cases](#edenlab-llc-use-cases)
+      * [Related OSS repositories](#related-oss-repositories)
   * [Requirements](#requirements)
   * [Quickstart](docs/quickstart.md)
   * [Installation](#installation)
@@ -91,6 +92,13 @@ The examples of Kubernetes providers, to which Kodjin has been installed, are:
 - [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
 - on-premise installations deployed using [Ansible Kubespray](https://github.com/kubernetes-sigs/kubespray)
 - single-machine [K3D](https://k3d.io/) clusters
+
+#### Related OSS repositories
+
+- [AWS cluster provider for RMK](https://github.com/edenlabllc/aws.provisioner.infra)
+- [Azure cluster provider for RMK](https://github.com/edenlabllc/azure.provisioner.infra)
+- [K3D cluster provider for RMK](https://github.com/edenlabllc/k3d.provisioner.infra)
+- [Helmfile hooks](https://github.com/edenlabllc/helmfile.hooks.infra)
 
 ## Requirements
 

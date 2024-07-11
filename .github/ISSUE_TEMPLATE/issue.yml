@@ -1,5 +1,5 @@
 name: Issue
-description: Describe an issue
+description: Describe an issue.
 labels: [enhancement]
 projects:
   - edenlabllc/43
