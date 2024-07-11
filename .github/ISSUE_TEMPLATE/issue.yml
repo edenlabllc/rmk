@@ -1,9 +1,6 @@
 name: Issue
 description: Describe an issue
 labels: [enhancement]
-assignees:
-  - anovikov-el
-  - apanasiuk-el
 projects:
   - edenlabllc/43
 body:
