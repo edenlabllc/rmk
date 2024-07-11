@@ -100,7 +100,7 @@ The core configurations are divided into two types:
   ```terraform
   # k8s user list
   k8s_master_usernames = [] # list of AWS IAM users for K8S cluster management
-  k8s_cluster_version  = "1.27" # current version K8S(EKS) control plane
+  k8s_cluster_version  = "1.27" # current version of K8S (EKS) control plane
   # ...
   ```
 
@@ -127,13 +127,17 @@ The core configurations are divided into two types:
 
   > Each AWS region requires its own AMI image ID. To determine the appropriate ID for a specific region, run the following command:
   > ```shell
-  > AWS_PROFILE=$(rmk --lf=json config view | jq '.config.Profile' -r) \
-  >   aws ssm get-parameter \
-  >   --name /aws/service/eks/optimized-ami/<EKS_control_plane_version>/amazon-linux-2/recommended/image_id \
-  >   --region <aws_region> \
-  >   --query "Parameter.Value" \
-  >   --output text
+  > AWS_PROFILE=$(rmk --lf=json config view | yq '.config.Profile') \
+  > AWS_CONFIG_FILE="${HOME}/.aws/config_$(rmk --lf=json config view | yq '.config.Profile')" \
+  > AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_$(rmk --lf=json config view | yq '.config.Profile')" \
+  > AWS_PAGER= \
+  > aws ssm get-parameter \
+  >   --name /aws/service/eks/optimized-ami/<eks_control_plane_version>/amazon-linux-2/recommended/image_id \
+  >   --region "$(rmk --lf=json config view | yq '.config.Region')" \
+  >   --output text \
+  >   --query Parameter.Value
   > ```
+  > > Replace `<eks_control_plane_version>` with a correct version.
 
 Full list of input Terraform variables: `.PROJECT/inventory/clusters/aws.provisioner.infra-<version>/terraform/variables.tf`
 

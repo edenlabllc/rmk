@@ -1,1 +1,3 @@
-- #12 - Fixed a "panic" log output that occurred when the Kubernetes context was not created before.
+- #18 - Added the files recommended by the GitHub's community profiles.
+- #18 - Added a list of related OSS repositories.
+- #18 - Improved the cluster management instructions regarding recommended AMI images.
