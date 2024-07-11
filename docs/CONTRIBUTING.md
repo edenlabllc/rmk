@@ -6,7 +6,7 @@ Before creating a new issue, please check first if a similar issue [already exis
 
 ## Contributing Code
 
-By contributing to this project, you share your code under the Apache 2.0 License, as specified in the LICENSE file.
+Currently, we do not accept pull requests. Please report an issue instead.
 
 ### Code Review
 
