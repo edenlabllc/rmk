@@ -59,12 +59,8 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at:
-
-```
-a.novikov@edenlab.com.ua
-apanasyuk@edenlab.com.ua
-```
+reported to the community leaders responsible for enforcement and specified in 
+[CODEOWNERS](https://github.com/edenlabllc/rmk/blob/master/docs/CODEOWNERS).
 
 All complaints will be reviewed and investigated promptly and fairly.
 
