@@ -1,0 +1,64 @@
+name: Issue
+description: Describe an issue
+labels: [enhancement]
+projects:
+  - edenlabllc/43
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue! Please fill the form below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe your issue here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Tell us how to reproduce this issue.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected behaviour
+      description: Tell us what should happen.
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual-behaviour
+    attributes:
+      label: Actual behaviour
+      description: Tell us what happens instead.
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment-info
+    attributes:
+      label: Environment info
+      description: Specify information about your environment.
+      value: |
+        RMK: 
+        OS: 
+        Shell: 
+        Terminal:
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: code-of-conduct
+    attributes:
+      label: Agree to the Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
