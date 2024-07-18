@@ -23,7 +23,7 @@ body:
       label: Steps to reproduce
       description: Tell us how to reproduce this bug.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: expected-behaviour
@@ -31,7 +31,7 @@ body:
       label: Expected behaviour
       description: Tell us what should happen.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: actual-behaviour
@@ -39,7 +39,7 @@ body:
       label: Actual behaviour
       description: Tell us what happens instead.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: environment-info
@@ -52,7 +52,7 @@ body:
         Shell: 
         Terminal:
     validations:
-      required: false
+      required: true
 
   - type: checkboxes
     id: code-of-conduct
