@@ -187,7 +187,7 @@ Detailed information about requirements and installation instructions can be fou
   * hooks
 - Note: K3D v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
 - Python >= 3.9
-- [RMK CLI](https://github.com/edenlabllc/rmk.tools.infra?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes) >= 4.0.0
+- [RMK CLI](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes) >= v.0.42.4
 
 ### GitLab flow strategy
 
@@ -249,7 +249,7 @@ rmk cluster provision
 rmk release sync
 ` + "```" + `
 
-> Note: A complete list of RMK commands and capabilities can be found at the [link](https://github.com/edenlabllc/rmk.tools.infra?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes)
+> Note: A complete list of RMK commands and capabilities can be found at the [link](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes)
 `
 
 	releasesFile = `# This file defines the release list, is located in the environment directory

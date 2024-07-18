@@ -1,6 +1,6 @@
-name: Issue
-description: Describe an issue.
-labels: [enhancement]
+name: Bug report
+description: Describe a bug.
+labels: [bug]
 projects:
   - edenlabllc/43
 body:
@@ -13,7 +13,7 @@ body:
     id: description
     attributes:
       label: Description
-      description: Describe your issue here.
+      description: Describe your bug here.
     validations:
       required: true
 
@@ -21,9 +21,9 @@ body:
     id: steps-to-reproduce
     attributes:
       label: Steps to reproduce
-      description: Tell us how to reproduce this issue.
+      description: Tell us how to reproduce this bug.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: expected-behaviour
@@ -31,7 +31,7 @@ body:
       label: Expected behaviour
       description: Tell us what should happen.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: actual-behaviour
@@ -39,7 +39,7 @@ body:
       label: Actual behaviour
       description: Tell us what happens instead.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: environment-info
@@ -52,7 +52,7 @@ body:
         Shell: 
         Terminal:
     validations:
-      required: false
+      required: true
 
   - type: checkboxes
     id: code-of-conduct
