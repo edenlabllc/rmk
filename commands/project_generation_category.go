@@ -249,7 +249,7 @@ rmk cluster provision
 rmk release sync
 ` + "```" + `
 
-> > Note: A complete list of RMK commands and capabilities can be found at the [link](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes)
+> Note: A complete list of RMK commands and capabilities can be found at the [link](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes)
 `
 
 	releasesFile = `# This file defines the release list, is located in the environment directory
