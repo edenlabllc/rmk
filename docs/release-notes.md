@@ -1,3 +1,5 @@
-- #18 - Added the files recommended by the GitHub's community profiles.
-- #18 - Added a list of related OSS repositories.
-- #18 - Improved the cluster management instructions regarding recommended AMI images.
+- #18 - Fixed links to the OSS repository in project generation.
+- #18 - Split the issue template into the bug and feature templates.
+- #18 - Updated the Roadmap section of README.md.
+
+
