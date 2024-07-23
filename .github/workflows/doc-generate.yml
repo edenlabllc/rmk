@@ -33,10 +33,6 @@ jobs:
 
       - name: Generate and commit new commands documentation
         run: |
-          # constants for selecting branches
-          readonly GIT_BRANCH="${GITHUB_REF_NAME}"
-          readonly GITHUB_ORG="${GITHUB_REPOSITORY_OWNER}"
-          
           echo "Configure Git user.name and user.email."
           git config user.name github-actions
           git config user.email github-actions@github.com
