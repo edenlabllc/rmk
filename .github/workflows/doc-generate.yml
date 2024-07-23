@@ -45,5 +45,6 @@ jobs:
           ./dist/rmk_linux_amd64_v1/rmk doc generate > ./docs/commands.md
           
           if (git commit --all --message="Update commands documentation"); then
+            git push
             echo "The new commands documentation was committed."
           fi
