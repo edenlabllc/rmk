@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  docs-commands-generate:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -41,5 +41,5 @@ jobs:
           
           if (git commit --all --message="Update commands documentation"); then
             git push
-            echo "The new commands documentation was committed."
+            echo "The new commands documentation has been committed."
           fi

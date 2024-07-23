@@ -1,1 +1,1 @@
-- #33 - Added a new GitHub action for RMK commands documentation generate.
+- #33 - Added a new GitHub action for RMK commands documentation generation.
