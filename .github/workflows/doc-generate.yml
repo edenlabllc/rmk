@@ -1,0 +1,49 @@
+name: Generate commands documentation
+
+on:
+  push:
+    branches:
+      - develop
+      - hotfix/*
+      - feature/*
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Run GoReleaser artifact build
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: v1.23.0
+          args: build --clean --skip=validate
+
+      - name: Generate and commit new commands documentation
+        run: |
+          # constants for selecting branches
+          readonly GIT_BRANCH="${GITHUB_REF_NAME}"
+          readonly GITHUB_ORG="${GITHUB_REPOSITORY_OWNER}"
+          
+          echo "Configure Git user.name and user.email."
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+          echo "Generate new commands documentation."
+          ./dist/rmk_linux_amd64_v1/rmk doc generate > ./docs/commands.md
+          
+          if (git commit --all --message="Update commands documentation"); then
+            echo "The new commands documentation was committed."
+          fi

@@ -46,14 +46,20 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 		return err
 	}
 
-	for key, val := range credentials {
-		k.SpecCMD.Envs = append(k.SpecCMD.Envs,
-			"K3D_NAME="+k.Conf.Name,
-			"K3D_VOLUME_HOST_PATH="+k.Ctx.String("k3d-volume-host-path"),
-			"K3D_AWS_ECR_USER="+key,
-			"K3D_AWS_ECR_PASSWORD="+val,
-		)
+	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME="+k.Conf.Name)
+
+	if token, ok := credentials[k.Conf.AWSECRUserName]; !ok {
+		return fmt.Errorf("failed to get ECR token")
+	} else {
+		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_AWS_ECR_USER="+k.Conf.AWSECRUserName, "K3D_AWS_ECR_PASSWORD="+token)
 	}
+
+	if len(k.Ctx.String("k3d-volume-host-path")) > 0 {
+		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_VOLUME_HOST_PATH="+k.Ctx.String("k3d-volume-host-path"))
+		return nil
+	}
+
+	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_VOLUME_HOST_PATH="+system.GetPwdPath(""))
 
 	return nil
 }
