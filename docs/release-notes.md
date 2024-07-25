@@ -1,1 +1,2 @@
 - #33 - Added a new GitHub action for RMK commands documentation generation.
+- #34 - Added support for Terraform outputs of a boolean type.
