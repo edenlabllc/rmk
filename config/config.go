@@ -226,16 +226,18 @@ func (conf *Config) GetTerraformOutputs() error {
 				return err
 			}
 
+			envKey := strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))
+
 			switch {
 			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
 				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))] = getVar.Value.(string)
+				conf.Env[envKey] = getVar.Value.(string)
 			case reflect.TypeOf(getVar.Value).Kind() == reflect.Bool && getVar.Type == reflect.Bool.String():
 				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))] = strconv.FormatBool(getVar.Value.(bool))
+				conf.Env[envKey] = strconv.FormatBool(getVar.Value.(bool))
 			default:
 				zap.S().Warnf("Terraform output variable %s will not be exported as environment variable, "+
-					"does not match the string or boolean types, current type: %s", key, getVar.Type)
+					"does not match string or boolean types, current type: %s", key, getVar.Type)
 			}
 		}
 	}
