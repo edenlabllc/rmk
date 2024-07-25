@@ -29,8 +29,6 @@ jobs:
           args: build --clean --skip=validate
 
       - name: Generate and commit new commands documentation
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_REPO_FULL_ACCESS }}
         run: |
           echo "Configure Git user.name and user.email."
           git config user.name github-actions
