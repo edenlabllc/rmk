@@ -190,11 +190,11 @@ func flagsConfigList() []cli.Flag {
 func flagsClusterK3DCreate() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.StringFlag{
-			Name:    "k3d-volume-host-path",
-			Usage:   "host local directory path for mount into K3D cluster",
-			Aliases: []string{"kv"},
-			EnvVars: []string{"RMK_K3D_VOLUME_HOST_PATH"},
-			Value:   system.GetPwdPath(""),
+			Name:        "k3d-volume-host-path",
+			Usage:       "host local directory path for mount into K3D cluster",
+			Aliases:     []string{"kv"},
+			EnvVars:     []string{"RMK_K3D_VOLUME_HOST_PATH"},
+			DefaultText: "present working directory",
 		},
 	)
 }

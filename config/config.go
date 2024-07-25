@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -51,8 +52,8 @@ type Config struct {
 }
 
 type ExportedVars struct {
-	TerraformOutput map[string]string `yaml:"terraform-output,omitempty"`
-	Env             map[string]string `yaml:"env,omitempty"`
+	TerraformOutput map[string]interface{} `yaml:"terraform-output,omitempty"`
+	Env             map[string]string      `yaml:"env,omitempty"`
 }
 
 type HookMapping struct {
@@ -117,7 +118,7 @@ func (conf *Config) InitConfig(terraformOutput bool) *Config {
 	}
 
 	conf.ExportedVars = ExportedVars{
-		TerraformOutput: make(map[string]string),
+		TerraformOutput: make(map[string]interface{}),
 		Env:             make(map[string]string),
 	}
 
@@ -165,8 +166,8 @@ func (conf *Config) GetConfigs(all bool) error {
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
 	hostedZoneVar := system.TerraformVarsPrefix + system.TerraformVarHostedZoneName
 	if !c.IsSet("root-domain") {
-		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName) > 0 {
-			if err := c.Set("root-domain", hostedZoneName); err != nil {
+		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName.(string)) > 0 {
+			if err := c.Set("root-domain", hostedZoneName.(string)); err != nil {
 				return err
 			}
 		} else {
@@ -225,12 +226,18 @@ func (conf *Config) GetTerraformOutputs() error {
 				return err
 			}
 
-			if reflect.TypeOf(getVar.Type).Kind() == reflect.String {
-				conf.TerraformOutput[key] = getVar.Value.(string)
-				conf.Env[strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))] = getVar.Value.(string)
-			} else {
+			envKey := strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))
+
+			switch {
+			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
+				conf.TerraformOutput[key] = getVar.Value
+				conf.Env[envKey] = getVar.Value.(string)
+			case reflect.TypeOf(getVar.Value).Kind() == reflect.Bool && getVar.Type == reflect.Bool.String():
+				conf.TerraformOutput[key] = getVar.Value
+				conf.Env[envKey] = strconv.FormatBool(getVar.Value.(bool))
+			default:
 				zap.S().Warnf("Terraform output variable %s will not be exported as environment variable, "+
-					"does not match the string type, current type: %s", key, getVar.Type)
+					"does not match string or boolean types, current type: %s", key, getVar.Type)
 			}
 		}
 	}

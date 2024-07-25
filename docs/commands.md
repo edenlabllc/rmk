@@ -17,9 +17,9 @@ rmk
 
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 BuiltBy: goreleaser
-Commit: fef9dcc
-Date: 2024-05-09T07:30:00Z
-Target: darwin_amd64
+Commit: 13379d5
+Date: 2024-07-25T14:53:34Z
+Target: linux_amd64
 
 **Usage**:
 
@@ -74,7 +74,7 @@ K3D cluster management
 
 Create K3D cluster
 
-**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: "${PWD}/rmk.tools.infra")
+**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: present working directory)
 
 #### delete, d
 
@@ -405,3 +405,4 @@ Update RMK CLI to a new version
 ## help, h
 
 Shows a list of commands or help for one command
+

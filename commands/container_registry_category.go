@@ -42,7 +42,7 @@ func (cr *CRCommands) dockerLogin() error {
 	}
 
 	if token, ok := credentials[cr.Conf.AWSECRUserName]; !ok {
-		return fmt.Errorf("failed to get token")
+		return fmt.Errorf("failed to get ECR token")
 	} else {
 		if cr.Ctx.Bool("get-token") {
 			fmt.Println(token)
