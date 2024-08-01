@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"rmk/config"
-	"rmk/system"
+	"rmk/util"
 )
 
 type K3DRunner interface {
@@ -27,8 +27,8 @@ func newK3DCommands(conf *config.Config, ctx *cli.Context, workDir string) *K3DC
 	return &K3DCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
 }
 
-func (k *K3DCommands) k3d(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (k *K3DCommands) k3d(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          append([]string{}, args...),
 		Command:       "k3d",
 		Dir:           k.WorkDir,
@@ -59,7 +59,7 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 		return nil
 	}
 
-	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_VOLUME_HOST_PATH="+system.GetPwdPath(""))
+	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_VOLUME_HOST_PATH="+util.GetPwdPath(""))
 
 	return nil
 }
@@ -73,23 +73,23 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 	}
 
 	for name, pkg := range k.Conf.Clusters {
-		if strings.HasPrefix(name, system.K3DConfigPrefix) {
+		if strings.HasPrefix(name, util.K3DConfigPrefix) {
 			k3dDst = pkg.DstPath
 			break
 		}
 	}
 
 	if len(k3dDst) == 0 {
-		return fmt.Errorf("cluster provider with name %s not found", system.K3DConfigPrefix)
+		return fmt.Errorf("cluster provider with name %s not found", util.K3DConfigPrefix)
 	}
 
-	match, err := system.WalkMatch(k3dDst, system.K3DConfigPrefix+".yaml")
+	match, err := util.WalkMatch(k3dDst, util.K3DConfigPrefix+".yaml")
 	if err != nil {
 		return err
 	}
 
 	if len(match) == 0 {
-		return fmt.Errorf("configuration file for %s not found", system.K3DConfigPrefix)
+		return fmt.Errorf("configuration file for %s not found", util.K3DConfigPrefix)
 	}
 
 	if err := k.prepareK3D("cluster", k.Ctx.Command.Name, "--config", match[0]); err != nil {
@@ -97,7 +97,7 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 	}
 
 	// Creating specific dir for k3d registry configuration
-	k3dRegistryHostPath := filepath.Join(filepath.Dir(match[0]), system.K3DConfigPrefix)
+	k3dRegistryHostPath := filepath.Join(filepath.Dir(match[0]), util.K3DConfigPrefix)
 	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_REGISTRY_HOST_PATH="+k3dRegistryHostPath)
 
 	if err := os.RemoveAll(k3dRegistryHostPath); err != nil {
@@ -148,11 +148,11 @@ func (k *K3DCommands) startStopK3DCluster() error {
 
 func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -160,20 +160,20 @@ func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		return newK3DCommands(conf, c, system.GetPwdPath("")).createDeleteK3DCluster()
+		return newK3DCommands(conf, c, util.GetPwdPath("")).createDeleteK3DCluster()
 	}
 }
 
 func K3DAction(conf *config.Config, action func(k3dRunner K3DRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return action(newK3DCommands(conf, c, system.GetPwdPath("")))
+		return action(newK3DCommands(conf, c, util.GetPwdPath("")))
 	}
 }

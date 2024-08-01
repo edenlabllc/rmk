@@ -1,11 +1,11 @@
-package commands
+package cmd
 
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
 	"rmk/git_handler"
-	"rmk/system"
+	"rmk/util"
 )
 
 func flagsConfig() []cli.Flag {
@@ -16,7 +16,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "choice of artifact usage model, available: none, online, offline",
 				Aliases: []string{"am"},
 				EnvVars: []string{"RMK_ARTIFACT_MODE"},
-				Value:   system.ArtifactModeDefault,
+				Value:   util.ArtifactModeDefault,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -25,7 +25,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "AWS ECR host",
 				Aliases: []string{"aeh"},
 				EnvVars: []string{"RMK_AWS_ECR_HOST"},
-				Value:   system.AWSECRHost,
+				Value:   util.AWSECRHost,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -34,7 +34,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "AWS region for specific ECR host",
 				Aliases: []string{"aer"},
 				EnvVars: []string{"RMK_AWS_ECR_REGION"},
-				Value:   system.AWSECRRegion,
+				Value:   util.AWSECRRegion,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -43,7 +43,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "AWS ECR user name",
 				Aliases: []string{"aeun"},
 				EnvVars: []string{"RMK_AWS_ECR_USER_NAME"},
-				Value:   system.AWSECRUserName,
+				Value:   util.AWSECRUserName,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -131,7 +131,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "location constraint region of S3 charts repo",
 				Aliases: []string{"scrr"},
 				EnvVars: []string{"RMK_S3_CHARTS_REPO_REGION"},
-				Value:   system.S3ChartsRepoRegion,
+				Value:   util.S3ChartsRepoRegion,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -140,7 +140,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "select cluster provider to provision clusters",
 				Aliases: []string{"cp"},
 				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   system.AWSClusterProvider,
+				Value:   util.AWSClusterProvider,
 			},
 		),
 		altsrc.NewBoolFlag(

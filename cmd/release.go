@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ import (
 	"rmk/config"
 	"rmk/git_handler"
 	"rmk/notification"
-	"rmk/system"
+	"rmk/util"
 )
 
 type runner interface {
@@ -30,7 +30,7 @@ type runner interface {
 type ReleaseCommands struct {
 	Conf          *config.Config
 	Ctx           *cli.Context
-	SpecCMD       *system.SpecCMD
+	SpecCMD       *util.SpecCMD
 	Scope         string
 	WorkDir       string
 	ValuesPath    string
@@ -164,11 +164,11 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 	return append(envs, hfVersion...)
 }
 
-func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
+func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	envs := append([]string{},
 		"NAME="+rc.Conf.Name,
 		"TENANT="+rc.Conf.Tenant,
-		"SOPS_AGE_KEY_FILE="+filepath.Join(rc.Conf.SopsAgeKeys, system.SopsAgeKeyFile),
+		"SOPS_AGE_KEY_FILE="+filepath.Join(rc.Conf.SopsAgeKeys, util.SopsAgeKeyFile),
 		"GITHUB_TOKEN="+rc.Conf.GitHubToken,
 		"AWS_PROFILE="+rc.Conf.Profile,
 		"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
@@ -203,11 +203,11 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
 
 	// needed if not used artifact mode
 	var sensKeyWords []string
-	if rc.Ctx.String("artifact-mode") == system.ArtifactModeDefault {
+	if rc.Ctx.String("artifact-mode") == util.ArtifactModeDefault {
 		sensKeyWords = []string{rc.Conf.GitHubToken}
 	}
 
-	return &system.SpecCMD{
+	return &util.SpecCMD{
 		Args: append([]string{"--environment", rc.Conf.Environment, "--log-level",
 			rc.Ctx.String("helmfile-log-level")}, args...),
 		Command:      "helmfile",
@@ -219,8 +219,8 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
 	}
 }
 
-func (rc *ReleaseCommands) kubeConfig() *system.SpecCMD {
-	return &system.SpecCMD{
+func (rc *ReleaseCommands) kubeConfig() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          []string{"config"},
 		Command:       "kubectl",
 		Ctx:           rc.Ctx.Context,
@@ -231,20 +231,20 @@ func (rc *ReleaseCommands) kubeConfig() *system.SpecCMD {
 }
 
 func (rc *ReleaseCommands) releaseMiddleware() error {
-	if len(rc.Conf.Dependencies) == 0 && rc.Ctx.String("artifact-mode") == system.ArtifactModeDefault {
+	if len(rc.Conf.Dependencies) == 0 && rc.Ctx.String("artifact-mode") == util.ArtifactModeDefault {
 		if err := os.RemoveAll(filepath.Join(rc.WorkDir, TenantPrDependenciesDir)); err != nil {
 			return err
 		}
 	}
 
-	if err := system.MergeAgeKeys(rc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(rc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
 	if _, currentContext, err := rc.getKubeContext(); err != nil {
 		return err
 	} else {
-		if strings.Contains(currentContext, system.K3DConfigPrefix) {
+		if strings.Contains(currentContext, util.K3DConfigPrefix) {
 			rc.K3DCluster = true
 		}
 	}
@@ -302,7 +302,7 @@ func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
 		contextName = ""
 	}
 
-	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, system.K3DConfigPrefix) {
+	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, util.K3DConfigPrefix) {
 		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextName)
 	}
 
@@ -326,14 +326,14 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 		return nil
 	}
 
-	if strings.Contains(contextName, system.K3DConfigPrefix) && rc.UpdateContext {
+	if strings.Contains(contextName, util.K3DConfigPrefix) && rc.UpdateContext {
 		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
 
 	cc := &ClusterCommands{
 		Conf:    rc.Conf,
 		Ctx:     rc.Ctx,
-		WorkDir: system.GetPwdPath(""),
+		WorkDir: util.GetPwdPath(""),
 	}
 
 	if err := cc.clusterContext(); err != nil {
@@ -357,7 +357,7 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 }
 
 func (sr *SpecRelease) searchReleasesPath() error {
-	paths, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR), sr.Conf.Environment, system.ReleasesFileName)
+	paths, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR), sr.Conf.Environment, util.ReleasesFileName)
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,7 @@ func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
 	}
 
 	if len(sr.ReleasesPaths) == 0 {
-		return fmt.Errorf("no files %s found", system.ReleasesFileName)
+		return fmt.Errorf("no files %s found", util.ReleasesFileName)
 	}
 
 	sr.Changes.List = make(map[string][]string)
@@ -519,8 +519,8 @@ func (sr *SpecRelease) deployUpdatedReleases() error {
 	return sr.runCMD()
 }
 
-func (rc *ReleaseCommands) helmCommands(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (rc *ReleaseCommands) helmCommands(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          args,
 		Command:       "helm",
 		Ctx:           rc.Ctx.Context,
@@ -650,11 +650,11 @@ func (sr *SpecRelease) checkStatusRelease() error {
 
 func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -665,7 +665,7 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 		rc := &ReleaseCommands{
 			Conf:    conf,
 			Ctx:     c,
-			WorkDir: system.GetPwdPath(""),
+			WorkDir: util.GetPwdPath(""),
 		}
 
 		if !c.Bool("skip-context-switch") {
@@ -703,11 +703,11 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 
 func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -721,7 +721,7 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 		}{List: make(map[string][]string)}}}
 		sr.Conf = conf
 		sr.Ctx = c
-		sr.WorkDir = system.GetPwdPath("")
+		sr.WorkDir = util.GetPwdPath("")
 
 		if !c.Bool("skip-context-switch") {
 			if err := sr.releaseKubeContext(); err != nil {
@@ -740,11 +740,11 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 
 func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -755,7 +755,7 @@ func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.
 		sr := &SpecRelease{}
 		sr.Conf = conf
 		sr.Ctx = c
-		sr.WorkDir = system.GetPwdPath("")
+		sr.WorkDir = util.GetPwdPath("")
 
 		if !c.Bool("skip-context-switch") {
 			if err := sr.releaseKubeContext(); err != nil {

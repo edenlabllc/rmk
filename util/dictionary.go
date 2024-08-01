@@ -1,4 +1,4 @@
-package system
+package util
 
 const (
 	AWSClusterProvider         = "aws"

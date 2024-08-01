@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 	"rmk/config"
 	"rmk/git_handler"
 	"rmk/notification"
-	"rmk/system"
+	"rmk/util"
 )
 
 type ProjectCommands struct {
@@ -68,11 +68,11 @@ func newProjectCommand(conf *config.Config, ctx *cli.Context, workDir string) *P
 }
 
 func (p *ProjectCommands) readProjectFile() error {
-	if !system.IsExists(system.GetPwdPath(system.TenantProjectFile), true) {
-		return fmt.Errorf("%s file not found", system.GetPwdPath(system.TenantProjectFile))
+	if !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
+		return fmt.Errorf("%s file not found", util.GetPwdPath(util.TenantProjectFile))
 	}
 
-	data, err := os.ReadFile(system.GetPwdPath(system.TenantProjectFile))
+	data, err := os.ReadFile(util.GetPwdPath(util.TenantProjectFile))
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (p *ProjectCommands) serializeProjectFile() ([]byte, error) {
 			count++
 			zap.S().Infof("version changed for dependency %s, affected file: %s",
 				pkg.Name,
-				system.GetPwdPath(system.TenantProjectFile))
+				util.GetPwdPath(util.TenantProjectFile))
 			break
 		}
 	}
@@ -137,13 +137,13 @@ func (p *ProjectCommands) updateProjectFile(gitSpec *git_handler.GitSpec) error 
 	}
 
 	if data != nil {
-		if err := os.WriteFile(system.GetPwdPath(system.TenantProjectFile), data, 0644); err != nil {
+		if err := os.WriteFile(util.GetPwdPath(util.TenantProjectFile), data, 0644); err != nil {
 			return err
 		}
 
 		if !p.Ctx.Bool("skip-commit") {
 			if err := gitSpec.GitCommitPush(
-				system.GetPwdPath(system.TenantProjectFile),
+				util.GetPwdPath(util.TenantProjectFile),
 				p.genMsgCommit(), p.Conf.GitHubToken); err != nil {
 				return err
 			}
@@ -151,7 +151,7 @@ func (p *ProjectCommands) updateProjectFile(gitSpec *git_handler.GitSpec) error 
 
 		tmp := &notification.TmpUpdate{Config: p.Conf, Context: p.Ctx}
 		tmp.ChangesList = append(tmp.ChangesList, p.Ctx.String("dependency"))
-		tmp.PathToFile = system.TenantProjectFile
+		tmp.PathToFile = util.TenantProjectFile
 		if err := notification.SlackInit(tmp,
 			notification.SlackTmp(tmp).TmpProjectUpdateMsg()).SlackDeclareNotify(); err != nil {
 			return err
@@ -162,7 +162,7 @@ func (p *ProjectCommands) updateProjectFile(gitSpec *git_handler.GitSpec) error 
 }
 
 func (p *ProjectCommands) writeProjectFiles(path, data string) error {
-	if system.IsExists(path, true) {
+	if util.IsExists(path, true) {
 		zap.S().Warnf("file %s already exists", path)
 		return nil
 	}
@@ -188,7 +188,7 @@ func (p *ProjectCommands) generateReadme(gitSpec *git_handler.GitSpec) error {
 		return err
 	}
 
-	if err := p.writeProjectFiles(system.GetPwdPath(system.ReadmeFileName), readmeF); err != nil {
+	if err := p.writeProjectFiles(util.GetPwdPath(util.ReadmeFileName), readmeF); err != nil {
 		return err
 	}
 
@@ -235,7 +235,7 @@ func (p *ProjectCommands) generateHelmfile() error {
 
 	p.HelmfileParts = append(p.HelmfileParts, hReleases)
 
-	if err := p.writeProjectFiles(system.GetPwdPath(system.HelmfileGoTmplName), strings.Join(p.HelmfileParts, "\n")); err != nil {
+	if err := p.writeProjectFiles(util.GetPwdPath(util.HelmfileGoTmplName), strings.Join(p.HelmfileParts, "\n")); err != nil {
 		return err
 	}
 
@@ -247,11 +247,11 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 		for _, env := range sc.environments {
 			switch sc.name {
 			case "clusters":
-				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, system.TerraformVarsFile), clusterVariables); err != nil {
+				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, util.TerraformVarsFile), clusterVariables); err != nil {
 					return err
 				}
 
-				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, system.TerraformWGFile), clusterWorkerGroups); err != nil {
+				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, util.TerraformWGFile), clusterWorkerGroups); err != nil {
 					return err
 				}
 			case p.TenantName:
@@ -278,7 +278,7 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 					return err
 				}
 
-				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, system.SecretSpecFile), tSecretSpec); err != nil {
+				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, util.SecretSpecFile), tSecretSpec); err != nil {
 					return err
 				}
 
@@ -294,24 +294,24 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 					return err
 				}
 
-				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, system.SecretSpecFile), secretSpecFile); err != nil {
+				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, util.SecretSpecFile), secretSpecFile); err != nil {
 					return err
 				}
 			}
 
 			if sc.name != "clusters" {
-				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, system.SopsConfigFile), sopsConfigFile); err != nil {
+				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, util.SopsConfigFile), sopsConfigFile); err != nil {
 					return err
 				}
 			}
 		}
 	}
 
-	if err := p.writeProjectFiles(system.GetPwdPath(system.TenantProjectGitIgn), gitignore); err != nil {
+	if err := p.writeProjectFiles(util.GetPwdPath(util.TenantProjectGitIgn), gitignore); err != nil {
 		return err
 	}
 
-	if err := p.writeProjectFiles(system.GetPwdPath(system.TenantProjectCodeOwners), p.owners); err != nil {
+	if err := p.writeProjectFiles(util.GetPwdPath(util.TenantProjectCodeOwners), p.owners); err != nil {
 		return err
 	}
 
@@ -342,16 +342,16 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 	}
 
 	if reflect.ValueOf(p.projectFile.Spec).IsZero() {
-		return fmt.Errorf("'spec' option required in %s", system.TenantProjectFile)
+		return fmt.Errorf("'spec' option required in %s", util.TenantProjectFile)
 	}
 
 	switch {
 	case len(p.projectFile.Spec.Scopes) == 0 && len(p.projectFile.Spec.Environments) > 0:
-		return fmt.Errorf("'scopes' option required, if 'environments' specified in %s", system.TenantProjectFile)
+		return fmt.Errorf("'scopes' option required, if 'environments' specified in %s", util.TenantProjectFile)
 	case len(p.projectFile.Spec.Scopes) > 0 && len(p.projectFile.Spec.Environments) == 0:
-		return fmt.Errorf("'environments' option required, if 'scopes' specified in %s", system.TenantProjectFile)
+		return fmt.Errorf("'environments' option required, if 'scopes' specified in %s", util.TenantProjectFile)
 	case len(p.projectFile.Spec.Scopes) == 0 && len(p.projectFile.Spec.Environments) == 0:
-		return fmt.Errorf("'scopes', 'environments' options required in %s", system.TenantProjectFile)
+		return fmt.Errorf("'scopes', 'environments' options required in %s", util.TenantProjectFile)
 	}
 
 	for sKey, sc := range p.projectFile.Spec.Scopes {
@@ -360,18 +360,18 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 		for _, env := range p.projectFile.Spec.Environments {
 			if sc == "clusters" {
 				p.scopes[sKey].environments[env] = &environment{
-					secretsPath: system.GetPwdPath(system.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "secrets"),
-					valuesPath:  system.GetPwdPath(system.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "values"),
+					secretsPath: util.GetPwdPath(util.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "secrets"),
+					valuesPath:  util.GetPwdPath(util.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "values"),
 				}
 
 				continue
 			}
 
 			p.scopes[sKey].environments[env] = &environment{
-				globalsPath:  system.GetPwdPath(system.TenantValuesDIR, sc, env, system.GlobalsFileName),
-				releasesPath: system.GetPwdPath(system.TenantValuesDIR, sc, env, system.ReleasesFileName),
-				secretsPath:  system.GetPwdPath(system.TenantValuesDIR, sc, env, "secrets"),
-				valuesPath:   system.GetPwdPath(system.TenantValuesDIR, sc, env, "values"),
+				globalsPath:  util.GetPwdPath(util.TenantValuesDIR, sc, env, util.GlobalsFileName),
+				releasesPath: util.GetPwdPath(util.TenantValuesDIR, sc, env, util.ReleasesFileName),
+				secretsPath:  util.GetPwdPath(util.TenantValuesDIR, sc, env, "secrets"),
+				valuesPath:   util.GetPwdPath(util.TenantValuesDIR, sc, env, "values"),
 			}
 		}
 	}
@@ -388,7 +388,7 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 		}
 	}
 
-	if err := os.MkdirAll(system.GetPwdPath("docs"), 0755); err != nil {
+	if err := os.MkdirAll(util.GetPwdPath("docs"), 0755); err != nil {
 		return err
 	}
 
@@ -397,7 +397,7 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 	}
 
 	if p.Ctx.Bool("create-sops-age-keys") {
-		if err := newSecretCommands(p.Conf, p.Ctx, system.GetPwdPath()).CreateKeys(); err != nil {
+		if err := newSecretCommands(p.Conf, p.Ctx, util.GetPwdPath()).CreateKeys(); err != nil {
 			return err
 		}
 	}
@@ -407,15 +407,15 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 
 func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := newProjectCommand(conf, c, system.GetPwdPath()).generateProject(gitSpec); err != nil {
+		if err := newProjectCommand(conf, c, util.GetPwdPath()).generateProject(gitSpec); err != nil {
 			return err
 		}
 
@@ -425,14 +425,14 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 
 func projectUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return newProjectCommand(conf, c, system.GetPwdPath()).updateProjectFile(gitSpec)
+		return newProjectCommand(conf, c, util.GetPwdPath()).updateProjectFile(gitSpec)
 	}
 }

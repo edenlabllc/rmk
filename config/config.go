@@ -17,8 +17,8 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
-	"rmk/aws_provider"
-	"rmk/system"
+	"rmk/providers/aws_provider"
+	"rmk/util"
 )
 
 type Config struct {
@@ -109,7 +109,7 @@ type Terraform struct {
 
 func (conf *Config) InitConfig(terraformOutput bool) *Config {
 	conf.ProjectFile = ProjectFile{}
-	if err := conf.ReadProjectFile(system.GetPwdPath(system.TenantProjectFile)); err != nil {
+	if err := conf.ReadProjectFile(util.GetPwdPath(util.TenantProjectFile)); err != nil {
 		zap.S().Fatal(err)
 	}
 
@@ -143,7 +143,7 @@ func (conf *Config) SerializeJsonConfig() ([]byte, error) {
 
 func (conf *Config) GetConfigs(all bool) error {
 	var tenantPattern string
-	configsPath := system.GetHomePath(system.RMKDir, system.RMKConfig)
+	configsPath := util.GetHomePath(util.RMKDir, util.RMKConfig)
 
 	if all {
 		tenantPattern = ""
@@ -151,7 +151,7 @@ func (conf *Config) GetConfigs(all bool) error {
 		tenantPattern = conf.Tenant
 	}
 
-	match, err := system.WalkMatch(configsPath, tenantPattern+"*.yaml")
+	match, err := util.WalkMatch(configsPath, tenantPattern+"*.yaml")
 	if err != nil {
 		return err
 	}
@@ -164,14 +164,14 @@ func (conf *Config) GetConfigs(all bool) error {
 }
 
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
-	hostedZoneVar := system.TerraformVarsPrefix + system.TerraformVarHostedZoneName
+	hostedZoneVar := util.TerraformVarsPrefix + util.TerraformVarHostedZoneName
 	if !c.IsSet("root-domain") {
 		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName.(string)) > 0 {
 			if err := c.Set("root-domain", hostedZoneName.(string)); err != nil {
 				return err
 			}
 		} else {
-			if err := c.Set("root-domain", gitSpecID+system.TenantDomainSuffix); err != nil {
+			if err := c.Set("root-domain", gitSpecID+util.TenantDomainSuffix); err != nil {
 				return err
 			}
 		}
@@ -221,12 +221,12 @@ func (conf *Config) GetTerraformOutputs() error {
 	}
 
 	for key := range outputs {
-		if strings.Contains(key, system.TerraformVarsPrefix) {
+		if strings.Contains(key, util.TerraformVarsPrefix) {
 			if err := json.Unmarshal(*outputs[key], &getVar); err != nil {
 				return err
 			}
 
-			envKey := strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))
+			envKey := strings.ToUpper(strings.ReplaceAll(key, util.TerraformVarsPrefix, ""))
 
 			switch {
 			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
@@ -370,7 +370,7 @@ func (conf *Config) ReadConfigFile(path string) error {
 }
 
 func (conf *Config) CreateConfigFile() error {
-	if err := os.MkdirAll(system.GetHomePath(system.RMKDir, system.RMKConfig), 0755); err != nil {
+	if err := os.MkdirAll(util.GetHomePath(util.RMKDir, util.RMKConfig), 0755); err != nil {
 		return err
 	}
 
@@ -379,5 +379,5 @@ func (conf *Config) CreateConfigFile() error {
 		return err
 	}
 
-	return os.WriteFile(system.GetHomePath(system.RMKDir, system.RMKConfig, conf.Name+".yaml"), data, 0644)
+	return os.WriteFile(util.GetHomePath(util.RMKDir, util.RMKConfig, conf.Name+".yaml"), data, 0644)
 }

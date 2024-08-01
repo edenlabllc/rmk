@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"rmk/config"
-	"rmk/system"
+	"rmk/util"
 )
 
 type StateRunner interface {
@@ -22,7 +22,7 @@ type StateRunner interface {
 type ClusterCommands struct {
 	Conf     *config.Config
 	Ctx      *cli.Context
-	SpecCMDs []*system.SpecCMD
+	SpecCMDs []*util.SpecCMD
 	PlanFile string
 	WorkDir  string
 }
@@ -37,8 +37,8 @@ func (cc *ClusterCommands) clusterRootDir() (string, error) {
 	return "", fmt.Errorf("destination path for cluster provider %s not found", cc.Conf.ClusterProvider)
 }
 
-func (cc *ClusterCommands) awsEks() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) awsEks() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args: []string{"eks", "--region",
 			cc.Conf.Region,
 			"update-kubeconfig",
@@ -93,7 +93,7 @@ func (cc *ClusterCommands) runBatchCMD() error {
 	return nil
 }
 
-func (cc *ClusterCommands) initialize() *system.SpecCMD {
+func (cc *ClusterCommands) initialize() *util.SpecCMD {
 	args := []string{
 		"init",
 		"-backend=true",
@@ -106,7 +106,7 @@ func (cc *ClusterCommands) initialize() *system.SpecCMD {
 	}
 
 	args = append(args, "-reconfigure")
-	return &system.SpecCMD{
+	return &util.SpecCMD{
 		Args:    args,
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -115,8 +115,8 @@ func (cc *ClusterCommands) initialize() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) validate() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) validate() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    []string{"validate"},
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -125,8 +125,8 @@ func (cc *ClusterCommands) validate() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) workspace(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) workspace(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    append([]string{"workspace"}, args...),
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -135,8 +135,8 @@ func (cc *ClusterCommands) workspace(args ...string) *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) output(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) output(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          append([]string{"output"}, args...),
 		Command:       "terraform",
 		Ctx:           cc.Ctx.Context,
@@ -146,8 +146,8 @@ func (cc *ClusterCommands) output(args ...string) *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) destroy() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) destroy() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args: []string{"destroy", "-auto-approve",
 			"-var=aws_account_id=" + cc.Conf.AccountID,
 			"-var=cloudflare_api_token=" + cc.Conf.CloudflareToken,
@@ -164,8 +164,8 @@ func (cc *ClusterCommands) destroy() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) plan() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) plan() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args: []string{
 			"plan",
 			"-out=" + cc.PlanFile,
@@ -184,8 +184,8 @@ func (cc *ClusterCommands) plan() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) apply() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) apply() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    []string{"apply", cc.PlanFile},
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -194,8 +194,8 @@ func (cc *ClusterCommands) apply() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) listResources() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) listResources() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    []string{"state", "list"},
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -204,8 +204,8 @@ func (cc *ClusterCommands) listResources() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) refresh() *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) refresh() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args: []string{"refresh",
 			"-var=aws_account_id=" + cc.Conf.AccountID,
 			"-var=cloudflare_api_token=" + cc.Conf.CloudflareToken,
@@ -222,8 +222,8 @@ func (cc *ClusterCommands) refresh() *system.SpecCMD {
 	}
 }
 
-func (cc *ClusterCommands) state(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (cc *ClusterCommands) state(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    append([]string{"state"}, args...),
 		Command: "terraform",
 		Ctx:     cc.Ctx.Context,
@@ -251,9 +251,9 @@ func (cc *ClusterCommands) clusterDestroy() error {
 
 		destroy := cc.destroy()
 
-		match, err := system.WalkMatch(
-			system.GetPwdPath(system.TenantValuesDIR, "clusters", system.AWSClusterProvider, cc.Conf.Environment),
-			"*."+system.TerraformVarsExt,
+		match, err := util.WalkMatch(
+			util.GetPwdPath(util.TenantValuesDIR, "clusters", util.AWSClusterProvider, cc.Conf.Environment),
+			"*."+util.TerraformVarsExt,
 		)
 		if err != nil {
 			return err
@@ -267,7 +267,7 @@ func (cc *ClusterCommands) clusterDestroy() error {
 			return err
 		}
 
-		cc.SpecCMDs = append([]*system.SpecCMD{}, destroy, cc.workspace("select", "default"),
+		cc.SpecCMDs = append([]*util.SpecCMD{}, destroy, cc.workspace("select", "default"),
 			cc.workspace("delete", cc.Conf.Name))
 
 		return cc.runBatchCMD()
@@ -283,7 +283,7 @@ func (cc *ClusterCommands) clusterList() error {
 }
 
 func (cc *ClusterCommands) clusterProvision() error {
-	var workspace *system.SpecCMD
+	var workspace *util.SpecCMD
 
 	if err := os.MkdirAll(filepath.Join(cc.WorkDir, "plans"), 0755); err != nil {
 		zap.S().Fatal(err)
@@ -302,9 +302,9 @@ func (cc *ClusterCommands) clusterProvision() error {
 
 	plan := cc.plan()
 
-	match, err := system.WalkMatch(
-		system.GetPwdPath(system.TenantValuesDIR, "clusters", system.AWSClusterProvider, cc.Conf.Environment),
-		"*."+system.TerraformVarsExt,
+	match, err := util.WalkMatch(
+		util.GetPwdPath(util.TenantValuesDIR, "clusters", util.AWSClusterProvider, cc.Conf.Environment),
+		"*."+util.TerraformVarsExt,
 	)
 
 	for _, val := range match {
@@ -324,7 +324,7 @@ func (cc *ClusterCommands) clusterProvision() error {
 	rc := &ReleaseCommands{
 		Conf:          cc.Conf,
 		Ctx:           cc.Ctx,
-		WorkDir:       system.GetPwdPath(""),
+		WorkDir:       util.GetPwdPath(""),
 		UpdateContext: true,
 	}
 
@@ -344,7 +344,7 @@ func (cc *ClusterCommands) clusterStateList() error {
 }
 
 func (cc *ClusterCommands) clusterStateRefresh() error {
-	var workspace *system.SpecCMD
+	var workspace *util.SpecCMD
 
 	checkWorkspace, err := cc.Conf.BucketKeyExists("", cc.Conf.Terraform.BucketName, "env:/"+cc.Conf.Name+"/tf.tfstate")
 	if err != nil {
@@ -358,9 +358,9 @@ func (cc *ClusterCommands) clusterStateRefresh() error {
 	}
 
 	refresh := cc.refresh()
-	match, err := system.WalkMatch(
-		system.GetPwdPath(system.TenantValuesDIR, "clusters", system.AWSClusterProvider, cc.Conf.Environment),
-		"*."+system.TerraformVarsExt,
+	match, err := util.WalkMatch(
+		util.GetPwdPath(util.TenantValuesDIR, "clusters", util.AWSClusterProvider, cc.Conf.Environment),
+		"*."+util.TerraformVarsExt,
 	)
 	if err != nil {
 		return err
@@ -377,11 +377,11 @@ func (cc *ClusterCommands) clusterStateRefresh() error {
 
 func clusterDestroyAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -408,11 +408,11 @@ func clusterDestroyAction(conf *config.Config) cli.ActionFunc {
 
 func clusterListAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -437,11 +437,11 @@ func clusterListAction(conf *config.Config) cli.ActionFunc {
 
 func clusterProvisionAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -476,11 +476,11 @@ func clusterProvisionAction(conf *config.Config) cli.ActionFunc {
 
 func clusterStateAction(conf *config.Config, action func(stateRunner StateRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -505,11 +505,11 @@ func clusterStateAction(conf *config.Config, action func(stateRunner StateRunner
 
 func clusterSwitchAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -520,7 +520,7 @@ func clusterSwitchAction(conf *config.Config) cli.ActionFunc {
 		rc := &ReleaseCommands{
 			Conf:          conf,
 			Ctx:           c,
-			WorkDir:       system.GetPwdPath(""),
+			WorkDir:       util.GetPwdPath(""),
 			UpdateContext: c.Bool("force"),
 		}
 

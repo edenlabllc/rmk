@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"sort"
@@ -7,10 +7,10 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 	"go.uber.org/zap"
 
-	"rmk/aws_provider"
 	"rmk/config"
 	"rmk/git_handler"
-	"rmk/system"
+	"rmk/providers/aws_provider"
+	"rmk/util"
 )
 
 type Flags map[string][]cli.Flag
@@ -57,7 +57,7 @@ func Commands() []*cli.Command {
 				{
 					Name:        "zsh",
 					Usage:       "View Zsh completion scripts",
-					Description: system.CompletionZshDescription,
+					Description: util.CompletionZshDescription,
 					Aliases:     []string{"z"},
 					Category:    "completion",
 					Action:      completionAction(),
@@ -84,7 +84,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "config",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       configDeleteAction(conf),
 				},
 				{
@@ -93,7 +93,7 @@ func Commands() []*cli.Command {
 					Aliases:      []string{"l"},
 					Flags:        flags["configList"],
 					Category:     "config",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       configListAction(conf, gitSpec),
 				},
 				{
@@ -103,7 +103,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "config",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       configViewAction(conf),
 				},
 			},
@@ -124,7 +124,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterCRLogin"]),
 							Flags:        flags["clusterCRLogin"],
 							Category:     "container-registry",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       containerRegistryAction(conf, DockerRunner.dockerLogin),
 						},
 						{
@@ -133,7 +133,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "container-registry",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       containerRegistryAction(conf, DockerRunner.dockerLogout),
 						},
 					},
@@ -145,7 +145,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "cluster",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       clusterDestroyAction(conf),
 				},
 				{
@@ -155,7 +155,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "cluster",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       clusterListAction(conf),
 				},
 				{
@@ -171,7 +171,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterK3DCreate"]),
 							Flags:        flags["clusterK3DCreate"],
 							Category:     "k3d",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DCreateAction(conf),
 						},
 						{
@@ -181,7 +181,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "k3d",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DAction(conf, K3DRunner.createDeleteK3DCluster),
 						},
 						{
@@ -191,7 +191,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterK3DImport"]),
 							Flags:        flags["clusterK3DImport"],
 							Category:     "k3d",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DAction(conf, K3DRunner.importImageToK3DCluster),
 						},
 						{
@@ -201,7 +201,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "k3d",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DAction(conf, K3DRunner.listK3DClusters),
 						},
 						{
@@ -210,7 +210,7 @@ func Commands() []*cli.Command {
 							Aliases:      []string{"s"},
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Category:     "k3d",
 							Action:       K3DAction(conf, K3DRunner.startStopK3DCluster),
 						},
@@ -220,7 +220,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "k3d",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DAction(conf, K3DRunner.startStopK3DCluster),
 						},
 					},
@@ -232,7 +232,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterPlan"]),
 					Flags:        flags["clusterPlan"],
 					Category:     "cluster",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       clusterProvisionAction(conf),
 				},
 				{
@@ -248,7 +248,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterStateDelete"]),
 							Flags:        flags["clusterStateDelete"],
 							Category:     "state",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       clusterStateAction(conf, StateRunner.clusterStateDelete),
 						},
 						{
@@ -258,7 +258,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "state",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       clusterStateAction(conf, StateRunner.clusterStateList),
 						},
 						{
@@ -268,7 +268,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "state",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       clusterStateAction(conf, StateRunner.clusterStateRefresh),
 						},
 					},
@@ -280,7 +280,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterSwitch"]),
 					Flags:        flags["clusterSwitch"],
 					Category:     "cluster",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       clusterSwitchAction(conf),
 				},
 			},
@@ -309,7 +309,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["projectGenerate"]),
 					Flags:        flags["projectGenerate"],
 					Category:     "project",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       projectGenerateAction(conf, gitSpec),
 				},
 				{
@@ -319,7 +319,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["projectUpdate"]),
 					Flags:        flags["projectUpdate"],
 					Category:     "project",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       projectUpdateAction(conf, gitSpec),
 				},
 			},
@@ -335,7 +335,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfile"]),
 					Flags:        flags["releaseHelmfile"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),
 				},
 				{
@@ -345,7 +345,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfile"]),
 					Flags:        flags["releaseHelmfileWithOutput"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),
 				},
 				{
@@ -355,7 +355,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfileWithOutput"]),
 					Flags:        flags["releaseHelmfileWithOutput"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),
 				},
 				{
@@ -365,7 +365,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseRollback"]),
 					Flags:        flags["releaseRollback"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseRollbackAction(conf),
 				},
 				{
@@ -375,7 +375,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfile"]),
 					Flags:        flags["releaseHelmfile"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),
 				},
 				{
@@ -385,7 +385,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfile"]),
 					Flags:        flags["releaseHelmfile"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),
 				},
 				{
@@ -395,7 +395,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseUpdate"]),
 					Flags:        flags["releaseUpdate"],
 					Category:     "release",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseUpdateAction(conf, gitSpec),
 				},
 			},
@@ -417,7 +417,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["secretManager"]),
 							Flags:        flags["secretManager"],
 							Category:     "manager",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretMgrEncryptDecryptAction(conf),
 						},
 						{
@@ -427,7 +427,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["secretManager"]),
 							Flags:        flags["secretManager"],
 							Category:     "manager",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretMgrEncryptDecryptAction(conf),
 						},
 						{
@@ -437,7 +437,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["secretGenerate"]),
 							Flags:        flags["secretGenerate"],
 							Category:     "manager",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretMgrGenerateAction(conf),
 						},
 					},
@@ -455,7 +455,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "keys",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretKeysCreateAction(conf),
 						},
 						{
@@ -465,7 +465,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "keys",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretKeysDownloadAction(conf),
 						},
 						{
@@ -475,7 +475,7 @@ func Commands() []*cli.Command {
 							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 							Flags:        flags["hidden"],
 							Category:     "keys",
-							BashComplete: system.ShellCompleteCustomOutput,
+							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       secretKeysUploadAction(conf),
 						},
 					},
@@ -487,7 +487,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "secret",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       secretAction(conf, SecretRunner.helmSecretsEncrypt),
 				},
 				{
@@ -497,7 +497,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "secret",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       secretAction(conf, SecretRunner.helmSecretsDecrypt),
 				},
 				{
@@ -507,7 +507,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "secret",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       secretAction(conf, SecretRunner.helmSecretsView),
 				},
 				{
@@ -516,7 +516,7 @@ func Commands() []*cli.Command {
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
 					Flags:        flags["hidden"],
 					Category:     "secret",
-					BashComplete: system.ShellCompleteCustomOutput,
+					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       secretAction(conf, SecretRunner.helmSecretsEdit),
 				},
 			},
@@ -525,7 +525,7 @@ func Commands() []*cli.Command {
 			Name:         "update",
 			Usage:        "Update RMK CLI to a new version",
 			Flags:        flags["update"],
-			BashComplete: system.ShellCompleteCustomOutput,
+			BashComplete: util.ShellCompleteCustomOutput,
 			Action:       updateAction(),
 		},
 	}
@@ -537,7 +537,7 @@ func initInputSourceWithContext(gitSpec *git_handler.GitSpec, flags []cli.Flag) 
 			return err
 		}
 
-		return inputSourceContext(ctx, flags, system.GetHomePath(system.RMKDir, system.RMKConfig, gitSpec.ID+".yaml"))
+		return inputSourceContext(ctx, flags, util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml"))
 	}
 }
 
@@ -547,9 +547,9 @@ func readInputSourceWithContext(gitSpec *git_handler.GitSpec, conf *config.Confi
 			return err
 		}
 
-		configPath := system.GetHomePath(system.RMKDir, system.RMKConfig, gitSpec.ID+".yaml")
+		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
 		if err := conf.ReadConfigFile(configPath); err != nil {
-			zap.S().Errorf(system.ConfigNotInitializedErrorText)
+			zap.S().Errorf(util.ConfigNotInitializedErrorText)
 			return err
 		}
 
@@ -568,7 +568,7 @@ func inputSourceContext(ctx *cli.Context, flags []cli.Flag, configPath string) e
 			return nil, err
 		}
 
-		if system.IsExists(configPath, true) {
+		if util.IsExists(configPath, true) {
 			return altsrc.NewYamlSourceFromFile(configPath)
 		} else {
 			return &altsrc.MapInputSource{}, nil

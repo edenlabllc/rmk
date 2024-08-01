@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"rmk/config"
-	"rmk/system"
+	"rmk/util"
 )
 
 type DockerRunner interface {
@@ -24,8 +24,8 @@ func newCRCommands(conf *config.Config, ctx *cli.Context, workDir string) *CRCom
 	return &CRCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
 }
 
-func (cr *CRCommands) docker(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (cr *CRCommands) docker(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          append([]string{}, args...),
 		Command:       "docker",
 		Dir:           cr.WorkDir,
@@ -78,14 +78,14 @@ func (cr *CRCommands) dockerLogout() error {
 
 func containerRegistryAction(conf *config.Config, action func(dockerRunner DockerRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return action(newCRCommands(conf, c, system.GetPwdPath("")))
+		return action(newCRCommands(conf, c, util.GetPwdPath("")))
 	}
 }

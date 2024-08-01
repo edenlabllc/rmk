@@ -1,9 +1,10 @@
-package commands
+package cmd
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +15,7 @@ import (
 
 	"rmk/config"
 	"rmk/git_handler"
-	"rmk/system"
+	"rmk/util"
 )
 
 type ConfigCommands struct {
@@ -25,8 +26,8 @@ func newConfigCommands(conf *config.Config, ctx *cli.Context, workDir string) *C
 	return &ConfigCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
 }
 
-func (c *ConfigCommands) awsConfigure(profile string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (c *ConfigCommands) awsConfigure(profile string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args: []string{"configure", "--profile", profile},
 		Envs: []string{
 			"AWS_CONFIG_FILE=" + strings.Join(c.Conf.AWSSharedConfigFile(profile), ""),
@@ -39,8 +40,8 @@ func (c *ConfigCommands) awsConfigure(profile string) *system.SpecCMD {
 	}
 }
 
-func (c *ConfigCommands) helmPlugin() *system.SpecCMD {
-	return &system.SpecCMD{
+func (c *ConfigCommands) helmPlugin() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          []string{"plugin"},
 		Command:       "helm",
 		Dir:           c.WorkDir,
@@ -50,13 +51,13 @@ func (c *ConfigCommands) helmPlugin() *system.SpecCMD {
 	}
 }
 
-func (c *ConfigCommands) rmkConfigInit() *system.SpecCMD {
+func (c *ConfigCommands) rmkConfigInit() *util.SpecCMD {
 	exRMK, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 
-	return &system.SpecCMD{
+	return &util.SpecCMD{
 		Args:    []string{"config", "init"},
 		Command: exRMK,
 		Dir:     c.WorkDir,
@@ -201,42 +202,16 @@ func (c *ConfigCommands) copyAWSProfile(profile string) error {
 	return nil
 }
 
-func (c *ConfigCommands) uninstallHelmPlugin(plugin config.Package) error {
-	c.SpecCMD = c.helmPlugin()
-	c.SpecCMD.Args = append(c.SpecCMD.Args, "list")
-	plSemVer, _ := semver.NewVersion(plugin.Version)
-
-	if err := runner(c).runCMD(); err != nil {
-		return fmt.Errorf("get Helm plugin list failed: %s", c.SpecCMD.StderrBuf.String())
-	}
-
-	for _, v := range strings.Split(c.SpecCMD.StdoutBuf.String(), "\n") {
-		if strings.Contains(v, plugin.Name) && !strings.Contains(v, plSemVer.String()) {
-			zap.S().Infof("Helm plugin %s detect new version %s from config", plugin.Name, plugin.Version)
-			c.SpecCMD = c.helmPlugin()
-			c.SpecCMD.Args = append(c.SpecCMD.Args, "uninstall", plugin.Name)
-			if err := runner(c).runCMD(); err != nil {
-				return fmt.Errorf("Helm plugin %s uninstallation failed: \n%s",
-					plugin.Name, c.SpecCMD.StderrBuf.String())
-			}
-
-			break
-		}
-	}
-
-	return nil
-}
-
 func (c *ConfigCommands) installHelmPlugin(plugin config.Package, args ...string) error {
 	c.SpecCMD = c.helmPlugin()
 	c.SpecCMD.Args = append(c.SpecCMD.Args, args...)
 	if err := runner(c).runCMD(); err != nil {
-		if !strings.Contains(c.SpecCMD.StderrBuf.String(), system.HelmPluginExist) {
+		if !strings.Contains(c.SpecCMD.StderrBuf.String(), util.HelmPluginExist) {
 			return fmt.Errorf("Helm plugin %s installation failed: \n%s", plugin.Name, c.SpecCMD.StderrBuf.String())
 		}
 	}
 
-	if !strings.Contains(c.SpecCMD.StderrBuf.String(), system.HelmPluginExist) {
+	if !strings.Contains(c.SpecCMD.StderrBuf.String(), util.HelmPluginExist) {
 		zap.S().Infof("installing Helm plugin: %s", plugin.Name)
 	}
 
@@ -244,13 +219,59 @@ func (c *ConfigCommands) installHelmPlugin(plugin config.Package, args ...string
 }
 
 func (c *ConfigCommands) configHelmPlugins() error {
-	for _, plugin := range c.Conf.HelmPlugins {
-		if err := c.uninstallHelmPlugin(*plugin); err != nil {
-			return err
+	var (
+		helmPluginsUpdate    = make(map[string]*config.Package)
+		helmPluginsInstalled = make(map[string]*config.Package)
+	)
+
+	c.SpecCMD = c.helmPlugin()
+	c.SpecCMD.Args = append(c.SpecCMD.Args, "list")
+
+	if err := runner(c).runCMD(); err != nil {
+		return fmt.Errorf("get Helm plugin list failed: %s", c.SpecCMD.StderrBuf.String())
+	}
+
+	for _, val := range strings.Split(c.SpecCMD.StdoutBuf.String(), "\n")[1:] {
+		reg, _ := regexp.Compile(`\s+`)
+		plugin := strings.Split(reg.ReplaceAllString(val, "|"), "|")
+		if len(plugin) > 1 {
+			helmPluginsInstalled[plugin[0]] = &config.Package{
+				Name:    plugin[0],
+				Version: plugin[1],
+			}
+		}
+	}
+
+	for name, plugin := range c.Conf.HelmPlugins {
+		plSemVer, _ := semver.NewVersion(plugin.Version)
+		for _, pl := range helmPluginsInstalled {
+			plSV, _ := semver.NewVersion(pl.Version)
+			if pl.Name == plugin.Name && !plSemVer.Equal(plSV) {
+				helmPluginsUpdate[name] = plugin
+				break
+			}
+		}
+	}
+
+	for _, plugin := range helmPluginsUpdate {
+		zap.S().Infof("Helm plugin %s detect new version %s from %s", plugin.Name, plugin.Version, util.TenantProjectFile)
+		c.SpecCMD = c.helmPlugin()
+		c.SpecCMD.Args = append(c.SpecCMD.Args, "uninstall", plugin.Name)
+		if err := runner(c).runCMD(); err != nil {
+			return fmt.Errorf("Helm plugin %s uninstallation failed: \n%s",
+				plugin.Name, c.SpecCMD.StderrBuf.String())
 		}
 
 		if err := c.installHelmPlugin(*plugin, "install", plugin.Url, "--version="+plugin.Version); err != nil {
 			return err
+		}
+	}
+
+	for name, plugin := range c.Conf.HelmPlugins {
+		if _, ok := helmPluginsInstalled[name]; !ok {
+			if err := c.installHelmPlugin(*plugin, "install", plugin.Url, "--version="+plugin.Version); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -278,7 +299,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		}
 
 		// Reconfigure regular AWS profile
-		if err := newConfigCommands(conf, c, system.GetPwdPath("")).configAws(); err != nil {
+		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAws(); err != nil {
 			return err
 		}
 
@@ -308,14 +329,14 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		profile = conf.Profile
 
 		// Create new MFA profile
-		if err := newConfigCommands(conf, c, system.GetPwdPath("")).configAwsMFA(); err != nil {
+		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 			return err
 		}
 	}
 
 	if ok, err := conf.AwsConfigure.GetAwsConfigure(profile); err != nil && ok {
 		zap.S().Warnf("%s", err.Error())
-		if err := newConfigCommands(conf, c, system.GetPwdPath("")).configAws(); err != nil {
+		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAws(); err != nil {
 			return err
 		}
 
@@ -323,11 +344,11 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 			return err
 		}
 
-		if err := newConfigCommands(conf, c, system.GetPwdPath("")).configAwsMFA(); err != nil {
+		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 			return err
 		}
 	} else if !c.Bool("aws-reconfigure") {
-		if err := newConfigCommands(conf, c, system.GetPwdPath("")).configAwsMFA(); err != nil {
+		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 			return err
 		}
 	} else if !ok && err != nil {
@@ -339,7 +360,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 
 func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
 	if len(c.String("config-from-environment")) > 0 {
-		configPath := system.GetHomePath(system.RMKDir, system.RMKConfig,
+		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig,
 			gitSpec.RepoPrefixName+"-"+c.String("config-from-environment")+".yaml")
 
 		if err := conf.ReadConfigFile(configPath); err != nil {
@@ -369,7 +390,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 
 			// Copy MFA profile for current environment
 			conf.AwsConfigure.Profile = regularProfile
-			if err := newConfigCommands(conf, c, system.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
+			if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
 				return err
 			}
 		} else {
@@ -389,7 +410,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 			}
 
 			// Copy regular profile for current environment
-			if err := newConfigCommands(conf, c, system.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
+			if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
 				return err
 			}
 		}
@@ -410,11 +431,11 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		return nil
 	}
 
-	if err := system.ValidateArtifactModeDefault(c, "required parameter --github-token not set"); err != nil {
+	if err := util.ValidateArtifactModeDefault(c, "required parameter --github-token not set"); err != nil {
 		return err
 	}
 
-	if err := system.ValidateNArg(c, 0); err != nil {
+	if err := util.ValidateNArg(c, 0); err != nil {
 		return err
 	}
 
@@ -434,7 +455,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -498,7 +519,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 
 		conf.ArtifactMode = c.String("artifact-mode")
 		conf.ProgressBar = c.Bool("progress-bar")
-		conf.Terraform.BucketKey = system.TenantBucketKey
+		conf.Terraform.BucketKey = util.TenantBucketKey
 		conf.ClusterProvisionerSL = c.Bool("cluster-provisioner-state-locking")
 		conf.S3ChartsRepoRegion = c.String("s3-charts-repo-region")
 		conf.ClusterProvider = c.String("cluster-provider")
@@ -516,10 +537,10 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		//Formation of a unique bucket name, consisting of the prefix tenant of the repository,
 		//constant and the first 3 and last 2 numbers AWS account id
 		awsUID := conf.AccountID[0:3] + conf.AccountID[len(conf.AccountID)-2:]
-		conf.SopsAgeKeys = system.GetHomePath(system.RMKDir, system.SopsRootName, conf.Tenant+"-"+system.SopsRootName+"-"+awsUID)
-		conf.SopsBucketName = conf.Tenant + "-" + system.SopsRootName + "-" + awsUID
-		conf.Terraform.BucketName = conf.Tenant + "-" + system.TenantBucketName + "-" + awsUID
-		conf.Terraform.DDBTableName = system.TenantDDBTablePrefix + "-" + awsUID
+		conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+awsUID)
+		conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
+		conf.Terraform.BucketName = conf.Tenant + "-" + util.TenantBucketName + "-" + awsUID
+		conf.Terraform.DDBTableName = util.TenantDDBTablePrefix + "-" + awsUID
 
 		if err := conf.InitConfig(true).SetRootDomain(c, gitSpec.ID); err != nil {
 			return err
@@ -529,7 +550,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			return err
 		}
 
-		if conf.ClusterProvider == system.AWSClusterProvider {
+		if conf.ClusterProvider == util.AWSClusterProvider {
 			if conf.ClusterProvisionerSL {
 				// create dynamodb table for backend terraform
 				if err := conf.CreateDynamoDBTable(conf.Terraform.DDBTableName); err != nil {
@@ -560,7 +581,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 
 func configListAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
@@ -575,7 +596,7 @@ func configListAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 
 func configViewAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
