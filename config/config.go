@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
+	"rmk/git_handler"
 	"rmk/providers/aws_provider"
 	"rmk/util"
 )
@@ -142,22 +144,46 @@ func (conf *Config) SerializeJsonConfig() ([]byte, error) {
 }
 
 func (conf *Config) GetConfigs(all bool) error {
-	var tenantPattern string
+	var (
+		patternTenant  string
+		patternTaskNum *regexp.Regexp
+		patternSemVer  *regexp.Regexp
+		patternBranch  *regexp.Regexp
+	)
+
 	configsPath := util.GetHomePath(util.RMKDir, util.RMKConfig)
 
 	if all {
-		tenantPattern = ""
+		patternTenant = ""
 	} else {
-		tenantPattern = conf.Tenant
+		patternTenant = conf.Tenant
+
+		patternBranch = regexp.MustCompile(`^` + patternTenant +
+			`-(` + git_handler.DefaultDevelop + `|` + git_handler.DefaultStaging + `|` + git_handler.DefaultProduction + `)$`)
+		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(-[a-z]+)?$`)
+		patternTaskNum = regexp.MustCompile(`^` + patternTenant + `-[a-z]+-\d+$`)
 	}
 
-	match, err := util.WalkMatch(configsPath, tenantPattern+"*.yaml")
+	match, err := util.WalkMatch(configsPath, patternTenant+"*.yaml")
 	if err != nil {
 		return err
 	}
 
 	for _, val := range match {
-		fmt.Printf("- %s\n", strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val))))
+		rmkConfig := strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val)))
+
+		if all {
+			fmt.Printf("- %s\n", rmkConfig)
+		} else {
+			switch {
+			case patternBranch.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternSemVer.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternTaskNum.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			}
+		}
 	}
 
 	return nil

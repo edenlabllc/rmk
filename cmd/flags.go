@@ -10,6 +10,7 @@ import (
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
+		// TODO: will be deprecated
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "artifact-mode",
@@ -19,6 +20,7 @@ func flagsConfig() []cli.Flag {
 				Value:   util.ArtifactModeDefault,
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-host",
@@ -28,6 +30,7 @@ func flagsConfig() []cli.Flag {
 				Value:   util.AWSECRHost,
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-region",
@@ -37,6 +40,7 @@ func flagsConfig() []cli.Flag {
 				Value:   util.AWSECRRegion,
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-user-name",
@@ -63,11 +67,13 @@ func flagsConfig() []cli.Flag {
 			Usage:   "force AWS profile creation",
 			Aliases: []string{"r"},
 		},
+		// TODO: will be deprecated
 		&cli.BoolFlag{
 			Name:    "aws-reconfigure-artifact-license",
 			Usage:   "force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline",
 			Aliases: []string{"l"},
 		},
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "cluster-provisioner-state-locking",
@@ -101,6 +107,7 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
 		),
+		// TODO: will be transfer to cluster category
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "cloudflare-token",
@@ -109,6 +116,7 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_CLOUDFLARE_TOKEN"},
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "root-domain",
@@ -125,6 +133,7 @@ func flagsConfig() []cli.Flag {
 				Value:   true,
 			},
 		),
+		// TODO: will be deprecated
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "s3-charts-repo-region",
