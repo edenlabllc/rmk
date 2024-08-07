@@ -78,7 +78,7 @@ func (cr *CRCommands) dockerLogout() error {
 
 func containerRegistryAction(conf *config.Config, action func(dockerRunner DockerRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 

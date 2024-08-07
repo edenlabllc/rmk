@@ -37,10 +37,7 @@ and contains the following main sections:
         # Required, dependencies upstream project's repository version in `SemVer2` format, also can be a branch name or a commit hash.
         version: <SemVer2>
         # Required, dependencies upstream project's repository URL.
-        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
-        # Optional, if it is expected that the dependency will be downloaded as an artifact from another storage.
-        artifact-url: https://<owner>-{{.HelmfileTenant}}-artifacts-infra.s3.<region>.amazonaws.com/{{.Version}}/{{.HelmfileTenant}}-{{.Version}}.tar.gz
-    
+        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}    
     # Optional, needed if you want automatic generation of the project structure from scratch.
     spec:
       # Required, list of available environments of the project (Git branches). 
@@ -114,7 +111,6 @@ project:
     - name: deps.bootstrap.infra
       version: v2.17.0
       url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
-      artifact-url: https://edenlabllc-{{.HelmfileTenant}}-artifacts-infra.s3.eu-north-1.amazonaws.com/{{.Version}}/{{.HelmfileTenant}}-{{.Version}}.tar.gz
   spec:
     environments:
       - develop

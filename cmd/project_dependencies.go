@@ -37,16 +37,7 @@ type SpecDownload struct {
 	PkgName  string
 	Header   *http.Header
 	Type     string
-	Artifact *ArtifactSpec
 	rmOldDir bool
-}
-
-type ArtifactSpec struct {
-	BucketName string
-	Key        string
-	Region     string
-	Version    string
-	Url        string
 }
 
 type InventoryState struct {
@@ -107,139 +98,6 @@ func (s *SpecDownload) download(silent bool) error {
 	return s.downloadErrorHandler(
 		util.DownloadArtifact(s.PkgUrl, s.PkgDst, s.PkgName, s.Header, silent, s.Conf.ProgressBar, s.Ctx.Context),
 	)
-}
-
-func (s *SpecDownload) parseArtifactUrl() error {
-	u, err := url.Parse(s.Artifact.Url)
-	if err != nil {
-		return err
-	}
-
-	// This just check whether we are dealing with S3 or
-	// any other S3 compliant service. S3 has a predictable
-	// url as others do not
-	if strings.Contains(u.Host, "amazonaws.com") {
-		// Amazon S3 supports both virtual-hosted–style and path-style URLs to access a bucket, although path-style is deprecated
-		// In both cases few older regions supports dash-style region indication (s3-Region) even if AWS discourages their use.
-		// The same bucket could be reached with:
-		// bucket.s3.region.amazonaws.com/path
-		// bucket.s3-region.amazonaws.com/path
-		// s3.amazonaws.com/bucket/path
-		// s3-region.amazonaws.com/bucket/path
-
-		hostParts := strings.Split(u.Host, ".")
-		switch len(hostParts) {
-		// path-style
-		case 3:
-			// Parse the region out of the first part of the host
-			s.Artifact.Region = strings.TrimPrefix(strings.TrimPrefix(hostParts[0], "s3-"), "s3")
-			if s.Artifact.Region == "" {
-				s.Artifact.Region = "us-east-1"
-			}
-
-			pathParts := strings.SplitN(u.Path, "/", 3)
-			s.Artifact.BucketName = pathParts[1]
-			s.Artifact.Key = pathParts[2]
-		// vhost-style, dash region indication
-		case 4:
-			// Parse the region out of the first part of the host
-			s.Artifact.Region = strings.TrimPrefix(strings.TrimPrefix(hostParts[1], "s3-"), "s3")
-			if s.Artifact.Region == "" {
-				return fmt.Errorf("artifact URL is not valid S3 URL for dependency name: %s", s.PkgName)
-			}
-
-			pathParts := strings.SplitN(u.Path, "/", 2)
-			s.Artifact.BucketName = hostParts[0]
-			s.Artifact.Key = pathParts[1]
-		//vhost-style, dot region indication
-		case 5:
-			s.Artifact.Region = hostParts[2]
-			pathParts := strings.SplitN(u.Path, "/", 2)
-			s.Artifact.BucketName = hostParts[0]
-			s.Artifact.Key = pathParts[1]
-
-		}
-
-		if len(hostParts) < 3 && len(hostParts) > 5 {
-			return fmt.Errorf("artifact URL is not valid S3 URL for dependency name: %s", s.PkgName)
-		}
-
-		if len(strings.SplitN(s.Artifact.Key, "/", 2)) < 1 {
-			return fmt.Errorf("artifact URL is not valid S3 URL for dependency name %s, path does not contain SemVer2", s.PkgName)
-		}
-
-		s.Artifact.Version = strings.SplitN(s.Artifact.Key, "/", 2)[0]
-
-		_, err := semver.NewVersion(s.Artifact.Version)
-		if err != nil {
-			return fmt.Errorf("%s for dependency name: %s", err.Error(), s.PkgName)
-		}
-
-		return nil
-	} else {
-		return fmt.Errorf("artifact URL is not valid S3 compliant URL for dependency name: %s", s.PkgName)
-	}
-}
-
-func (s *SpecDownload) updateArtifact() error {
-	currentProfile := s.Conf.Profile
-	licenseProfile := s.Conf.Profile + "-license"
-
-	s.Conf.AwsConfigure.Profile = licenseProfile
-	if ok, err := s.Conf.GetAwsConfigure(licenseProfile); err != nil && ok {
-		zap.S().Warnf("%s", err.Error())
-		if err := newConfigCommands(s.Conf, s.Ctx, util.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-
-		if _, err := s.Conf.GetAwsConfigure(licenseProfile); err != nil {
-			return err
-		}
-	} else if s.Ctx.Bool("aws-reconfigure-artifact-license") {
-		if err := newConfigCommands(s.Conf, s.Ctx, util.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-	}
-
-	if err := s.parseArtifactUrl(); err != nil {
-		return err
-	}
-
-	if artVerExist, err := s.Conf.BucketKeyExists(s.Artifact.Region, s.Artifact.BucketName, s.Artifact.Key); err != nil || !artVerExist {
-		return err
-	}
-
-	if err := s.Conf.DownloadFromBucket(s.Artifact.Region, s.Artifact.BucketName, util.GetPwdPath(util.ArtifactDownloadDir), s.Artifact.Key); err != nil {
-		return err
-	}
-
-	s.Conf.AwsConfigure.Profile = currentProfile
-	if util.IsExists(s.PkgDst, false) {
-		if err := os.MkdirAll(s.PkgDst, 0777); err != nil {
-			return err
-		}
-	}
-
-	r, err := os.Open(filepath.Join(util.GetPwdPath(util.ArtifactDownloadDir), s.Artifact.Key))
-	if err != nil {
-		return err
-	}
-
-	if err := util.UnTar(s.PkgDst, "", r); err != nil {
-		return err
-	}
-
-	if util.IsExists(filepath.Join(s.PkgDst, util.TenantProjectDIR, "inventory"), false) {
-		if err := util.CopyDir(filepath.Join(s.PkgDst, util.TenantProjectDIR, "inventory"), util.GetPwdPath(util.TenantProjectDIR)); err != nil {
-			return err
-		}
-	}
-
-	if err := os.RemoveAll(util.GetPwdPath(util.ArtifactDownloadDir)); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // depsGC - deleting old deps dirs with not actual versions
@@ -563,26 +421,14 @@ func (s *SpecDownload) batchUpdate(pwd string, pkg config.Package, silent bool) 
 	s.PkgDst = filepath.Join(s.PkgDst, s.PkgName)
 	pkgExists := util.IsExists(s.PkgDst, false)
 	if !pkgExists {
-		if s.rmOldDir && s.Ctx.String("artifact-mode") != util.ArtifactModeOnline {
+		if s.rmOldDir {
 			if err := removeOldDir(pwd, pkg); err != nil {
 				return err
 			}
 		}
 
-		switch {
-		case s.Ctx.String("artifact-mode") == util.ArtifactModeOnline && len(pkg.ArtifactUrl) > 0:
-			if err := s.updateArtifact(); err != nil {
-				return err
-			}
-		case s.Ctx.String("artifact-mode") == util.ArtifactModeOnline && len(pkg.ArtifactUrl) == 0:
-			zap.S().Warnf("overriding %s component in inventory section "+
-				"%s file is not allowed when using %s artifact mode",
-				s.PkgName, util.TenantProjectFile, util.ArtifactModeOnline)
-			return nil
-		default:
-			if err := s.download(silent); err != nil {
-				return err
-			}
+		if err := s.download(silent); err != nil {
+			return err
 		}
 	}
 
@@ -593,8 +439,7 @@ func updateDependencies(conf *config.Config, ctx *cli.Context, silent bool) erro
 	pwd := util.GetPwdPath(TenantPrDependenciesDir)
 
 	for key, val := range conf.Dependencies {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd,
-			Artifact: &ArtifactSpec{Url: val.ArtifactUrl}, rmOldDir: true}
+		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, rmOldDir: true}
 		if err := spec.batchUpdate(pwd, val, silent); err != nil {
 			return err
 		}
@@ -623,7 +468,7 @@ func updateClusters(conf *config.Config, ctx *cli.Context, silent bool) error {
 	pwd := util.GetPwdPath(TenantPrInvClustersDir)
 
 	for key, val := range conf.Clusters {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, Artifact: &ArtifactSpec{}, rmOldDir: true}
+		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, rmOldDir: true}
 		if err := spec.batchUpdate(pwd, *val, silent); err != nil {
 			return err
 		}
@@ -638,7 +483,7 @@ func updateHooks(conf *config.Config, ctx *cli.Context, silent bool) error {
 	pwd := util.GetPwdPath(TenantPrInvHooksDir)
 
 	for key, val := range conf.HooksMapping {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, Artifact: &ArtifactSpec{}}
+		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd}
 		if err := spec.batchUpdate(pwd, *val.Package, silent); err != nil {
 			return err
 		}

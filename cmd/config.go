@@ -431,7 +431,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		return nil
 	}
 
-	if err := util.ValidateArtifactModeDefault(c, "required parameter --github-token not set"); err != nil {
+	if err := util.ValidateGitHubToken(c, "required parameter --github-token not set"); err != nil {
 		return err
 	}
 
@@ -517,11 +517,9 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			}
 		}
 
-		conf.ArtifactMode = c.String("artifact-mode")
 		conf.ProgressBar = c.Bool("progress-bar")
 		conf.Terraform.BucketKey = util.TenantBucketKey
 		conf.ClusterProvisionerSL = c.Bool("cluster-provisioner-state-locking")
-		conf.S3ChartsRepoRegion = c.String("s3-charts-repo-region")
 		conf.ClusterProvider = c.String("cluster-provider")
 		conf.AWSMFAProfile = c.String("aws-mfa-profile")
 		conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
@@ -571,6 +569,18 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			if err := conf.DownloadFromBucket("", conf.SopsBucketName, conf.SopsAgeKeys, conf.Tenant); err != nil {
 				return err
 			}
+
+			if err := resolveDependencies(conf.InitConfig(true), c, false); err != nil {
+				return err
+			}
+
+			zap.S().Infof("time spent on initialization: %.fs", time.Since(start).Seconds())
+
+			return nil
+		}
+
+		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+			return err
 		}
 
 		zap.S().Infof("time spent on initialization: %.fs", time.Since(start).Seconds())

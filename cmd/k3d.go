@@ -148,7 +148,7 @@ func (k *K3DCommands) startStopK3DCluster() error {
 
 func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -166,7 +166,7 @@ func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 
 func K3DAction(conf *config.Config, action func(k3dRunner K3DRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 

@@ -10,16 +10,6 @@ import (
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
-		// TODO: will be deprecated
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "artifact-mode",
-				Usage:   "choice of artifact usage model, available: none, online, offline",
-				Aliases: []string{"am"},
-				EnvVars: []string{"RMK_ARTIFACT_MODE"},
-				Value:   util.ArtifactModeDefault,
-			},
-		),
 		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -67,12 +57,6 @@ func flagsConfig() []cli.Flag {
 			Usage:   "force AWS profile creation",
 			Aliases: []string{"r"},
 		},
-		// TODO: will be deprecated
-		&cli.BoolFlag{
-			Name:    "aws-reconfigure-artifact-license",
-			Usage:   "force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline",
-			Aliases: []string{"l"},
-		},
 		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
@@ -116,6 +100,15 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_CLOUDFLARE_TOKEN"},
 			},
 		),
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Name:    "cluster-provider",
+				Usage:   "select cluster provider to provision clusters",
+				Aliases: []string{"cp"},
+				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
+				Value:   util.AWSClusterProvider,
+			},
+		),
 		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -131,25 +124,6 @@ func flagsConfig() []cli.Flag {
 				Usage:   "globally disable or enable progress bar for download process",
 				Aliases: []string{"p"},
 				Value:   true,
-			},
-		),
-		// TODO: will be deprecated
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "s3-charts-repo-region",
-				Usage:   "location constraint region of S3 charts repo",
-				Aliases: []string{"scrr"},
-				EnvVars: []string{"RMK_S3_CHARTS_REPO_REGION"},
-				Value:   util.S3ChartsRepoRegion,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "cluster-provider",
-				Usage:   "select cluster provider to provision clusters",
-				Aliases: []string{"cp"},
-				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   util.AWSClusterProvider,
 			},
 		),
 		altsrc.NewBoolFlag(
@@ -450,12 +424,6 @@ func flagsHidden() []cli.Flag {
 			Name:   "config",
 			Hidden: true,
 		},
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:   "artifact-mode",
-				Hidden: true,
-			},
-		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "github-token",

@@ -407,7 +407,7 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 
 func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -425,7 +425,7 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 
 func projectUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 

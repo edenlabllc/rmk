@@ -175,7 +175,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
 		// Needed to set the AWS region to force the connection session region for the helm S3 plugin,
 		// if AWS_DEFAULT_REGION and AWS_REGION cannot be trusted.
-		"HELM_S3_REGION="+rc.Conf.S3ChartsRepoRegion,
+		//"HELM_S3_REGION="+rc.Conf.S3ChartsRepoRegion,
 	)
 
 	if _, ok := rc.Conf.Env["ROOT_DOMAIN"]; ok {
@@ -201,12 +201,6 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		envs = append(envs, "K3D_CLUSTER="+strconv.FormatBool(rc.K3DCluster))
 	}
 
-	// needed if not used artifact mode
-	var sensKeyWords []string
-	if rc.Ctx.String("artifact-mode") == util.ArtifactModeDefault {
-		sensKeyWords = []string{rc.Conf.GitHubToken}
-	}
-
 	return &util.SpecCMD{
 		Args: append([]string{"--environment", rc.Conf.Environment, "--log-level",
 			rc.Ctx.String("helmfile-log-level")}, args...),
@@ -215,7 +209,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		Dir:          rc.WorkDir,
 		Envs:         envs,
 		Debug:        true,
-		SensKeyWords: sensKeyWords,
+		SensKeyWords: []string{rc.Conf.GitHubToken},
 	}
 }
 
@@ -231,7 +225,7 @@ func (rc *ReleaseCommands) kubeConfig() *util.SpecCMD {
 }
 
 func (rc *ReleaseCommands) releaseMiddleware() error {
-	if len(rc.Conf.Dependencies) == 0 && rc.Ctx.String("artifact-mode") == util.ArtifactModeDefault {
+	if len(rc.Conf.Dependencies) == 0 {
 		if err := os.RemoveAll(filepath.Join(rc.WorkDir, TenantPrDependenciesDir)); err != nil {
 			return err
 		}
@@ -650,7 +644,7 @@ func (sr *SpecRelease) checkStatusRelease() error {
 
 func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -703,7 +697,7 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 
 func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -740,7 +734,7 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 
 func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 

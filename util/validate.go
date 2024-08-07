@@ -6,8 +6,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func ValidateArtifactModeDefault(c *cli.Context, errorMsg string) error {
-	if c.String("artifact-mode") == ArtifactModeDefault && !c.IsSet("github-token") {
+func ValidateGitHubToken(c *cli.Context, errorMsg string) error {
+	if !c.IsSet("github-token") {
 		if errorMsg == "" {
 			return fmt.Errorf(ConfigNotInitializedErrorText)
 		} else {

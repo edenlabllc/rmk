@@ -379,7 +379,7 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 
 func secretMgrEncryptDecryptAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -406,7 +406,7 @@ func secretMgrGenerateAction(conf *config.Config) cli.ActionFunc {
 }
 func secretKeysCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -444,7 +444,7 @@ func secretKeysUploadAction(conf *config.Config) cli.ActionFunc {
 
 func secretAction(conf *config.Config, action func(secretRunner SecretRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 

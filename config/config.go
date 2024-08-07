@@ -28,11 +28,9 @@ type Config struct {
 	Tenant                     string   `yaml:"tenant,omitempty"`
 	Environment                string   `yaml:"environment,omitempty"`
 	ConfigFrom                 string   `yaml:"config-from,omitempty"`
-	ArtifactMode               string   `yaml:"artifact-mode,omitempty"`
 	RootDomain                 string   `yaml:"root-domain,omitempty"`
 	CloudflareToken            string   `yaml:"cloudflare-token,omitempty"`
 	GitHubToken                string   `yaml:"github-token,omitempty"`
-	S3ChartsRepoRegion         string   `yaml:"s3-charts-repo-region"`
 	ClusterProvider            string   `yaml:"cluster-provider"`
 	SlackNotifications         bool     `yaml:"slack-notifications"`
 	SlackWebHook               string   `yaml:"slack-webhook,omitempty"`
@@ -71,7 +69,6 @@ type Package struct {
 	Url            string   `yaml:"url,omitempty"`
 	Checksum       string   `yaml:"checksum,omitempty"`
 	Artifacts      []string `yaml:"-"`
-	ArtifactUrl    string   `yaml:"artifact-url,omitempty"`
 	HelmfileTenant string   `yaml:"-"`
 	OsLinux        string   `yaml:"os-linux,omitempty"`
 	OsMac          string   `yaml:"os-mac,omitempty"`
@@ -305,15 +302,6 @@ func (pf *ProjectFile) parseProjectFileData() error {
 
 	for key, dep := range pf.Dependencies {
 		pf.Dependencies[key].Url, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.Url)
-		if err != nil {
-			return err
-		}
-
-		if len(strings.Split(pf.Dependencies[key].Name, ".")) > 0 {
-			pf.Dependencies[key].HelmfileTenant = strings.Split(pf.Dependencies[key].Name, ".")[0]
-		}
-
-		pf.Dependencies[key].ArtifactUrl, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.ArtifactUrl)
 		if err != nil {
 			return err
 		}

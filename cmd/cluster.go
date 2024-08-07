@@ -377,7 +377,7 @@ func (cc *ClusterCommands) clusterStateRefresh() error {
 
 func clusterDestroyAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -408,7 +408,7 @@ func clusterDestroyAction(conf *config.Config) cli.ActionFunc {
 
 func clusterListAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -437,7 +437,7 @@ func clusterListAction(conf *config.Config) cli.ActionFunc {
 
 func clusterProvisionAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -476,7 +476,7 @@ func clusterProvisionAction(conf *config.Config) cli.ActionFunc {
 
 func clusterStateAction(conf *config.Config, action func(stateRunner StateRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
@@ -505,7 +505,7 @@ func clusterStateAction(conf *config.Config, action func(stateRunner StateRunner
 
 func clusterSwitchAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := util.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
 
