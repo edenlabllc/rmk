@@ -1,49 +1,42 @@
-package commands
+package cmd
 
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"rmk/git_handler"
-	"rmk/system"
+	"rmk/util"
 )
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "artifact-mode",
-				Usage:   "choice of artifact usage model, available: none, online, offline",
-				Aliases: []string{"am"},
-				EnvVars: []string{"RMK_ARTIFACT_MODE"},
-				Value:   system.ArtifactModeDefault,
-			},
-		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-host",
 				Usage:   "AWS ECR host",
 				Aliases: []string{"aeh"},
 				EnvVars: []string{"RMK_AWS_ECR_HOST"},
-				Value:   system.AWSECRHost,
+				Value:   util.AWSECRHost,
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-region",
 				Usage:   "AWS region for specific ECR host",
 				Aliases: []string{"aer"},
 				EnvVars: []string{"RMK_AWS_ECR_REGION"},
-				Value:   system.AWSECRRegion,
+				Value:   util.AWSECRRegion,
 			},
 		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "aws-ecr-user-name",
 				Usage:   "AWS ECR user name",
 				Aliases: []string{"aeun"},
 				EnvVars: []string{"RMK_AWS_ECR_USER_NAME"},
-				Value:   system.AWSECRUserName,
+				Value:   util.AWSECRUserName,
 			},
 		),
 		altsrc.NewStringFlag(
@@ -63,11 +56,7 @@ func flagsConfig() []cli.Flag {
 			Usage:   "force AWS profile creation",
 			Aliases: []string{"r"},
 		},
-		&cli.BoolFlag{
-			Name:    "aws-reconfigure-artifact-license",
-			Usage:   "force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline",
-			Aliases: []string{"l"},
-		},
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "cluster-provisioner-state-locking",
@@ -82,16 +71,15 @@ func flagsConfig() []cli.Flag {
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:   "config-from",
+				Name:   "config-name-from",
 				Hidden: true,
 			},
 		),
 		&cli.StringFlag{
-			Name: "config-from-environment",
-			Usage: "inheritance of RMK config credentials from environments: " +
-				git_handler.DefaultDevelop + ", " + git_handler.DefaultStaging + ", " + git_handler.DefaultProduction,
-			Aliases: []string{"cfe"},
-			EnvVars: []string{"RMK_CONFIG_FROM_ENVIRONMENT"},
+			Name:    "config-from",
+			Usage:   "inheritance of RMK config credentials from another RMK config",
+			Aliases: []string{"cf"},
+			EnvVars: []string{"RMK_CONFIG_FROM"},
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -101,6 +89,7 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
 		),
+		// TODO: will be transfer to cluster category
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "cloudflare-token",
@@ -109,6 +98,16 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_CLOUDFLARE_TOKEN"},
 			},
 		),
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Name:    "cluster-provider",
+				Usage:   "select cluster provider to provision clusters",
+				Aliases: []string{"cp"},
+				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
+				Value:   util.AWSClusterProvider,
+			},
+		),
+		// TODO: will be transfer to cluster category for AWS provider
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "root-domain",
@@ -123,24 +122,6 @@ func flagsConfig() []cli.Flag {
 				Usage:   "globally disable or enable progress bar for download process",
 				Aliases: []string{"p"},
 				Value:   true,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "s3-charts-repo-region",
-				Usage:   "location constraint region of S3 charts repo",
-				Aliases: []string{"scrr"},
-				EnvVars: []string{"RMK_S3_CHARTS_REPO_REGION"},
-				Value:   system.S3ChartsRepoRegion,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "cluster-provider",
-				Usage:   "select cluster provider to provision clusters",
-				Aliases: []string{"cp"},
-				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   system.AWSClusterProvider,
 			},
 		),
 		altsrc.NewBoolFlag(
@@ -441,12 +422,6 @@ func flagsHidden() []cli.Flag {
 			Name:   "config",
 			Hidden: true,
 		},
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:   "artifact-mode",
-				Hidden: true,
-			},
-		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "github-token",

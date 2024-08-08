@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v3"
 
-	"rmk/system"
+	"rmk/util"
 )
 
 // Custom name function for parsing template
@@ -99,7 +99,7 @@ func (gf *GenerationFuncMap) renderSpecTemplate(s string, data ...interface{}) e
 
 func (g *GenerationSpec) writeSpecSecrets(force bool) error {
 	for _, rule := range g.GenerationRules {
-		if system.IsExists(filepath.Join(g.secretsDir, rule.Name+".yaml"), true) && !force {
+		if util.IsExists(filepath.Join(g.secretsDir, rule.Name+".yaml"), true) && !force {
 			zap.S().Warnf("%s exists, new secret generation was skipped",
 				filepath.Join(g.secretsDir, rule.Name+".yaml"))
 			continue

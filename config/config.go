@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -17,20 +18,19 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
-	"rmk/aws_provider"
-	"rmk/system"
+	"rmk/git_handler"
+	"rmk/providers/aws_provider"
+	"rmk/util"
 )
 
 type Config struct {
 	Name                       string   `yaml:"name,omitempty"`
 	Tenant                     string   `yaml:"tenant,omitempty"`
 	Environment                string   `yaml:"environment,omitempty"`
-	ConfigFrom                 string   `yaml:"config-from,omitempty"`
-	ArtifactMode               string   `yaml:"artifact-mode,omitempty"`
+	ConfigNameFrom             string   `yaml:"config-name-from,omitempty"`
 	RootDomain                 string   `yaml:"root-domain,omitempty"`
 	CloudflareToken            string   `yaml:"cloudflare-token,omitempty"`
 	GitHubToken                string   `yaml:"github-token,omitempty"`
-	S3ChartsRepoRegion         string   `yaml:"s3-charts-repo-region"`
 	ClusterProvider            string   `yaml:"cluster-provider"`
 	SlackNotifications         bool     `yaml:"slack-notifications"`
 	SlackWebHook               string   `yaml:"slack-webhook,omitempty"`
@@ -69,7 +69,6 @@ type Package struct {
 	Url            string   `yaml:"url,omitempty"`
 	Checksum       string   `yaml:"checksum,omitempty"`
 	Artifacts      []string `yaml:"-"`
-	ArtifactUrl    string   `yaml:"artifact-url,omitempty"`
 	HelmfileTenant string   `yaml:"-"`
 	OsLinux        string   `yaml:"os-linux,omitempty"`
 	OsMac          string   `yaml:"os-mac,omitempty"`
@@ -109,7 +108,7 @@ type Terraform struct {
 
 func (conf *Config) InitConfig(terraformOutput bool) *Config {
 	conf.ProjectFile = ProjectFile{}
-	if err := conf.ReadProjectFile(system.GetPwdPath(system.TenantProjectFile)); err != nil {
+	if err := conf.ReadProjectFile(util.GetPwdPath(util.TenantProjectFile)); err != nil {
 		zap.S().Fatal(err)
 	}
 
@@ -142,36 +141,60 @@ func (conf *Config) SerializeJsonConfig() ([]byte, error) {
 }
 
 func (conf *Config) GetConfigs(all bool) error {
-	var tenantPattern string
-	configsPath := system.GetHomePath(system.RMKDir, system.RMKConfig)
+	var (
+		patternTenant  string
+		patternTaskNum *regexp.Regexp
+		patternSemVer  *regexp.Regexp
+		patternBranch  *regexp.Regexp
+	)
+
+	configsPath := util.GetHomePath(util.RMKDir, util.RMKConfig)
 
 	if all {
-		tenantPattern = ""
+		patternTenant = ""
 	} else {
-		tenantPattern = conf.Tenant
+		patternTenant = conf.Tenant
+
+		patternBranch = regexp.MustCompile(`^` + patternTenant +
+			`-(` + git_handler.DefaultDevelop + `|` + git_handler.DefaultStaging + `|` + git_handler.DefaultProduction + `)$`)
+		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(-[a-z]+)?$`)
+		patternTaskNum = regexp.MustCompile(`^` + patternTenant + `-[a-z]+-\d+$`)
 	}
 
-	match, err := system.WalkMatch(configsPath, tenantPattern+"*.yaml")
+	match, err := util.WalkMatch(configsPath, patternTenant+"*.yaml")
 	if err != nil {
 		return err
 	}
 
 	for _, val := range match {
-		fmt.Printf("- %s\n", strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val))))
+		rmkConfig := strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val)))
+
+		if all {
+			fmt.Printf("- %s\n", rmkConfig)
+		} else {
+			switch {
+			case patternBranch.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternSemVer.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternTaskNum.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			}
+		}
 	}
 
 	return nil
 }
 
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
-	hostedZoneVar := system.TerraformVarsPrefix + system.TerraformVarHostedZoneName
+	hostedZoneVar := util.TerraformVarsPrefix + util.TerraformVarHostedZoneName
 	if !c.IsSet("root-domain") {
 		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName.(string)) > 0 {
 			if err := c.Set("root-domain", hostedZoneName.(string)); err != nil {
 				return err
 			}
 		} else {
-			if err := c.Set("root-domain", gitSpecID+system.TenantDomainSuffix); err != nil {
+			if err := c.Set("root-domain", gitSpecID+util.TenantDomainSuffix); err != nil {
 				return err
 			}
 		}
@@ -221,12 +244,12 @@ func (conf *Config) GetTerraformOutputs() error {
 	}
 
 	for key := range outputs {
-		if strings.Contains(key, system.TerraformVarsPrefix) {
+		if strings.Contains(key, util.TerraformVarsPrefix) {
 			if err := json.Unmarshal(*outputs[key], &getVar); err != nil {
 				return err
 			}
 
-			envKey := strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))
+			envKey := strings.ToUpper(strings.ReplaceAll(key, util.TerraformVarsPrefix, ""))
 
 			switch {
 			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
@@ -279,15 +302,6 @@ func (pf *ProjectFile) parseProjectFileData() error {
 
 	for key, dep := range pf.Dependencies {
 		pf.Dependencies[key].Url, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.Url)
-		if err != nil {
-			return err
-		}
-
-		if len(strings.Split(pf.Dependencies[key].Name, ".")) > 0 {
-			pf.Dependencies[key].HelmfileTenant = strings.Split(pf.Dependencies[key].Name, ".")[0]
-		}
-
-		pf.Dependencies[key].ArtifactUrl, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.ArtifactUrl)
 		if err != nil {
 			return err
 		}
@@ -370,7 +384,7 @@ func (conf *Config) ReadConfigFile(path string) error {
 }
 
 func (conf *Config) CreateConfigFile() error {
-	if err := os.MkdirAll(system.GetHomePath(system.RMKDir, system.RMKConfig), 0755); err != nil {
+	if err := os.MkdirAll(util.GetHomePath(util.RMKDir, util.RMKConfig), 0755); err != nil {
 		return err
 	}
 
@@ -379,5 +393,5 @@ func (conf *Config) CreateConfigFile() error {
 		return err
 	}
 
-	return os.WriteFile(system.GetHomePath(system.RMKDir, system.RMKConfig, conf.Name+".yaml"), data, 0644)
+	return os.WriteFile(util.GetHomePath(util.RMKDir, util.RMKConfig, conf.Name+".yaml"), data, 0644)
 }

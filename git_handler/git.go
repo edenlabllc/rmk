@@ -16,7 +16,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"go.uber.org/zap"
 
-	"rmk/system"
+	"rmk/util"
 )
 
 const (
@@ -108,7 +108,7 @@ func (g *GitSpec) GetBranchName() error {
 		DetectDotGit: true,
 	}
 
-	repo, err := git.PlainOpenWithOptions(system.GetPwdPath(""), &openOptions)
+	repo, err := git.PlainOpenWithOptions(util.GetPwdPath(""), &openOptions)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (g *GitSpec) GetRepoPrefix() error {
 		DetectDotGit: true,
 	}
 
-	repo, err := git.PlainOpenWithOptions(system.GetPwdPath(""), &openOptions)
+	repo, err := git.PlainOpenWithOptions(util.GetPwdPath(""), &openOptions)
 	if err != nil {
 		return err
 	}
@@ -174,11 +174,11 @@ func (g *GitSpec) GenerateID() error {
 func (g *GitSpec) GitCommitPush(pathRF, msg, token string) error {
 	var err error
 
-	if g.repo, err = git.PlainOpen(system.GetPwdPath("")); err != nil {
+	if g.repo, err = git.PlainOpen(util.GetPwdPath("")); err != nil {
 		return err
 	}
 
-	if pathRF, err = filepath.Rel(system.GetPwdPath(""), pathRF); err != nil {
+	if pathRF, err = filepath.Rel(util.GetPwdPath(""), pathRF); err != nil {
 		return err
 	}
 
@@ -209,19 +209,19 @@ func (g *GitSpec) GitCommitPush(pathRF, msg, token string) error {
 		return err
 	}
 
-	reset := &system.SpecCMD{
+	reset := &util.SpecCMD{
 		Args:          []string{"reset", "--hard", "origin/" + g.headRef.Name().Short()},
 		Command:       "git",
-		Dir:           system.GetPwdPath(""),
+		Dir:           util.GetPwdPath(""),
 		Ctx:           context.TODO(),
 		DisableStdOut: true,
 		Debug:         false,
 	}
 
-	cherryPick := &system.SpecCMD{
+	cherryPick := &util.SpecCMD{
 		Args:          []string{"cherry-pick", hash.String()},
 		Command:       "git",
-		Dir:           system.GetPwdPath(""),
+		Dir:           util.GetPwdPath(""),
 		Ctx:           context.TODO(),
 		DisableStdOut: true,
 		Debug:         false,
@@ -300,7 +300,7 @@ func (g *GitSpec) getAuthMethod(token string) (transport.AuthMethod, error) {
 				return &http.BasicAuth{Username: "git", Password: token}, nil
 			}
 
-			return ssh.NewPublicKeysFromFile("git", system.GetHomePath(system.GitSSHPrivateKey), "")
+			return ssh.NewPublicKeysFromFile("git", util.GetHomePath(util.GitSSHPrivateKey), "")
 		}
 
 		return nil, fmt.Errorf("failed to detect auth method")

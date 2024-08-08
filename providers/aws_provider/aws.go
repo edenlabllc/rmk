@@ -28,7 +28,7 @@ import (
 	"github.com/aws/smithy-go"
 	"go.uber.org/zap"
 
-	"rmk/system"
+	"rmk/util"
 )
 
 type AwsConfigure struct {
@@ -49,11 +49,11 @@ type MFAToken struct {
 }
 
 func (a *AwsConfigure) AWSSharedConfigFile(profile string) []string {
-	return []string{system.GetHomePath(".aws", "config_"+profile)}
+	return []string{util.GetHomePath(".aws", "config_"+profile)}
 }
 
 func (a *AwsConfigure) AWSSharedCredentialsFile(profile string) []string {
-	return []string{system.GetHomePath(".aws", "credentials_"+profile)}
+	return []string{util.GetHomePath(".aws", "credentials_"+profile)}
 }
 
 func (a *AwsConfigure) errorProxy(cfg aws.Config, err error) (aws.Config, error) {
@@ -138,8 +138,8 @@ func (a *AwsConfigure) GetMFADevicesSerialNumbers() error {
 			serialNumbers[strconv.Itoa(key+1)] = aws.ToString(val.SerialNumber)
 		}
 
-		if _, ok := serialNumbers[system.ReadStdin("number SerialNumber")]; ok {
-			a.MFADeviceSerialNumber = serialNumbers[system.ReadStdin("number SerialNumber")]
+		if _, ok := serialNumbers[util.ReadStdin("number SerialNumber")]; ok {
+			a.MFADeviceSerialNumber = serialNumbers[util.ReadStdin("number SerialNumber")]
 		} else {
 			return fmt.Errorf("incorrectly specified number SerialNumber")
 		}
@@ -164,7 +164,7 @@ func (a *AwsConfigure) GetMFASessionToken() error {
 	token, err := sts.NewFromConfig(cfg).GetSessionToken(ctx, &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int32(43200),
 		SerialNumber:    aws.String(a.MFADeviceSerialNumber),
-		TokenCode:       aws.String(system.ReadStdin("TOTP")),
+		TokenCode:       aws.String(util.ReadStdin("TOTP")),
 	})
 	if err != nil {
 		return err
@@ -255,7 +255,7 @@ func (a *AwsConfigure) CreateBucket(bucketName string) error {
 
 	client := s3.NewFromConfig(cfg)
 
-	if a.Region == system.RegionException {
+	if a.Region == util.RegionException {
 		_, err := client.HeadBucket(ctx, &s3.HeadBucketInput{Bucket: aws.String(bucketName)})
 		if err != nil {
 			if !errors.As(err, &bucketNotFound) {
@@ -541,13 +541,13 @@ func (a *AwsConfigure) UploadToBucket(bucketName, localDir, pattern string) erro
 
 	uploader := manager.NewUploader(s3.NewFromConfig(cfg))
 
-	match, err := system.WalkMatch(localDir, pattern)
+	match, err := util.WalkMatch(localDir, pattern)
 	if err != nil {
 		return err
 	}
 
 	for _, path := range match {
-		if filepath.Base(path) != system.SopsAgeKeyFile {
+		if filepath.Base(path) != util.SopsAgeKeyFile {
 			data, err := os.ReadFile(path)
 			if err != nil {
 				return err

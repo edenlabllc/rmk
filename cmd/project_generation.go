@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 const (
 	clusterVariables = `# Kubernetes user list

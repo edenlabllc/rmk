@@ -1,4 +1,4 @@
-package go_getter
+package util
 
 import (
 	"context"
