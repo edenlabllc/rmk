@@ -4,7 +4,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"rmk/git_handler"
 	"rmk/util"
 )
 
@@ -72,16 +71,15 @@ func flagsConfig() []cli.Flag {
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:   "config-from",
+				Name:   "config-name-from",
 				Hidden: true,
 			},
 		),
 		&cli.StringFlag{
-			Name: "config-from-environment",
-			Usage: "inheritance of RMK config credentials from environments: " +
-				git_handler.DefaultDevelop + ", " + git_handler.DefaultStaging + ", " + git_handler.DefaultProduction,
-			Aliases: []string{"cfe"},
-			EnvVars: []string{"RMK_CONFIG_FROM_ENVIRONMENT"},
+			Name:    "config-from",
+			Usage:   "inheritance of RMK config credentials from another RMK config",
+			Aliases: []string{"cf"},
+			EnvVars: []string{"RMK_CONFIG_FROM"},
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{

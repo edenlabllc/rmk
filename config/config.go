@@ -27,7 +27,7 @@ type Config struct {
 	Name                       string   `yaml:"name,omitempty"`
 	Tenant                     string   `yaml:"tenant,omitempty"`
 	Environment                string   `yaml:"environment,omitempty"`
-	ConfigFrom                 string   `yaml:"config-from,omitempty"`
+	ConfigNameFrom             string   `yaml:"config-name-from,omitempty"`
 	RootDomain                 string   `yaml:"root-domain,omitempty"`
 	CloudflareToken            string   `yaml:"cloudflare-token,omitempty"`
 	GitHubToken                string   `yaml:"github-token,omitempty"`

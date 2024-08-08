@@ -15,6 +15,7 @@ import (
 
 	"rmk/config"
 	"rmk/git_handler"
+	"rmk/providers/aws_provider"
 	"rmk/util"
 )
 
@@ -320,7 +321,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		}
 
 		// Reset ConfigFrom value for config for current environment
-		conf.ConfigFrom = gitSpec.ID
+		conf.ConfigNameFrom = gitSpec.ID
 		// Reset AWSMFAProfile value for config for current environment
 		conf.AWSMFAProfile = ""
 		// Reset AWSMFATokenExpiration value for config for current environment
@@ -359,74 +360,81 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 }
 
 func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
-	if len(c.String("config-from-environment")) > 0 {
-		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig,
-			gitSpec.RepoPrefixName+"-"+c.String("config-from-environment")+".yaml")
+	// TODO: A possible solution is to check the current cluster provider with from and prohibit such inheritance
+	// currentClusterProvider := c.String("cluster-provider")
+
+	if len(c.String("config-from")) > 0 {
+		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, c.String("config-from")+".yaml")
 
 		if err := conf.ReadConfigFile(configPath); err != nil {
-			zap.S().Errorf("RMK config %s.yaml not initialized, please checkout to branch %s "+
-				"and run command 'rmk config init' with specific parameters",
-				c.String("config-from-environment"), c.String("config-from-environment"))
+			zap.S().Errorf("RMK config %s.yaml not initialized, please check RMK configs of exists "+
+				"via command 'rmk config list' and run command 'rmk config init' with specific parameters",
+				c.String("config-from"))
 			return err
 		}
 
-		if err := c.Set("config-from", conf.Name); err != nil {
-			return err
+		if c.String("cluster-provider") == util.AWSClusterProvider {
+			conf.AwsConfigure = new(aws_provider.AwsConfigure)
+
+			if err := c.Set("config-name-from", conf.Name); err != nil {
+				return err
+			}
+
+			// Delete regular profile
+			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID), "")); err != nil {
+				return err
+			}
+
+			if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
+				regularProfile := conf.Profile
+
+				// Get MFA profile credentials.
+				conf.AwsConfigure.Profile = conf.AWSMFAProfile
+				if err := conf.GetAWSCredentials(); err != nil {
+					return err
+				}
+
+				// Copy MFA profile for current environment
+				conf.AwsConfigure.Profile = regularProfile
+				if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
+					return err
+				}
+			} else {
+				// Delete config MFA profile
+				if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(gitSpec.ID+"-mfa"), "")); err != nil {
+					return err
+				}
+
+				// Delete credentials MFA profile
+				if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID+"-mfa"), "")); err != nil {
+					return err
+				}
+
+				// Get regular profile credentials.
+				if err := conf.GetAWSCredentials(); err != nil {
+					return err
+				}
+
+				// Copy regular profile for current environment
+				if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
+					return err
+				}
+			}
+
+			// Reset AWSMFAProfile value for config for current environment
+			if err := c.Set("aws-mfa-profile", ""); err != nil {
+				return err
+			}
+
+			// Reset AWSMFATokenExpiration value for config for current environment
+			if err := c.Set("aws-mfa-token-expiration", ""); err != nil {
+				return err
+			}
+
+			conf.AwsConfigure.Profile = gitSpec.ID
 		}
 
-		// Delete regular profile
-		if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID), "")); err != nil {
-			return err
-		}
-
-		if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
-			regularProfile := conf.Profile
-
-			// Get MFA profile credentials.
-			conf.AwsConfigure.Profile = conf.AWSMFAProfile
-			if err := conf.GetAWSCredentials(); err != nil {
-				return err
-			}
-
-			// Copy MFA profile for current environment
-			conf.AwsConfigure.Profile = regularProfile
-			if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
-				return err
-			}
-		} else {
-			// Delete config MFA profile
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(gitSpec.ID+"-mfa"), "")); err != nil {
-				return err
-			}
-
-			// Delete credentials MFA profile
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID+"-mfa"), "")); err != nil {
-				return err
-			}
-
-			// Get regular profile credentials.
-			if err := conf.GetAWSCredentials(); err != nil {
-				return err
-			}
-
-			// Copy regular profile for current environment
-			if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
-				return err
-			}
-		}
-
-		// Reset AWSMFAProfile value for config for current environment
-		if err := c.Set("aws-mfa-profile", ""); err != nil {
-			return err
-		}
-
-		// Reset AWSMFATokenExpiration value for config for current environment
-		if err := c.Set("aws-mfa-token-expiration", ""); err != nil {
-			return err
-		}
-
-		conf.ConfigFrom = c.String("config-from")
-		conf.AwsConfigure.Profile = gitSpec.ID
+		conf.ConfigNameFrom = c.String("config-name-from")
 
 		return nil
 	}
@@ -439,14 +447,17 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		return err
 	}
 
-	if !c.IsSet("config-from") {
-		if err := c.Set("config-from", gitSpec.ID); err != nil {
+	if !c.IsSet("config-name-from") {
+		if err := c.Set("config-name-from", gitSpec.ID); err != nil {
 			return err
 		}
 	}
 
-	conf.ConfigFrom = c.String("config-from")
-	conf.AwsConfigure.Profile = gitSpec.ID
+	if c.String("cluster-provider") == util.AWSClusterProvider {
+		conf.AwsConfigure = new(aws_provider.AwsConfigure)
+	}
+
+	conf.ConfigNameFrom = c.String("config-name-from")
 	conf.CloudflareToken = c.String("cloudflare-token")
 	conf.GitHubToken = c.String("github-token")
 
@@ -459,25 +470,28 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		// Delete MFA profile
-		if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.AWSMFAProfile), "")); err != nil {
+		// TODO: It is necessary to think about whether to delete unconditionally or check taking into account the AWS provider.
+		if c.String("cluster-provider") == util.AWSClusterProvider {
+			// Delete MFA profile
+			if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
+				if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.AWSMFAProfile), "")); err != nil {
+					return err
+				}
+
+				if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.AWSMFAProfile), "")); err != nil {
+					return err
+				}
+			}
+
+			// Delete config MFA profile
+			if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.Profile), "")); err != nil {
 				return err
 			}
 
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.AWSMFAProfile), "")); err != nil {
+			// Delete credentials MFA profile
+			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.Profile), "")); err != nil {
 				return err
 			}
-		}
-
-		// Delete config MFA profile
-		if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.Profile), "")); err != nil {
-			return err
-		}
-
-		// Delete credentials MFA profile
-		if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.Profile), "")); err != nil {
-			return err
 		}
 
 		if err := os.RemoveAll(c.String("config")); err != nil {
@@ -503,6 +517,8 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		conf.Name = gitSpec.ID
 		conf.Tenant = gitSpec.RepoPrefixName
 		conf.Environment = gitSpec.DefaultBranch
+		conf.ClusterProvider = c.String("cluster-provider")
+		conf.ProgressBar = c.Bool("progress-bar")
 		zap.S().Infof("RMK will use values for %s environment", conf.Environment)
 
 		if c.Bool("slack-notifications") {
@@ -517,28 +533,32 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			}
 		}
 
-		conf.ProgressBar = c.Bool("progress-bar")
-		conf.Terraform.BucketKey = util.TenantBucketKey
-		conf.ClusterProvisionerSL = c.Bool("cluster-provisioner-state-locking")
-		conf.ClusterProvider = c.String("cluster-provider")
-		conf.AWSMFAProfile = c.String("aws-mfa-profile")
-		conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
-		conf.AWSECRHost = c.String("aws-ecr-host")
-		conf.AWSECRRegion = c.String("aws-ecr-region")
-		conf.AWSECRUserName = c.String("aws-ecr-user-name")
+		switch conf.ClusterProvider {
+		case util.AWSClusterProvider:
+			conf.Terraform.BucketKey = util.TenantBucketKey
+			conf.ClusterProvisionerSL = c.Bool("cluster-provisioner-state-locking")
+			conf.AwsConfigure.Profile = gitSpec.ID
+			conf.AWSMFAProfile = c.String("aws-mfa-profile")
+			conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
+			conf.AWSECRHost = c.String("aws-ecr-host")
+			conf.AWSECRRegion = c.String("aws-ecr-region")
+			conf.AWSECRUserName = c.String("aws-ecr-user-name")
 
-		// AWS Profile init configuration with support MFA
-		if err := initAWSProfile(c, conf, gitSpec); err != nil {
-			return err
+			// AWS Profile init configuration with support MFA
+			if err := initAWSProfile(c, conf, gitSpec); err != nil {
+				return err
+			}
+
+			//Formation of a unique bucket name, consisting of the prefix tenant of the repository,
+			//constant and the first 3 and last 2 numbers AWS account id
+			awsUID := conf.AccountID[0:3] + conf.AccountID[len(conf.AccountID)-2:]
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+awsUID)
+			conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
+			conf.Terraform.BucketName = conf.Tenant + "-" + util.TenantBucketName + "-" + awsUID
+			conf.Terraform.DDBTableName = util.TenantDDBTablePrefix + "-" + awsUID
+		case util.LocalClusterProvider:
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
-
-		//Formation of a unique bucket name, consisting of the prefix tenant of the repository,
-		//constant and the first 3 and last 2 numbers AWS account id
-		awsUID := conf.AccountID[0:3] + conf.AccountID[len(conf.AccountID)-2:]
-		conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+awsUID)
-		conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
-		conf.Terraform.BucketName = conf.Tenant + "-" + util.TenantBucketName + "-" + awsUID
-		conf.Terraform.DDBTableName = util.TenantDDBTablePrefix + "-" + awsUID
 
 		if err := conf.InitConfig(true).SetRootDomain(c, gitSpec.ID); err != nil {
 			return err

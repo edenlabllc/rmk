@@ -9,14 +9,13 @@ import (
 
 	"rmk/config"
 	"rmk/git_handler"
-	"rmk/providers/aws_provider"
 	"rmk/util"
 )
 
 type Flags map[string][]cli.Flag
 
 func Commands() []*cli.Command {
-	conf := &config.Config{AwsConfigure: &aws_provider.AwsConfigure{}}
+	conf := &config.Config{}
 	gitSpec := &git_handler.GitSpec{
 		DefaultBranches: []string{
 			git_handler.DefaultDevelop,
