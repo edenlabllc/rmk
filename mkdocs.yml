@@ -6,20 +6,9 @@ site_url: https://edenlabllc.github.io/rmk
 
 copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
 
-# Extra Files
-extra_javascript:
-  - static/js/asciinema-player.js
-
-extra_css:
-  - static/css/asciinema-player.css
-  - static/css/extra.css
-
 # Repo Information
 repo_name: edenlabllc/rmk
 repo_url: https://github.com/edenlabllc/rmk
-
-# Edit Link on Site
-#edit_uri: edit/main/docs/
 
 # Theme
 theme:
@@ -53,7 +42,7 @@ theme:
         icon: material/toggle-switch
         name: Switch to light mode
   # todo change icons and logo
-  logo: https://edenlab.io/wp-content/themes/edenlab/assets/images/fhir_icon.svg
+#  logo: https://edenlab.io/wp-content/themes/edenlab/assets/images/fhir_icon.svg
   favicon: https://edenlab.io/favicon.ico
   icon:
     repo: fontawesome/brands/github
@@ -81,16 +70,16 @@ markdown_extensions:
 
 # Plugins
 plugins:
-  - search
+  - awesome-pages    # https://squidfunk.github.io/mkdocs-material/plugins/awesome-pages/
   - git-revision-date-localized: # https://squidfunk.github.io/mkdocs-material/plugins/revision-date/
       type: date
-  - awesome-pages    # https://squidfunk.github.io/mkdocs-material/plugins/awesome-pages/
   - include-markdown # https://github.com/mondeja/mkdocs-include-markdown-plugin
   - mike:            # Versioned Docs: https://github.com/jimporter/mike
       version_selector: true    # set to false to leave out the version selector
       css_dir: static/css       # the directory to put the version selector's CSS
       javascript_dir: static/js # the directory to put the version selector's JS
       canonical_version: null   # the version for <link rel="canonical">; `null` uses the version specified via `mike deploy`
+  - search
 
 # Extra mkdocs-material settings
 extra:
