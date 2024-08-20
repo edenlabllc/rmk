@@ -74,7 +74,7 @@ K3D cluster management
 
 Create K3D cluster
 
-**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: "${PWD}/rmk.tools.infra")
+**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: "${PWD}/rmk")
 
 #### delete, d
 

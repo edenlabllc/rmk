@@ -33,6 +33,7 @@ Command line tool for reduced management and provisioning of Kubernetes clusters
   * [Supported Kubernetes providers](#supported-kubernetes-providers)
   * [Roadmap](#roadmap)
   * [License](#license)
+  * [Code of Conduct](#code-of-conduct)
 
 ## Overview
 
@@ -194,3 +195,9 @@ Check the [issues](https://github.com/edenlabllc/rmk/issues) for more informatio
 ## License
 
 RMK is open source software (OSS) licensed under the [Apache 2.0 License](LICENSE).
+
+## Code of Conduct
+
+This project adheres to the Contributor Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/develop/docs/CODE_OF_CONDUCT.md). 
+By participating, you are expected to uphold this code.
+Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/develop/docs/CONTRIBUTING.md) for further information.

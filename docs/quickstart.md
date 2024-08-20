@@ -6,8 +6,9 @@ create a local cluster based on `K3D`, deploy your first application ([Nginx](ht
 > Prerequisite:
 > - An active AWS user with access keys and the `AdministratorAccess` permissions.
 > - A prepared [project repository](configuration/project-management/preparation-of-project-repository.md#preparation-of-the-project-repository)
-> - Installed [RMK](../README.md#installation)
-> - The fulfilled [requirements](../README.md#requirements) for proper RMK operation.
+
+[//]: # (> - Installed [RMK]&#40;../README.md#installation&#41;)
+[//]: # (> - The fulfilled [requirements]&#40;../README.md#requirements&#41; for proper RMK operation.)
 
 0. Create a [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
    file in the root of the project repository with the following content:
@@ -103,7 +104,7 @@ inventory:
 
 3. Create a local K3D cluster:
 
-   > Before running this step, ensure that Docker is installed in the system according to the [requirements](../README.md#requirements).
+[//]: # (   > Before running this step, ensure that Docker is installed in the system according to the [requirements]&#40;../README.md#requirements&#41;.)
    
    ```shell
    rmk cluster k3d create
