@@ -1,4 +1,4 @@
-# RMK configuration management
+# Configuration management
 
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
 At the time of configuration initialization launch, RMK prepares

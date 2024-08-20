@@ -1,7 +1,7 @@
 # RMK CLI - Reduced Management for Kubernetes
 
 [![Release](https://img.shields.io/github/v/release/edenlabllc/rmk.svg?style=for-the-badge)](https://github.com/edenlabllc/rmk/releases/latest)
-[![Software License](https://img.shields.io/github/license/edenlabllc/rmk.svg?style=for-the-badge)](LICENSE)
+[![Software License](https://img.shields.io/github/license/edenlabllc/rmk.svg?style=for-the-badge)](https://github.com/edenlabllc/rmk/blob/master/LICENSE)
 [![Powered By: Edenlab](https://img.shields.io/badge/powered%20by-edenlab-8A2BE2.svg?style=for-the-badge)](https://edenlab.io)
 
 Command line tool for reduced management and provisioning of Kubernetes clusters and environments, Helm secrets and releases.
@@ -18,7 +18,7 @@ Command line tool for reduced management and provisioning of Kubernetes clusters
     * [General update process](#general-update-process)
     * [Update to specific version](#update-to-specific-version)
   * Configuration
-    * [RMK configuration management](docs/configuration/rmk-configuration-management.md)
+    * [Configuration management](docs/configuration/configuration-management.md)
     * Project management
       * [Requirement for project repository](docs/configuration/project-management/requirement-for-project-repository.md)
       * [Preparation of project repository](docs/configuration/project-management/preparation-of-project-repository.md)
@@ -154,13 +154,13 @@ rmk update --version vX.X.X
 - **[Time-proven project structure:](docs/configuration/project-management/preparation-of-project-repository.md)** Define the project structure using the [GitLabFlow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) methodology.
 - **[Hierarchies between different projects:](docs/configuration/project-management/dependencies-management-and-project-inheritance.md)** Define upstream-downstream relationships between sibling projects to reuse releases and services across different installations.
 - **[Batch secret management:](docs/configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager)** Template, generate, and encode project secrets for all environments in a batch manner.
-- **[Clone environments with one click:](docs/configuration/rmk-configuration-management.md#initialization-of-rmk-configuration-for-feature-or-release-clusters)** Use the special `--config-from-environment` (`--cfe`) flag to create an environment based on an existing one.
-- **[Automatic detection of Multi-Factor Authentication](docs/configuration/rmk-configuration-management.md#support-for-multi-factor-authentication-mfa) ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)):** Automatically detect and use an MFA device if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
+- **[Clone environments with one click:](docs/configuration/configuration-management.md#initialization-of-rmk-configuration-for-feature-or-release-clusters)** Use the special `--config-from-environment` (`--cfe`) flag to create an environment based on an existing one.
+- **[Automatic detection of Multi-Factor Authentication](docs/configuration/configuration-management.md#support-for-multi-factor-authentication-mfa) ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)):** Automatically detect and use an MFA device if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
 - **[Push-based release and downstream project updates:](docs/configuration/release-management/release-management.md#release-update-and-integration-into-the-cd-pipeline)** Easily integrate with CI/CD solutions via webhooks or workflow dispatch events 
   to update release and service version declarations, automatically commit the changes to Git.
 - **[Project structure generation:](docs/configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** Generate a complete Kubernetes-based project structure from scratch using RMK, following the best practices.
 - **[Documentation generation:](docs/commands.md#doc)** Generate the full command documentation in the Markdown format with one click.
-- **[Support for different types of code sources:](docs/configuration/rmk-configuration-management.md#use-upstream-artifact-for-the-downstream-projects-repository)** Use Git when the _artifact-mode_ is _none_, S3 when the _artifact-mode_ is _online_, 
+- **[Support for different types of code sources:](docs/configuration/configuration-management.md#use-upstream-artifact-for-the-downstream-projects-repository)** Use Git when the _artifact-mode_ is _none_, S3 when the _artifact-mode_ is _online_, 
   switch to fully offline installations when the _artifact-mode_ is _offline_.
 
 ## Supported Kubernetes providers
@@ -194,10 +194,10 @@ Check the [issues](https://github.com/edenlabllc/rmk/issues) for more informatio
 
 ## License
 
-RMK is open source software (OSS) licensed under the [Apache 2.0 License](LICENSE).
+RMK is open source software (OSS) licensed under the [Apache 2.0 License](https://github.com/edenlabllc/rmk/blob/master/LICENSE).
 
 ## Code of Conduct
 
-This project adheres to the Contributor Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/develop/docs/CODE_OF_CONDUCT.md). 
+This project adheres to the Contributor Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md). 
 By participating, you are expected to uphold this code.
-Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/develop/docs/CONTRIBUTING.md) for further information.
+Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for further information.

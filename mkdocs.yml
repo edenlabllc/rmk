@@ -85,6 +85,7 @@ plugins:
 extra:
   version:
     provider: mike
+    default: latest
 
 # Other Settings
 strict: true # halt processing when a warning is raised

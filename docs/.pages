@@ -1,9 +1,7 @@
 nav:
-  - README.md
+  - Overview: README.md
   - quickstart.md
   - configuration
-  - commands.md
+  - Commands: commands.md
   - development-and-release-flow.md
-  - release-notes.md
-  - release-notes.md
 collapse: false
