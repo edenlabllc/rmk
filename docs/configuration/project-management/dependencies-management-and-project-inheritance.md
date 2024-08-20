@@ -8,6 +8,7 @@ in the root directory according to the sections described in the [project.yaml](
 
 > To override inherited versions of dependencies and add-ons described in the inventory, 
 > you need to specify the entire block with all the required fields.
+> 
 > ```yaml
 > inventory:
 >   # ...
@@ -47,16 +48,18 @@ RMK allows to avoid controlling the versioning of the `Helmfile` hooks through t
 instead of it, RMK allows inheriting these version hooks from the upstream project's repository.
 It also supports multi-versioning of the `Helmfile` hooks as part of the inheritance from several upstream projects by a downstream project.
 
-> In order for these features to work, you need to use the `HELMFILE_<current_project_name>_HOOKS_DIR` variable in `helmfile.yaml.gotmpl`.
-> For example:
-> ```yaml
-> commonLabels:
-> # ...
->   bin: {{ env "HELMFILE_KODJIN_HOOKS_DIR" }}/bin
-> # ...
->  ```
+In order for these features to work, you need to use the `HELMFILE_<current_project_name>_HOOKS_DIR` variable in `helmfile.yaml.gotmpl`.
+For example:
+
+```yaml
+commonLabels:
+# ...
+  bin: {{ env "HELMFILE_KODJIN_HOOKS_DIR" }}/bin
+# ...
+```
 
 Let's look at the following examples of the inheritance:
+
 1. **Hook version inheritance from the upstream project's repository:**
 
    The [project.yaml](preparation-of-project-repository.md#projectyaml) file of the downstream project is the following:
@@ -101,6 +104,7 @@ Let's look at the following examples of the inheritance:
    > of the `deps.bootstrap.infra` repository, since there is no inheritance.
 
    This configuration scheme is **the most common** and has the following inheritance scheme for the `Helmfile` hooks:
+
    ```textmate
    Project repo name:            deps.bootstrap.infra ---------> kodjin.bootstrap.infra -------> <downstream_project>.bootstrap.infra
    Project repo version:         v2.19.0                         v4.4.0                          <downstream_project_version>
@@ -165,8 +169,10 @@ Let's look at the following examples of the inheritance:
 
    > The downstream project's repository will inherit the latest version of `Helmfile` hooks, specifically from the `deps.bootstrap.infra` repository.
    > As a result, in the downstream project's repository, we will have the two loaded versions of `Helmfile` hooks:
+   > 
    > - One will be relevant for the `deps.bootstrap.infra` repository and the downstream project's repository.
    > - Another will be relevant for the `kodjin.bootstrap.infra` repository.
+   > 
    > This mechanism allows for multi-versioning support of the `Helmfile` hooks at different levels of the inheritance.
 
 3. **Hook version inheritance from the upstream project's repository in case the downstream project

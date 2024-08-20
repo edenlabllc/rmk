@@ -56,6 +56,7 @@ The main goal of the tool is to simplify ("reduce") management of Kubernetes clu
 ### Advantages
 
 RMK simplifies the start of any level of complexity of a project using Kubernetes due to the following advantages:
+
 - **Respects the [GitOPS](https://www.gitops.tech/) approach:** Each Git branch is used as a unique identifier for determining the environment, cluster name, 
   set of configurations and other attributes required for setting up the wrapped tools for project management in the Kubernetes environment.
 - **Respects the [GitLabFlow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) workflow**: Supports the standard _develop_, _staging_, _production_ and different ephemeral (e.g, _feature_, _release_) environments.
@@ -75,18 +76,21 @@ RMK simplifies the start of any level of complexity of a project using Kubernete
 At [Edenlab LLC](https://edenlab.io/), RMK is used for deploying the [Kodjin FHIR Server](https://kodjin.com).
 
 A classic Kodjin installation uses 3-level inheritance:
+
 - **Dependencies (upstream#1)**: Core components like DBs, search engines, caches, load balancers/proxies, operators
   etc.
 - **Kodjin (downstream#1)**: Kodjin FHIR API ([REST](https://en.wikipedia.org/wiki/REST))
 - **Target installation (downstream#2)**: Products based on Kodjin, such as UI components, user portals and middleware services.
 
 The additional components used by Kodjin are:
+
 - **\*.provisioner.infra:** Repositories for Kubernetes cluster provisioning.
 - **helmfile.hooks.infra:** Shell scrips used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   deps/Kodjin/any other tenant.
 - **core.charts.infra:** Helm charts used by the Kodjin services.
 
 The examples of Kubernetes providers, to which Kodjin has been installed, are:
+
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
 - [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
@@ -104,14 +108,15 @@ The examples of Kubernetes providers, to which Kodjin has been installed, are:
 ## Requirements
 
 Currently, RMK only supports Unix-like operating systems (OS):
-* **OS:**
-    * **MacOS**: amd64, arm64 (M1, M2 require [Rosetta](https://support.apple.com/en-us/HT211861))
-    * **Linux**: amd64
-* **Software:**
-    * **Python** >= 3.9
-    * **[AWS CLI](https://aws.amazon.com/cli/)**
-    * _For managing local clusters using K3D:_ Version _v5.x.x_ requires [Docker](https://www.docker.com/) => v20.10.5 ([runc](https://github.com/opencontainers/runc) >= v1.0.0-rc93) to work
-      properly.
+
+- **OS:**
+  - **MacOS**: amd64, arm64 (M1, M2 require [Rosetta](https://support.apple.com/en-us/HT211861))
+  - **Linux**: amd64
+- **Software:**
+  - **Python** >= 3.9
+  - **[AWS CLI](https://aws.amazon.com/cli/)**
+  - _For managing local clusters using K3D:_ Version _v5.x.x_ requires [Docker](https://www.docker.com/) => v20.10.5 ([runc](https://github.com/opencontainers/runc) >= v1.0.0-rc93) to work
+    properly.
 
 > If this is your first project repository managed by RMK, ensure that the above tools are specified in the [project.yaml](docs/configuration/project-management/preparation-of-project-repository.md#projectyaml) file.
 

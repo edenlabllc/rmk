@@ -5,6 +5,7 @@ RMK uses [Terraform](https://www.terraform.io/) and [K3D](https://k3d.io) for cl
 RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through native Helmfile functionality.
 
 The 2 scenarios are:
+
 - **A cluster has already been provisioned via a 3rd-party tool/service:** An existing Kubernetes context will be used by RMK.
 - **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as AWS, K3D, etc. will be utilized.
 
@@ -38,6 +39,7 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   
   > If there are **more than one** Kubernetes context which match the regular expression **simultaneously**, 
   > an **error** will be thrown indicating a conflict. For example, the following names will conflict:
+  > 
   > ```shell
   > project1-develop
   > k3d-project1-develop
@@ -77,6 +79,7 @@ rmk release list
 ## Use RMK cluster providers to provision and destroy Kubernetes clusters
 
 Currently, the following cluster providers are supported by RMK:
+
 - [aws.provisioner.infra](https://github.com/edenlabllc/aws.provisioner.infra): Configuration for managing AWS EKS
   clusters using Terraform. Kubernetes clusters can be provisioned from scratch and destroyed 
   via the `rmk cluster provision`, `rmk cluster destroy` commands.
@@ -94,9 +97,12 @@ This enhancement will include the introduction of new RMK commands and cluster p
 Before provisioning the K8S cluster, modify the core configurations for the on-demand cluster. 
 The core configurations are divided into two types:
 
-- **variables** (common AWS cluster management): \
-  _Path:_ `etc/clusters/aws/<environment>/values/variables.auto.tfvars` \
+- **variables** (common AWS cluster management):
+
+  _Path:_ `etc/clusters/aws/<environment>/values/variables.auto.tfvars`
+
   _Frequently changed values:_
+
   ```terraform
   # k8s user list
   k8s_master_usernames = [] # list of AWS IAM users for K8S cluster management
@@ -104,9 +110,14 @@ The core configurations are divided into two types:
   # ...
   ```
 
-- **worker-groups** (resources for AWS worker nodes): \
-  _Path:_ `etc/clusters/aws/<environment>/values/worker-groups.auto.tfvars` \
+  > Full list of input Terraform variables: `.PROJECT/inventory/clusters/aws.provisioner.infra-<version>/terraform/variables.tf`
+
+- **worker-groups** (resources for AWS worker nodes):
+
+  _Path:_ `etc/clusters/aws/<environment>/values/worker-groups.auto.tfvars`
+
   _Frequently changed values:_
+
   ```terraform
   worker_groups = [
     {
@@ -120,26 +131,24 @@ The core configurations are divided into two types:
     # ...
   ]
   ```
-
-    - `instance_type`: [AWS EC2 instance type](https://aws.amazon.com/ec2/instance-types)
-    - `asg_desired_capacity`: Number of nodes of a specific group.
-    - `ami_id`: Identifier of AWS AMI image for EKS.
-
-  > Each AWS region requires its own AMI image ID. To determine the appropriate ID for a specific region, run the following command:
-  > ```shell
-  > AWS_PROFILE=$(rmk --lf=json config view | yq '.config.Profile') \
-  > AWS_CONFIG_FILE="${HOME}/.aws/config_$(rmk --lf=json config view | yq '.config.Profile')" \
-  > AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_$(rmk --lf=json config view | yq '.config.Profile')" \
-  > AWS_PAGER= \
-  > aws ssm get-parameter \
-  >   --name /aws/service/eks/optimized-ami/<eks_control_plane_version>/amazon-linux-2/recommended/image_id \
-  >   --region "$(rmk --lf=json config view | yq '.config.Region')" \
-  >   --output text \
-  >   --query Parameter.Value
-  > ```
-  > > Replace `<eks_control_plane_version>` with a correct version.
-
-Full list of input Terraform variables: `.PROJECT/inventory/clusters/aws.provisioner.infra-<version>/terraform/variables.tf`
+  
+  - `instance_type`: [AWS EC2 instance type](https://aws.amazon.com/ec2/instance-types)
+  - `asg_desired_capacity`: Number of nodes of a specific group.
+  - `ami_id`: Identifier of AWS AMI image for EKS.
+    > Each AWS region requires its own AMI image ID. To determine the appropriate ID for a specific region, run the following command:
+    > 
+    > ```shell
+    > AWS_PROFILE=$(rmk --lf=json config view | yq '.config.Profile') \
+    > AWS_CONFIG_FILE="${HOME}/.aws/config_$(rmk --lf=json config view | yq '.config.Profile')" \
+    > AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_$(rmk --lf=json config view | yq '.config.Profile')" \
+    > AWS_PAGER= \
+    > aws ssm get-parameter \
+    >   --name /aws/service/eks/optimized-ami/<eks_control_plane_version>/amazon-linux-2/recommended/image_id \
+    >   --region "$(rmk --lf=json config view | yq '.config.Region')" \
+    >   --output text \
+    >   --query Parameter.Value
+    > ```
+    > > Replace `<eks_control_plane_version>` with a correct version.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -166,8 +175,10 @@ The CLI will create a cluster according to the declarative instruction for K3D:
 `.PROJECT/inventory/clusters/k3d.provisioner.infra-<version>/k3d.yaml`.
 
 > Prerequisites:
+> 
 > 1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
 > 2. [Initialize configuration](../configuration-management.md#initialization-of-rmk-configuration) for this branch with the `localhost` root domain name:
+> 
 > ```shell
 > rmk config init --root-domain=localhost
 > ```

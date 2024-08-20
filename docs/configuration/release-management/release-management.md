@@ -73,9 +73,11 @@ rmk release destroy
 
 Among the `Helmfile` selectors, the following [predefined keys](https://helmfile.readthedocs.io/en/stable/#labels-overview) 
 are provided out of the box: 
+
 - Release name.
 - Release namespace.
 - Chart name.
+
 For example:
 
 ```shell
@@ -146,6 +148,7 @@ it can be integrated with almost any CI/CD system: GitHub Actions, GitLab, Drone
 ### Example of integration with GitHub Actions:
 
 > Prerequisites:
+> 
 > - The project repository has already been generated and [prepared](../project-management/preparation-of-project-repository.md) using RMK.
 
 Create the following workflow in your project repository at `.github/workflows/release-update.yaml`. 
@@ -192,6 +195,7 @@ jobs:
 ```
 
 In this example, we have prepared a `GitHub Action` that expects two input parameters: 
+
 - `image_repository_full_name`
 - `version`
 
