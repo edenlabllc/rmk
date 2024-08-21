@@ -36,7 +36,7 @@ exported-vars:
 
 The variables listed in the `env` section will be used when running the `rmk release ...` commands.
 
-> Only the `string` output variables are supported.
+> Only the `string` and `boolean` types are supported for the output variables.
 
 ## Default exported variables
 

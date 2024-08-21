@@ -46,14 +46,14 @@ jobs:
             GIT_COMMIT_MSG="$(git log -1 --pretty=format:"%s")"
             echo "${GIT_COMMIT_MSG}"
           
-            if [[ ! "${GIT_COMMIT_MSG}" =~ ^Merge\ pull\ request\ #[0-9]+\ from\ ${GITHUB_ORG}/release/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-              >&2 echo "Pushes to master should be done via merges of PR requests from release/vN.N.N branches only."
+            if [[ ! "${GIT_COMMIT_MSG}" =~ ^Merge\ pull\ request\ #[0-9]+\ from\ ${GITHUB_ORG}/(hotfix|release)/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              >&2 echo "Pushes to master should be done via merges of PR requests from hotfix/vN.N.N or release/vN.N.N branches only."
               >&2 echo "The expected message format (will be used for parsing a release tag):"
-              >&2 echo "Merge pull request #N from edenlabllc/release/vN.N.N"
+              >&2 echo "Merge pull request #N from ${GITHUB_ORG}/hotfix/vN.N.N or ${GITHUB_ORG}/release/vN.N.N."
               exit 1
             fi
           
-            VERSION="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[2]}"
             echo "DISABLE_BLOB_RMK_RC=true" >> "${GITHUB_ENV}"
           }
           

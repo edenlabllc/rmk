@@ -1,1 +1,1 @@
-- #27 Configured GitHub Pages documentation generation using MkDocs
+- #27 Configured GitHub Pages documentation generation using MkDocs Materials, mike.
