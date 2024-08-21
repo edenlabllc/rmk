@@ -1,6 +1,6 @@
 # Project information
 site_name: RMK
-site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC.
+site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC
 site_url: https://edenlabllc.github.io/rmk
 
 copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
