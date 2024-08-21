@@ -1,18 +1,20 @@
-name: Build and publish documentation to GitHub Pages
+name: Build, validate, publish, version documentation for GitHub Pages
 
 on:
   push:
     branches:
-      - feature/*
       - master
-#    tags:
-#      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - develop
+      - feature/*
+      - release/*
+      - hotfix/*
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  build:
+  publish:
+    name: Build, validate, publish, version documentation for GitHub Pages
     runs-on: ubuntu-22.04
-#    container:
-#      image: python:3.9
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,24 +26,16 @@ jobs:
 
       - name: Build, validate documentation using MkDocs
         run: |
-          # todo check if it is needed
-          # git config --global --add safe.directory /__w/rmk/rmk
           mkdocs build --verbose --clean --strict
           rm -r site/
 
-      - name: Configure Git
-#        if: startsWith(github.ref, 'refs/tags/')
-        id: git-configuration
+      - name: Build, publish, version documentation using Mike (only for stable tags)
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           echo "Configure Git user.name and user.email."
           git config user.name github-actions
           git config user.email github-actions@github.com
           
-          # todo remove tag hardcode used for tests
-          # echo tag=${GITHUB_REF#refs/tags/} >> "${GITHUB_OUTPUT}"
-          echo tag=v0.43.0 >> "${GITHUB_OUTPUT}"
-
-      - name: Build, publish, version documentation using Mike
-#        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mike deploy --update-aliases --push --rebase ${{ steps.git-configuration.outputs.tag }} latest
+          VERSION=${GITHUB_REF#refs/tags/}
+          
+          mike deploy --update-aliases --push --rebase "${VERSION}" latest

@@ -1,7 +1,6 @@
 # Project information
 site_name: RMK
 site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC.
-# todo change to static domain
 site_url: https://edenlabllc.github.io/rmk
 
 copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
@@ -15,34 +14,33 @@ theme:
   name: material
   language: en
   features:
-    - navigation.top # show back to top button
-    - search.suggest # search suggestions: https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/#search-suggestions
-    - search.highlight # highlight search term on target page: https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/#search-suggestions
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/
+    - search.highlight
+    - search.share
+    - search.suggest
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
     - navigation.expand
+    - navigation.indexes
+    - navigation.instant
     - navigation.tabs
     - navigation.tabs.sticky # stick navigation tabs below header while scrolling
+    - navigation.top # show back to top button
     - navigation.tracking
     - navigation.path
-# todo review list of features
-#    - navigation.instant
-#    - navigation.sections
-#    - navigation.indexes
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: "black"
-      accent: "grey"
+      primary: black
+      accent: grey
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: light blue
+      primary: black
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
-  # todo change icons and logo
-#  logo: https://edenlab.io/wp-content/themes/edenlab/assets/images/fhir_icon.svg
   favicon: https://edenlab.io/favicon.ico
   icon:
     repo: fontawesome/brands/github
