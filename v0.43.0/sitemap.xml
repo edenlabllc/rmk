@@ -2,82 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/CODE_OF_CONDUCT/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/CONTRIBUTING/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/SECURITY/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/commands/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/development-and-release-flow/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/quickstart/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/release-notes/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/configuration-management/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/cluster-management/cluster-management/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/cluster-management/exported-environment-variables/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/project-management/dependencies-management-and-project-inheritance/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/project-management/preparation-of-project-repository/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/project-management/requirement-for-project-repository/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/release-management/release-management/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://edenlabllc.github.io/rmk/v0.43.0/configuration/secrets-management/secrets-management/</loc>
-         <lastmod>2024-08-20</lastmod>
+         <lastmod>2024-08-22</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

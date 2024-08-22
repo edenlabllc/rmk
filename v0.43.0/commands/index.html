@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="RMK CLI - Reduced Management for Kubernetes by Edenlab LLC.">
+        <meta name="description" content="RMK CLI - Reduced Management for Kubernetes by Edenlab LLC">
       
       
       
@@ -142,7 +142,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
@@ -170,6 +170,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
@@ -258,7 +263,9 @@
         <a href="../configuration/configuration-management/" class="md-tabs__link">
           
   
-  Configuration
+    
+  
+  Configuration and management
 
         </a>
       </li>
@@ -398,6 +405,18 @@
   
     
     
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
     
@@ -418,7 +437,7 @@
             
   
   <span class="md-ellipsis">
-    Configuration
+    Configuration and management
   </span>
   
 
@@ -428,7 +447,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Configuration
+            Configuration and management
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -458,6 +477,12 @@
   
   
     
+    
+      
+        
+      
+        
+      
     
     
     
@@ -544,6 +569,14 @@
   
   
     
+    
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -651,6 +684,10 @@
   
     
     
+      
+        
+      
+    
     
     
     
@@ -716,6 +753,10 @@
   
   
     
+    
+      
+        
+      
     
     
     
@@ -798,6 +839,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Commands
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -807,6 +859,529 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    SYNOPSIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    GLOBAL OPTIONS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    COMMANDS
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMANDS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster" class="md-nav__link">
+    cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-registry-c" class="md-nav__link">
+    container-registry, c
+  </a>
+  
+    <nav class="md-nav" aria-label="container-registry, c">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy-d" class="md-nav__link">
+    destroy, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#k3d-k" class="md-nav__link">
+    k3d, k
+  </a>
+  
+    <nav class="md-nav" aria-label="k3d, k">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-c" class="md-nav__link">
+    create, c
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-d" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-i" class="md-nav__link">
+    import, i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_1" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-s" class="md-nav__link">
+    start, s
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop" class="md-nav__link">
+    stop
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provision-p" class="md-nav__link">
+    provision, p
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-t" class="md-nav__link">
+    state, t
+  </a>
+  
+    <nav class="md-nav" aria-label="state, t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete-d_1" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_2" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refresh-r" class="md-nav__link">
+    refresh, r
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-s" class="md-nav__link">
+    switch, s
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completion" class="md-nav__link">
+    completion
+  </a>
+  
+    <nav class="md-nav" aria-label="completion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zsh-z" class="md-nav__link">
+    zsh, z
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#init-i" class="md-nav__link">
+    init, i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-d_2" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_3" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-v" class="md-nav__link">
+    view, v
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doc" class="md-nav__link">
+    doc
+  </a>
+  
+    <nav class="md-nav" aria-label="doc">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-g" class="md-nav__link">
+    generate, g
+  </a>
+  
+    <nav class="md-nav" aria-label="generate, g">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#help-h" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help-h_1" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    project
+  </a>
+  
+    <nav class="md-nav" aria-label="project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-g_1" class="md-nav__link">
+    generate, g
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-u" class="md-nav__link">
+    update, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release" class="md-nav__link">
+    release
+  </a>
+  
+    <nav class="md-nav" aria-label="release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-b" class="md-nav__link">
+    build, b
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy-d_1" class="md-nav__link">
+    destroy, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_4" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-r" class="md-nav__link">
+    rollback, r
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-s" class="md-nav__link">
+    sync, s
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-t" class="md-nav__link">
+    template, t
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-u_1" class="md-nav__link">
+    update, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret" class="md-nav__link">
+    secret
+  </a>
+  
+    <nav class="md-nav" aria-label="secret">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manager-m" class="md-nav__link">
+    manager, m
+  </a>
+  
+    <nav class="md-nav" aria-label="manager, m">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-d" class="md-nav__link">
+    decrypt, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypt-e" class="md-nav__link">
+    encrypt, e
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-g_2" class="md-nav__link">
+    generate, g
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys-k" class="md-nav__link">
+    keys, k
+  </a>
+  
+    <nav class="md-nav" aria-label="keys, k">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-c_1" class="md-nav__link">
+    create, c
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-d" class="md-nav__link">
+    download, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-u" class="md-nav__link">
+    upload, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypt-e_1" class="md-nav__link">
+    encrypt, e
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-d_1" class="md-nav__link">
+    decrypt, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-v_1" class="md-nav__link">
+    view, v
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help-h_2" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -851,6 +1426,518 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    SYNOPSIS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    DESCRIPTION
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    GLOBAL OPTIONS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    COMMANDS
+  </a>
+  
+    <nav class="md-nav" aria-label="COMMANDS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cluster" class="md-nav__link">
+    cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-registry-c" class="md-nav__link">
+    container-registry, c
+  </a>
+  
+    <nav class="md-nav" aria-label="container-registry, c">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#login" class="md-nav__link">
+    login
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logout" class="md-nav__link">
+    logout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy-d" class="md-nav__link">
+    destroy, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#k3d-k" class="md-nav__link">
+    k3d, k
+  </a>
+  
+    <nav class="md-nav" aria-label="k3d, k">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-c" class="md-nav__link">
+    create, c
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-d" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-i" class="md-nav__link">
+    import, i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_1" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-s" class="md-nav__link">
+    start, s
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stop" class="md-nav__link">
+    stop
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provision-p" class="md-nav__link">
+    provision, p
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-t" class="md-nav__link">
+    state, t
+  </a>
+  
+    <nav class="md-nav" aria-label="state, t">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete-d_1" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_2" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refresh-r" class="md-nav__link">
+    refresh, r
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-s" class="md-nav__link">
+    switch, s
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completion" class="md-nav__link">
+    completion
+  </a>
+  
+    <nav class="md-nav" aria-label="completion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zsh-z" class="md-nav__link">
+    zsh, z
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#init-i" class="md-nav__link">
+    init, i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-d_2" class="md-nav__link">
+    delete, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_3" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-v" class="md-nav__link">
+    view, v
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doc" class="md-nav__link">
+    doc
+  </a>
+  
+    <nav class="md-nav" aria-label="doc">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-g" class="md-nav__link">
+    generate, g
+  </a>
+  
+    <nav class="md-nav" aria-label="generate, g">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#help-h" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help-h_1" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project" class="md-nav__link">
+    project
+  </a>
+  
+    <nav class="md-nav" aria-label="project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate-g_1" class="md-nav__link">
+    generate, g
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-u" class="md-nav__link">
+    update, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release" class="md-nav__link">
+    release
+  </a>
+  
+    <nav class="md-nav" aria-label="release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-b" class="md-nav__link">
+    build, b
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#destroy-d_1" class="md-nav__link">
+    destroy, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-l_4" class="md-nav__link">
+    list, l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-r" class="md-nav__link">
+    rollback, r
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-s" class="md-nav__link">
+    sync, s
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-t" class="md-nav__link">
+    template, t
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-u_1" class="md-nav__link">
+    update, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret" class="md-nav__link">
+    secret
+  </a>
+  
+    <nav class="md-nav" aria-label="secret">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manager-m" class="md-nav__link">
+    manager, m
+  </a>
+  
+    <nav class="md-nav" aria-label="manager, m">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-d" class="md-nav__link">
+    decrypt, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypt-e" class="md-nav__link">
+    encrypt, e
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-g_2" class="md-nav__link">
+    generate, g
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keys-k" class="md-nav__link">
+    keys, k
+  </a>
+  
+    <nav class="md-nav" aria-label="keys, k">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-c_1" class="md-nav__link">
+    create, c
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-d" class="md-nav__link">
+    download, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-u" class="md-nav__link">
+    upload, u
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encrypt-e_1" class="md-nav__link">
+    encrypt, e
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decrypt-d_1" class="md-nav__link">
+    decrypt, d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-v_1" class="md-nav__link">
+    view, v
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edit" class="md-nav__link">
+    edit
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    update
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help-h_2" class="md-nav__link">
+    help, h
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -869,79 +1956,79 @@
 
 <h1 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h1>
 <p>rmk - Reduced management for Kubernetes</p>
-<h1 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h1>
+<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
 <p>rmk</p>
 <div class="highlight"><pre><span></span><code>[--help|-h]
 [--log-format|--lf]=[value]
 [--log-level|--ll]=[value]
 [--version|-v]
 </code></pre></div>
-<h1 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h1>
+<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
 <p>Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 BuiltBy: goreleaser
-Commit: fef9dcc
-Date: 2024-05-09T07:30:00Z
-Target: darwin_amd64</p>
+Commit: 9d85b2c
+Date: 2024-07-25T14:59:40Z
+Target: linux_amd64</p>
 <p><strong>Usage</strong>:</p>
 <div class="highlight"><pre><span></span><code>rmk [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 </code></pre></div>
-<h1 id="global-options">GLOBAL OPTIONS<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h1>
+<h2 id="global-options">GLOBAL OPTIONS<a class="headerlink" href="#global-options" title="Permanent link">&para;</a></h2>
 <p><strong>&ndash;help, -h</strong>: show help</p>
 <p><strong>&ndash;log-format, &ndash;lf</strong>=&rdquo;&ldquo;: log output format, available: console, json (default: &ldquo;console&rdquo;)</p>
 <p><strong>&ndash;log-level, &ndash;ll</strong>=&rdquo;&ldquo;: log level severity, available: debug, info, error (default: &ldquo;info&rdquo;)</p>
 <p><strong>&ndash;version, -v</strong>: print the version</p>
-<h1 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h1>
-<h2 id="cluster">cluster<a class="headerlink" href="#cluster" title="Permanent link">&para;</a></h2>
+<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="cluster">cluster<a class="headerlink" href="#cluster" title="Permanent link">&para;</a></h3>
 <p>Cluster management</p>
-<h3 id="container-registry-c">container-registry, c<a class="headerlink" href="#container-registry-c" title="Permanent link">&para;</a></h3>
+<h4 id="container-registry-c">container-registry, c<a class="headerlink" href="#container-registry-c" title="Permanent link">&para;</a></h4>
 <p>Container registry management</p>
-<h4 id="login">login<a class="headerlink" href="#login" title="Permanent link">&para;</a></h4>
+<h5 id="login">login<a class="headerlink" href="#login" title="Permanent link">&para;</a></h5>
 <p>Log in to container registry</p>
 <p><strong>&ndash;get-token, -g</strong>: get ECR token for authentication</p>
-<h4 id="logout">logout<a class="headerlink" href="#logout" title="Permanent link">&para;</a></h4>
+<h5 id="logout">logout<a class="headerlink" href="#logout" title="Permanent link">&para;</a></h5>
 <p>Log out from container registry</p>
-<h3 id="destroy-d">destroy, d<a class="headerlink" href="#destroy-d" title="Permanent link">&para;</a></h3>
+<h4 id="destroy-d">destroy, d<a class="headerlink" href="#destroy-d" title="Permanent link">&para;</a></h4>
 <p>Destroy AWS cluster using Terraform</p>
-<h3 id="list-l">list, l<a class="headerlink" href="#list-l" title="Permanent link">&para;</a></h3>
+<h4 id="list-l">list, l<a class="headerlink" href="#list-l" title="Permanent link">&para;</a></h4>
 <p>List all Terraform available workspaces</p>
-<h3 id="k3d-k">k3d, k<a class="headerlink" href="#k3d-k" title="Permanent link">&para;</a></h3>
+<h4 id="k3d-k">k3d, k<a class="headerlink" href="#k3d-k" title="Permanent link">&para;</a></h4>
 <p>K3D cluster management</p>
-<h4 id="create-c">create, c<a class="headerlink" href="#create-c" title="Permanent link">&para;</a></h4>
+<h5 id="create-c">create, c<a class="headerlink" href="#create-c" title="Permanent link">&para;</a></h5>
 <p>Create K3D cluster</p>
-<p><strong>&ndash;k3d-volume-host-path, &ndash;kv</strong>=&rdquo;&ldquo;: host local directory path for mount into K3D cluster (default: &ldquo;${PWD}/rmk&rdquo;)</p>
-<h4 id="delete-d">delete, d<a class="headerlink" href="#delete-d" title="Permanent link">&para;</a></h4>
+<p><strong>&ndash;k3d-volume-host-path, &ndash;kv</strong>=&rdquo;&ldquo;: host local directory path for mount into K3D cluster (default: present working directory)</p>
+<h5 id="delete-d">delete, d<a class="headerlink" href="#delete-d" title="Permanent link">&para;</a></h5>
 <p>Delete K3D cluster</p>
-<h4 id="import-i">import, i<a class="headerlink" href="#import-i" title="Permanent link">&para;</a></h4>
+<h5 id="import-i">import, i<a class="headerlink" href="#import-i" title="Permanent link">&para;</a></h5>
 <p>Import images from docker to K3D cluster</p>
 <p><strong>&ndash;k3d-import-image, &ndash;ki</strong>=&rdquo;&ldquo;: list images for import into K3D cluster</p>
-<h4 id="list-l_1">list, l<a class="headerlink" href="#list-l_1" title="Permanent link">&para;</a></h4>
+<h5 id="list-l_1">list, l<a class="headerlink" href="#list-l_1" title="Permanent link">&para;</a></h5>
 <p>List K3D clusters</p>
-<h4 id="start-s">start, s<a class="headerlink" href="#start-s" title="Permanent link">&para;</a></h4>
+<h5 id="start-s">start, s<a class="headerlink" href="#start-s" title="Permanent link">&para;</a></h5>
 <p>Start K3D cluster</p>
-<h4 id="stop">stop<a class="headerlink" href="#stop" title="Permanent link">&para;</a></h4>
+<h5 id="stop">stop<a class="headerlink" href="#stop" title="Permanent link">&para;</a></h5>
 <p>Stop K3D cluster</p>
-<h3 id="provision-p">provision, p<a class="headerlink" href="#provision-p" title="Permanent link">&para;</a></h3>
+<h4 id="provision-p">provision, p<a class="headerlink" href="#provision-p" title="Permanent link">&para;</a></h4>
 <p>Provision AWS cluster using Terraform</p>
 <p><strong>&ndash;plan, -p</strong>: creates an execution Terraform plan</p>
-<h3 id="state-t">state, t<a class="headerlink" href="#state-t" title="Permanent link">&para;</a></h3>
+<h4 id="state-t">state, t<a class="headerlink" href="#state-t" title="Permanent link">&para;</a></h4>
 <p>State cluster management using Terraform</p>
-<h4 id="delete-d_1">delete, d<a class="headerlink" href="#delete-d_1" title="Permanent link">&para;</a></h4>
+<h5 id="delete-d_1">delete, d<a class="headerlink" href="#delete-d_1" title="Permanent link">&para;</a></h5>
 <p>Delete resource from Terraform state</p>
 <p><strong>&ndash;resource-address, &ndash;ra</strong>=&rdquo;&ldquo;: resource address for delete from Terraform state</p>
-<h4 id="list-l_2">list, l<a class="headerlink" href="#list-l_2" title="Permanent link">&para;</a></h4>
+<h5 id="list-l_2">list, l<a class="headerlink" href="#list-l_2" title="Permanent link">&para;</a></h5>
 <p>List resources from Terraform state</p>
-<h4 id="refresh-r">refresh, r<a class="headerlink" href="#refresh-r" title="Permanent link">&para;</a></h4>
+<h5 id="refresh-r">refresh, r<a class="headerlink" href="#refresh-r" title="Permanent link">&para;</a></h5>
 <p>Update state file for AWS cluster using Terraform</p>
-<h3 id="switch-s">switch, s<a class="headerlink" href="#switch-s" title="Permanent link">&para;</a></h3>
+<h4 id="switch-s">switch, s<a class="headerlink" href="#switch-s" title="Permanent link">&para;</a></h4>
 <p>Switch Kubernetes context for tenant cluster</p>
 <p><strong>&ndash;force, -f</strong>: force update Kubernetes context from remote cluster</p>
-<h2 id="completion">completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h2>
+<h3 id="completion">completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h3>
 <p>Completion management</p>
-<h3 id="zsh-z">zsh, z<a class="headerlink" href="#zsh-z" title="Permanent link">&para;</a></h3>
+<h4 id="zsh-z">zsh, z<a class="headerlink" href="#zsh-z" title="Permanent link">&para;</a></h4>
 <p>View Zsh completion scripts</p>
-<h2 id="config">config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h2>
+<h3 id="config">config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h3>
 <p>Configuration management</p>
-<h3 id="init-i">init, i<a class="headerlink" href="#init-i" title="Permanent link">&para;</a></h3>
+<h4 id="init-i">init, i<a class="headerlink" href="#init-i" title="Permanent link">&para;</a></h4>
 <p>Initialize configuration for current tenant and selected environment</p>
 <p><strong>&ndash;artifact-mode, &ndash;am</strong>=&rdquo;&ldquo;: choice of artifact usage model, available: none, online, offline (default: &ldquo;none&rdquo;)</p>
 <p><strong>&ndash;aws-ecr-host, &ndash;aeh</strong>=&rdquo;&ldquo;: AWS ECR host (default: &ldquo;288509344804.dkr.ecr.eu-north-1.amazonaws.com&rdquo;)</p>
@@ -961,73 +2048,73 @@ Target: darwin_amd64</p>
 <p><strong>&ndash;slack-message-details, &ndash;smd</strong>=&rdquo;&ldquo;: additional information for body of Slack message</p>
 <p><strong>&ndash;slack-notifications, -n</strong>: enable Slack notifications</p>
 <p><strong>&ndash;slack-webhook, &ndash;sw</strong>=&rdquo;&ldquo;: URL for Slack webhook</p>
-<h3 id="delete-d_2">delete, d<a class="headerlink" href="#delete-d_2" title="Permanent link">&para;</a></h3>
+<h4 id="delete-d_2">delete, d<a class="headerlink" href="#delete-d_2" title="Permanent link">&para;</a></h4>
 <p>Delete configuration for selected environment</p>
-<h3 id="list-l_3">list, l<a class="headerlink" href="#list-l_3" title="Permanent link">&para;</a></h3>
+<h4 id="list-l_3">list, l<a class="headerlink" href="#list-l_3" title="Permanent link">&para;</a></h4>
 <p>List available configurations for current tenant</p>
 <p><strong>&ndash;all, -a</strong>: list all tenant configurations</p>
-<h3 id="view-v">view, v<a class="headerlink" href="#view-v" title="Permanent link">&para;</a></h3>
+<h4 id="view-v">view, v<a class="headerlink" href="#view-v" title="Permanent link">&para;</a></h4>
 <p>View configuration for selected environment</p>
-<h2 id="doc">doc<a class="headerlink" href="#doc" title="Permanent link">&para;</a></h2>
+<h3 id="doc">doc<a class="headerlink" href="#doc" title="Permanent link">&para;</a></h3>
 <p>Documentation management</p>
 <p><strong>&ndash;help, -h</strong>: show help</p>
-<h3 id="generate-g">generate, g<a class="headerlink" href="#generate-g" title="Permanent link">&para;</a></h3>
+<h4 id="generate-g">generate, g<a class="headerlink" href="#generate-g" title="Permanent link">&para;</a></h4>
 <p>Generate documentation by commands and flags in Markdown format</p>
 <p><strong>&ndash;help, -h</strong>: show help</p>
-<h4 id="help-h">help, h<a class="headerlink" href="#help-h" title="Permanent link">&para;</a></h4>
+<h5 id="help-h">help, h<a class="headerlink" href="#help-h" title="Permanent link">&para;</a></h5>
 <p>Shows a list of commands or help for one command</p>
-<h3 id="help-h_1">help, h<a class="headerlink" href="#help-h_1" title="Permanent link">&para;</a></h3>
+<h4 id="help-h_1">help, h<a class="headerlink" href="#help-h_1" title="Permanent link">&para;</a></h4>
 <p>Shows a list of commands or help for one command</p>
-<h2 id="project">project<a class="headerlink" href="#project" title="Permanent link">&para;</a></h2>
+<h3 id="project">project<a class="headerlink" href="#project" title="Permanent link">&para;</a></h3>
 <p>Project management</p>
-<h3 id="generate-g_1">generate, g<a class="headerlink" href="#generate-g_1" title="Permanent link">&para;</a></h3>
+<h4 id="generate-g_1">generate, g<a class="headerlink" href="#generate-g_1" title="Permanent link">&para;</a></h4>
 <p>Generate project directories and files structure</p>
 <p><strong>&ndash;create-sops-age-keys, -c</strong>: create SOPS age keys for generated project structure</p>
-<h3 id="update-u">update, u<a class="headerlink" href="#update-u" title="Permanent link">&para;</a></h3>
+<h4 id="update-u">update, u<a class="headerlink" href="#update-u" title="Permanent link">&para;</a></h4>
 <p>Update project file with specific dependencies version</p>
 <p><strong>&ndash;dependency, -d</strong>=&rdquo;&ldquo;: specific dependency name for updating project file</p>
 <p><strong>&ndash;skip-ci, -i</strong>: add [skip ci] to commit message line to skip triggering other CI builds</p>
 <p><strong>&ndash;skip-commit, -c</strong>: only change a version in for project file without committing and pushing it</p>
 <p><strong>&ndash;version, -v</strong>=&rdquo;&ldquo;: specific dependency version for updating project file</p>
-<h2 id="release">release<a class="headerlink" href="#release" title="Permanent link">&para;</a></h2>
+<h3 id="release">release<a class="headerlink" href="#release" title="Permanent link">&para;</a></h3>
 <p>Release components list from state file (Helmfile)</p>
-<h3 id="build-b">build, b<a class="headerlink" href="#build-b" title="Permanent link">&para;</a></h3>
+<h4 id="build-b">build, b<a class="headerlink" href="#build-b" title="Permanent link">&para;</a></h4>
 <p>Build releases</p>
 <p><strong>&ndash;helmfile-args, &ndash;ha</strong>=&rdquo;&ldquo;: Helmfile additional arguments</p>
 <p><strong>&ndash;helmfile-log-level, &ndash;hll</strong>=&rdquo;&ldquo;: Helmfile log level severity, available: debug, info, warn, error (default: &ldquo;error&rdquo;)</p>
 <p><strong>&ndash;selector, -l</strong>=&rdquo;&ldquo;: only run using releases that match labels. Labels can take form of foo=bar or foo!=bar</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="destroy-d_1">destroy, d<a class="headerlink" href="#destroy-d_1" title="Permanent link">&para;</a></h3>
+<h4 id="destroy-d_1">destroy, d<a class="headerlink" href="#destroy-d_1" title="Permanent link">&para;</a></h4>
 <p>Destroy releases</p>
 <p><strong>&ndash;helmfile-args, &ndash;ha</strong>=&rdquo;&ldquo;: Helmfile additional arguments</p>
 <p><strong>&ndash;helmfile-log-level, &ndash;hll</strong>=&rdquo;&ldquo;: Helmfile log level severity, available: debug, info, warn, error (default: &ldquo;error&rdquo;)</p>
 <p><strong>&ndash;output, -o</strong>=&rdquo;&ldquo;: output format, available: short, yaml (default: &ldquo;short&rdquo;)</p>
 <p><strong>&ndash;selector, -l</strong>=&rdquo;&ldquo;: only run using releases that match labels. Labels can take form of foo=bar or foo!=bar</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="list-l_4">list, l<a class="headerlink" href="#list-l_4" title="Permanent link">&para;</a></h3>
+<h4 id="list-l_4">list, l<a class="headerlink" href="#list-l_4" title="Permanent link">&para;</a></h4>
 <p>List releases</p>
 <p><strong>&ndash;helmfile-args, &ndash;ha</strong>=&rdquo;&ldquo;: Helmfile additional arguments</p>
 <p><strong>&ndash;helmfile-log-level, &ndash;hll</strong>=&rdquo;&ldquo;: Helmfile log level severity, available: debug, info, warn, error (default: &ldquo;error&rdquo;)</p>
 <p><strong>&ndash;output, -o</strong>=&rdquo;&ldquo;: output format, available: short, yaml (default: &ldquo;short&rdquo;)</p>
 <p><strong>&ndash;selector, -l</strong>=&rdquo;&ldquo;: only run using releases that match labels. Labels can take form of foo=bar or foo!=bar</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="rollback-r">rollback, r<a class="headerlink" href="#rollback-r" title="Permanent link">&para;</a></h3>
+<h4 id="rollback-r">rollback, r<a class="headerlink" href="#rollback-r" title="Permanent link">&para;</a></h4>
 <p>Rollback specific releases to latest stable state</p>
 <p><strong>&ndash;release-name, &ndash;rn</strong>=&rdquo;&ldquo;: list release names for rollback status in Kubernetes</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="sync-s">sync, s<a class="headerlink" href="#sync-s" title="Permanent link">&para;</a></h3>
+<h4 id="sync-s">sync, s<a class="headerlink" href="#sync-s" title="Permanent link">&para;</a></h4>
 <p>Sync releases</p>
 <p><strong>&ndash;helmfile-args, &ndash;ha</strong>=&rdquo;&ldquo;: Helmfile additional arguments</p>
 <p><strong>&ndash;helmfile-log-level, &ndash;hll</strong>=&rdquo;&ldquo;: Helmfile log level severity, available: debug, info, warn, error (default: &ldquo;error&rdquo;)</p>
 <p><strong>&ndash;selector, -l</strong>=&rdquo;&ldquo;: only run using releases that match labels. Labels can take form of foo=bar or foo!=bar</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="template-t">template, t<a class="headerlink" href="#template-t" title="Permanent link">&para;</a></h3>
+<h4 id="template-t">template, t<a class="headerlink" href="#template-t" title="Permanent link">&para;</a></h4>
 <p>Template releases</p>
 <p><strong>&ndash;helmfile-args, &ndash;ha</strong>=&rdquo;&ldquo;: Helmfile additional arguments</p>
 <p><strong>&ndash;helmfile-log-level, &ndash;hll</strong>=&rdquo;&ldquo;: Helmfile log level severity, available: debug, info, warn, error (default: &ldquo;error&rdquo;)</p>
 <p><strong>&ndash;selector, -l</strong>=&rdquo;&ldquo;: only run using releases that match labels. Labels can take form of foo=bar or foo!=bar</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
-<h3 id="update-u_1">update, u<a class="headerlink" href="#update-u_1" title="Permanent link">&para;</a></h3>
+<h4 id="update-u_1">update, u<a class="headerlink" href="#update-u_1" title="Permanent link">&para;</a></h4>
 <p>Update releases file with specific environment values</p>
 <p><strong>&ndash;commit, -c</strong>: only commit and push changes for releases file</p>
 <p><strong>&ndash;deploy, -d</strong>: deploy updated releases after committed and pushed changes</p>
@@ -1035,44 +2122,44 @@ Target: darwin_amd64</p>
 <p><strong>&ndash;skip-ci, -i</strong>: add [skip ci] to commit message line to skip triggering other CI builds</p>
 <p><strong>&ndash;skip-context-switch, -s</strong>: skip context switch for not provisioned cluster</p>
 <p><strong>&ndash;tag, -t</strong>=&rdquo;&ldquo;: specific tag for updating releases file</p>
-<h2 id="secret">secret<a class="headerlink" href="#secret" title="Permanent link">&para;</a></h2>
+<h3 id="secret">secret<a class="headerlink" href="#secret" title="Permanent link">&para;</a></h3>
 <p>secrets management</p>
-<h3 id="manager-m">manager, m<a class="headerlink" href="#manager-m" title="Permanent link">&para;</a></h3>
+<h4 id="manager-m">manager, m<a class="headerlink" href="#manager-m" title="Permanent link">&para;</a></h4>
 <p>batch secrets management</p>
-<h4 id="decrypt-d">decrypt, d<a class="headerlink" href="#decrypt-d" title="Permanent link">&para;</a></h4>
+<h5 id="decrypt-d">decrypt, d<a class="headerlink" href="#decrypt-d" title="Permanent link">&para;</a></h5>
 <p>Decrypt secrets batch for selected scope and environment</p>
 <p><strong>&ndash;environment, -e</strong>=&rdquo;&ldquo;: specific environments for selected secrets</p>
 <p><strong>&ndash;scope, -s</strong>=&rdquo;&ldquo;: specific scopes for selected secrets</p>
-<h4 id="encrypt-e">encrypt, e<a class="headerlink" href="#encrypt-e" title="Permanent link">&para;</a></h4>
+<h5 id="encrypt-e">encrypt, e<a class="headerlink" href="#encrypt-e" title="Permanent link">&para;</a></h5>
 <p>Encrypt secrets batch for selected scope and environment</p>
 <p><strong>&ndash;environment, -e</strong>=&rdquo;&ldquo;: specific environments for selected secrets</p>
 <p><strong>&ndash;scope, -s</strong>=&rdquo;&ldquo;: specific scopes for selected secrets</p>
-<h4 id="generate-g_2">generate, g<a class="headerlink" href="#generate-g_2" title="Permanent link">&para;</a></h4>
+<h5 id="generate-g_2">generate, g<a class="headerlink" href="#generate-g_2" title="Permanent link">&para;</a></h5>
 <p>Generate secrets batch for selected scope and environment</p>
 <p><strong>&ndash;environment, -e</strong>=&rdquo;&ldquo;: specific environments for selected secrets</p>
 <p><strong>&ndash;force, -f</strong>: force overwriting current secrets after generating new</p>
 <p><strong>&ndash;scope, -s</strong>=&rdquo;&ldquo;: specific scopes for selected secrets</p>
-<h3 id="keys-k">keys, k<a class="headerlink" href="#keys-k" title="Permanent link">&para;</a></h3>
+<h4 id="keys-k">keys, k<a class="headerlink" href="#keys-k" title="Permanent link">&para;</a></h4>
 <p>SOPS age keys management</p>
-<h4 id="create-c_1">create, c<a class="headerlink" href="#create-c_1" title="Permanent link">&para;</a></h4>
+<h5 id="create-c_1">create, c<a class="headerlink" href="#create-c_1" title="Permanent link">&para;</a></h5>
 <p>Create SOPS age keys</p>
-<h4 id="download-d">download, d<a class="headerlink" href="#download-d" title="Permanent link">&para;</a></h4>
+<h5 id="download-d">download, d<a class="headerlink" href="#download-d" title="Permanent link">&para;</a></h5>
 <p>Download SOPS age keys from S3 bucket</p>
-<h4 id="upload-u">upload, u<a class="headerlink" href="#upload-u" title="Permanent link">&para;</a></h4>
+<h5 id="upload-u">upload, u<a class="headerlink" href="#upload-u" title="Permanent link">&para;</a></h5>
 <p>Upload SOPS age keys to S3 bucket</p>
-<h3 id="encrypt-e_1">encrypt, e<a class="headerlink" href="#encrypt-e_1" title="Permanent link">&para;</a></h3>
+<h4 id="encrypt-e_1">encrypt, e<a class="headerlink" href="#encrypt-e_1" title="Permanent link">&para;</a></h4>
 <p>Encrypt secret file</p>
-<h3 id="decrypt-d_1">decrypt, d<a class="headerlink" href="#decrypt-d_1" title="Permanent link">&para;</a></h3>
+<h4 id="decrypt-d_1">decrypt, d<a class="headerlink" href="#decrypt-d_1" title="Permanent link">&para;</a></h4>
 <p>Decrypt secret file</p>
-<h3 id="view-v_1">view, v<a class="headerlink" href="#view-v_1" title="Permanent link">&para;</a></h3>
+<h4 id="view-v_1">view, v<a class="headerlink" href="#view-v_1" title="Permanent link">&para;</a></h4>
 <p>View secret file</p>
-<h3 id="edit">edit<a class="headerlink" href="#edit" title="Permanent link">&para;</a></h3>
+<h4 id="edit">edit<a class="headerlink" href="#edit" title="Permanent link">&para;</a></h4>
 <p>Edit secret file</p>
-<h2 id="update">update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h2>
+<h3 id="update">update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
 <p>Update RMK CLI to a new version</p>
 <p><strong>&ndash;release-candidate, -r</strong>: force update RMK to latest release candidate version</p>
 <p><strong>&ndash;version, -v</strong>=&rdquo;&ldquo;: RMK special version. (default: empty value corresponds latest version)</p>
-<h2 id="help-h_2">help, h<a class="headerlink" href="#help-h_2" title="Permanent link">&para;</a></h2>
+<h3 id="help-h_2">help, h<a class="headerlink" href="#help-h_2" title="Permanent link">&para;</a></h3>
 <p>Shows a list of commands or help for one command</p>
 
   <hr>
@@ -1080,7 +2167,7 @@ Target: darwin_amd64</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 20, 2024</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 22, 2024</span>
       
     
   </small>
@@ -1133,7 +2220,7 @@ Target: darwin_amd64</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "search.suggest", "search.highlight", "navigation.expand", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.path"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.highlight", "search.share", "search.suggest", "navigation.expand", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.path"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.aecac24b.min.js"></script>
