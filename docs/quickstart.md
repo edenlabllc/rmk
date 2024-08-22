@@ -3,10 +3,10 @@
 This guide demonstrates how to use `RMK` to prepare the structure of a new project in five steps,
 create a local cluster based on `K3D`, deploy your first application ([Nginx](https://nginx.org/)) using `Helmfile` releases.
 
-> Prerequisite:
+> Prerequisites:
+> 
 > - An active AWS user with access keys and the `AdministratorAccess` permissions.
 > - A prepared [project repository](configuration/project-management/preparation-of-project-repository.md#preparation-of-the-project-repository)
-
 > - Installed [RMK](README.md#installation)
 > - The fulfilled [requirements](README.md#requirements) for proper RMK operation.
 

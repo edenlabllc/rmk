@@ -1,6 +1,6 @@
 # Preparation of the project repository
 
-> Prerequisite:
+> Prerequisites:
 > 
 > - Create a remote repository in your Version Control System (GitHub) according to the following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
 > - Clone the project repository. For example: **project.bootstrap.infra** OR `git init && git remote add && git commit -m "init commit"`
