@@ -87,37 +87,4 @@ _cli_zsh_autocomplete() {
 }
 
 compdef _cli_zsh_autocomplete $PROG`
-
-	CustomMarkdownDocTemplate = `{{if gt .SectionNum 0}}% {{ .App.Name }} {{ .SectionNum }}
-
-{{end}}# NAME
-
-{{ .App.Name }}{{ if .App.Usage }} - {{ .App.Usage }}{{ end }}
-
-## SYNOPSIS
-
-{{ .App.Name }}
-{{ if .SynopsisArgs }}
-` + "```" + `
-{{ range $v := .SynopsisArgs }}{{ $v }}{{ end }}` + "```" + `
-{{ end }}{{ if .App.Description }}
-## DESCRIPTION
-
-{{ .App.Description }}
-{{ end }}
-**Usage**:
-
-` + "```" + `{{ if .App.UsageText }}
-{{ .App.UsageText }}
-{{ else }}
-{{ .App.Name }} [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
-{{ end }}` + "```" + `
-{{ if .GlobalArgs }}
-## GLOBAL OPTIONS
-{{ range $v := .GlobalArgs }}
-{{ $v }}{{ end }}
-{{ end }}{{ if .Commands }}
-## COMMANDS
-{{ range $v := .Commands }}
-#{{ $v }}{{ end }}{{ end }}`
 )
