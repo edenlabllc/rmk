@@ -165,8 +165,7 @@ rmk update --version vX.X.X
   to update release and service version declarations, automatically commit the changes to Git.
 - **[Project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** Generate a complete Kubernetes-based project structure from scratch using RMK, following the best practices.
 - **[Documentation generation:](commands.md#doc)** Generate the full command documentation in the Markdown format with one click.
-- **[Support for different types of code sources:](configuration/configuration-management.md#use-upstream-artifact-for-the-downstream-projects-repository)** Use Git when the _artifact-mode_ is _none_, S3 when the _artifact-mode_ is _online_, 
-  switch to fully offline installations when the _artifact-mode_ is _offline_.
+- **[Support for different types of code sources:](configuration/configuration-management.md#use-upstream-artifact-for-the-downstream-projects-repository)** Use Git when the _artifact-mode_ is _none_, S3 when the _artifact-mode_ is _online_. 
 
 ## Supported Kubernetes providers
 
@@ -191,7 +190,6 @@ Among the providers are:
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with the **vals** tool for enhanced values and secret management.
 - **Major update of the AWS [EKS](https://aws.amazon.com/eks/) cluster provider:** Update the AWS EKS cluster provider to the latest versions to utilize all the supported features of the [Terraform](https://www.terraform.io/) CLI and modules.
 - **Implementation of additional RMK cluster providers:** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc.
-- **Offline artifact mode:** Implement the **offline** artifact mode to install artifacts in fully isolated offline environments.
 - **Web documentation generator:** Add an HTML documentation generator based on the **.md** files.
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
 

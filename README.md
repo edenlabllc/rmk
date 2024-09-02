@@ -190,8 +190,8 @@ Among the providers are:
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating pull requests (PRs).
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with the **vals** tool for enhanced values and secret management.
 - **Major update of the AWS [EKS](https://aws.amazon.com/eks/) cluster provider:** Update the AWS EKS cluster provider to the latest versions to utilize all the supported features of the [Terraform](https://www.terraform.io/) CLI and modules.
-- **Implementation of additional RMK cluster providers:** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc.
-- **Offline artifact mode:** Implement the **offline** artifact mode to install artifacts in fully isolated offline environments.
+- **Implementation of additional Terraform-based RMK cluster providers:** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc. using [Terraform](https://www.terraform.io/).
+- **Implementation of additional Kubernetes Cluster API-based RMK cluster providers:** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc. using [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/introduction).
 - **Web documentation generator:** Add an HTML documentation generator based on the **.md** files.
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
 
