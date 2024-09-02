@@ -10,6 +10,7 @@ import (
 
 	"rmk/commands"
 	"rmk/logger"
+	"rmk/system"
 )
 
 var (
@@ -39,6 +40,8 @@ GLOBAL OPTIONS:
 GLOBAL OPTIONS:
 ` + output + `{{range $index, $option := .VisibleFlags}}{{if eq $option.Name "help"}}{{"   "}}{{$option}}{{end}}{{end}}
 `
+
+	cli.MarkdownDocTemplate = system.CustomMarkdownDocTemplate
 }
 
 func runCLI() *cli.App {

@@ -1,2 +1,2 @@
-- #33 - Added a new GitHub action for RMK commands documentation generation.
-- #34 - Added support for Terraform outputs of a boolean type.
+- #27 Configured GitHub Pages documentation generation using MkDocs Materials, mike.
+- #42 Fixed markdown headers in rmk doc generate command.
