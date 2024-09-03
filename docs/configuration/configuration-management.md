@@ -1,4 +1,4 @@
-# RMK configuration management
+# Configuration management
 
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
 At the time of configuration initialization launch, RMK prepares
@@ -28,8 +28,9 @@ aws:
 ## Initialization of RMK configuration
 
 > Prerequisites:
+> 
 > - The `GITHUB_TOKEN` variable or `--github-token` flag are required: [GitHub Personal Access Tokens (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic).
->   The token should have the `repo: full control` permissions.
+>   > The token should have the `repo: full control` permissions.
 > - [Project repository](project-management/requirement-for-project-repository.md) has already been created and initialized.
 > - At least one Git branch for the environment exists already.
 
@@ -128,17 +129,17 @@ project:
 Set the `version` field to the version of the upstream project for the current project. For example:
 
 ```shell
-# artifact usage modes: none|online|offline (default: "none")
+# artifact usage modes: none|online (default: "none")
 rmk config init --artifact-mode=online
 ```
 
 > Currently, only two artifact modes are supported:
+> 
 > - `none`: The standard mode of RMK which is used for development normally, the codebase will be downloaded from GitHub repositories.
 >   The mode does not require the presence of the special "license" credentials.
 > - `online`: Switches RMK to work with artifacts. In this mode, RMK will not use any credentials for GitHub 
 >   (e.g., personal access tokens), but will request additional license AWS credentials to download and unpack 
 >   the artifact from a repository like AWS S3.
-> The `offline` mode is currently unsupported and will be implemented in future releases.
 
 To change the "license" AWS credentials when in the online artifact mode, use the following command:
 

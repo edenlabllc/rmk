@@ -145,7 +145,7 @@ Configuration management
 
 Initialize configuration for current tenant and selected environment
 
-**--artifact-mode, --am**="": choice of artifact usage model, available: none, online, offline (default: "none")
+**--artifact-mode, --am**="": choice of artifact usage model, available: none, online (default: "none")
 
 **--aws-ecr-host, --aeh**="": AWS ECR host (default: "288509344804.dkr.ecr.eu-north-1.amazonaws.com")
 
@@ -155,7 +155,7 @@ Initialize configuration for current tenant and selected environment
 
 **--aws-reconfigure, -r**: force AWS profile creation
 
-**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline
+**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has the values: online
 
 **--cloudflare-token, --cft**="": Cloudflare API token for provision NS records
 
@@ -406,4 +406,3 @@ Update RMK CLI to a new version
 ### help, h
 
 Shows a list of commands or help for one command
-

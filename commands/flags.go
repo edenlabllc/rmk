@@ -13,7 +13,7 @@ func flagsConfig() []cli.Flag {
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "artifact-mode",
-				Usage:   "choice of artifact usage model, available: none, online, offline",
+				Usage:   "choice of artifact usage model, available: none, online",
 				Aliases: []string{"am"},
 				EnvVars: []string{"RMK_ARTIFACT_MODE"},
 				Value:   system.ArtifactModeDefault,

@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the maintainers responsible for enforcement and specified in 
-[CODEOWNERS](https://github.com/edenlabllc/rmk/blob/master/docs/CODEOWNERS).
+[CODEOWNERS](https://github.com/edenlabllc/rmk/blob/master/CODEOWNERS).
 
 All complaints will be reviewed and investigated promptly and fairly.
 
