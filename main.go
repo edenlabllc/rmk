@@ -58,9 +58,9 @@ GLOBAL OPTIONS:
 
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
-**BuiltBy:** ` + builtBy + ` \
-**Commit:** ` + commit + ` \
-**Date:** ` + date + ` \
+**BuiltBy:** ` + builtBy + ` <br />
+**Commit:** ` + commit + ` <br />
+**Date:** ` + date + ` <br />
 **Target:** ` + target + `
 {{ end }}
 **Usage**:
