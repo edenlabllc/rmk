@@ -1,1 +1,2 @@
-- #27 Configured GitHub Pages documentation generation using MkDocs Materials, mike.
+- #27 - Configured GitHub Pages documentation generation using MkDocs Materials, mike.
+- #42 - Fixed markdown headers in rmk doc generate command.
