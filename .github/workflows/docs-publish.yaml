@@ -8,8 +8,6 @@ on:
       - feature/*
       - release/*
       - hotfix/*
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   docs-publish:
@@ -26,16 +24,34 @@ jobs:
 
       - name: Build, validate documentation using MkDocs
         run: |
-          mkdocs build --verbose --clean --strict
+          mkdocs build --clean --strict
           rm -r site/
 
-      - name: Build, publish, version documentation using Mike (only for stable tags)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Build, publish, version documentation using Mike (only for master)
+        if: github.ref == 'refs/heads/master'
         run: |
+          # constants for selecting branches
+          readonly GITHUB_ORG="${GITHUB_REPOSITORY_OWNER}"
+          
+          function resolve_release_envs() {
+            echo "Git commit message:"
+            GIT_COMMIT_MSG="$(git log -1 --pretty=format:"%s")"
+            echo "${GIT_COMMIT_MSG}"
+            
+            if [[ ! "${GIT_COMMIT_MSG}" =~ ^Merge\ pull\ request\ #[0-9]+\ from\ ${GITHUB_ORG}/(hotfix|release)/(v[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              >&2 echo "Pushes to master should be done via merges of PR requests from hotfix/vN.N.N or release/vN.N.N branches only."
+              >&2 echo "The expected message format (will be used for parsing a release tag):"
+              >&2 echo "Merge pull request #N from ${GITHUB_ORG}/hotfix/vN.N.N or ${GITHUB_ORG}/release/vN.N.N."
+              exit 1
+            fi
+          
+            VERSION="${BASH_REMATCH[2]}"
+          }
+          
           echo "Configure Git user.name and user.email."
           git config user.name github-actions
           git config user.email github-actions@github.com
           
-          VERSION=${GITHUB_REF#refs/tags/}
-          
+          echo "Publish documentation"
+          resolve_release_envs
           mike deploy --update-aliases --push --rebase "${VERSION}" latest

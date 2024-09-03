@@ -41,7 +41,7 @@ jobs:
           readonly GIT_BRANCH="${GITHUB_REF_NAME}"
           readonly GITHUB_ORG="${GITHUB_REPOSITORY_OWNER}"
           
-          function release() {
+          function resolve_release_envs() {
             echo "Git commit message:"
             GIT_COMMIT_MSG="$(git log -1 --pretty=format:"%s")"
             echo "${GIT_COMMIT_MSG}"
@@ -69,7 +69,7 @@ jobs:
               fi
               ;;
             master)
-              release
+              resolve_release_envs
               ;;
           esac
 
