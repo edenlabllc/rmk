@@ -8,7 +8,7 @@ on:
 
 jobs:
   docs-commands-update:
-    if: "!contains(github.event.head_commit.message, '[skip docs commands generate]')"
+    if: "!contains(github.event.head_commit.message, '[skip docs commands update]')"
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
