@@ -28,7 +28,7 @@ Command line tool for reduced management and provisioning of Kubernetes clusters
     * [Release management](configuration/release-management/release-management.md)
     * [Secrets management](configuration/secrets-management/secrets-management.md)
   * [Commands](commands.md)
-  * [Development and release flow](development-and-release-flow.md)
+  * [Development and release flows](development-and-release-flows.md)
   * [Features](#features)
   * [Supported Kubernetes providers](#supported-kubernetes-providers)
   * [Roadmap](#roadmap)
@@ -84,21 +84,22 @@ A classic Kodjin installation uses 3-level inheritance:
 
 The additional components used by Kodjin are:
 
-- **\*.provisioner.infra:** Repositories for Kubernetes cluster provisioning.
+- **\*.provisioner.infra:** RMK cluster provider repositories for Kubernetes cluster provisioning.
 - **helmfile.hooks.infra:** Shell scrips used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   deps/Kodjin/any other tenant.
 - **core.charts.infra:** Helm charts used by the Kodjin services.
 
-The examples of Kubernetes providers, to which Kodjin has been installed, are:
+The examples of Kubernetes providers, to which Kodjin has been installed already, are:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
+- [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
 - [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
 - on-premise installations deployed using [Ansible Kubespray](https://github.com/kubernetes-sigs/kubespray)
 - single-machine [K3D](https://k3d.io/) clusters
 
-#### Related OSS repositories
+### Related OSS repositories
 
 - [AWS cluster provider for RMK](https://github.com/edenlabllc/aws.provisioner.infra)
 - [Azure cluster provider for RMK](https://github.com/edenlabllc/azure.provisioner.infra)
@@ -130,7 +131,7 @@ curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" |
 
 Alternatively, you can go directly to https://github.com/edenlabllc/rmk/releases and download the binary.
 
-As another option, the binary can be [built from source](development-and-release-flow.md#building-from-source).
+As another option, the binary can be [built from source](development-and-release-flows.md#building-from-source).
 
 ## Update
 
@@ -174,8 +175,8 @@ By design, RMK can work with any Kubernetes provider.
 Among the providers are:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
-- [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
+- [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - [Red Hat OpenShift](https://redhat.com/en/technologies/cloud-computing/openshift)
 - [VMware Tanzu Kubernetes Grid](https://tanzu.vmware.com/kubernetes-grid)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
@@ -189,7 +190,7 @@ Among the providers are:
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating pull requests (PRs).
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with the **vals** tool for enhanced values and secret management.
 - **Major update of the AWS [EKS](https://aws.amazon.com/eks/) cluster provider:** Update the AWS EKS cluster provider to the latest versions to utilize all the supported features of the [Terraform](https://www.terraform.io/) CLI and modules.
-- **Implementation of additional RMK cluster providers:** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc.
+- **Implementation of additional RMK cluster providers using [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/):** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc.
 - **Web documentation generator:** Add an HTML documentation generator based on the **.md** files.
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
 
