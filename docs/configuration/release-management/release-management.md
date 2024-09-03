@@ -9,10 +9,15 @@ Additionally, flags are provided for the commands, which allow extending capabil
 For example:
 
 ```shell
-rmk release build --selector app=name
+rmk release build
+rmk release list --selector app=name
+rmk release template --selector app=name --skip-context-switch
 rmk release sync --helmfile-log-level=debug --selector app=name 
 rmk release destroy 
 ```
+
+> The `--skip-context-switch` (`-s`) flag can be used for the commands like `rmk release template` to skip switching to a Kubernetes cluster.
+> This might be useful in the situations, when a cluster has not been provisioned yet and its releases and values are being developed.
 
 In a project repository, all the release values files are stored in the `etc/<scope>/<env>/values/` directories.
 For example:
