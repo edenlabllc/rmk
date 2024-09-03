@@ -1,0 +1,1253 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="RMK CLI - Reduced Management for Kubernetes by Edenlab LLC">
+      
+      
+      
+        <link rel="canonical" href="https://edenlabllc.github.io/rmk/v0.44.0/configuration/secrets-management/secrets-management/">
+      
+      
+        <link rel="prev" href="../../release-management/release-management/">
+      
+      
+        <link rel="next" href="../../../commands/">
+      
+      
+      <link rel="icon" href="https://edenlab.io/favicon.ico">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
+    
+    
+      
+        <title>Secrets management - RMK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.35e1ed30.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#secrets-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="RMK" class="md-header__button md-logo" aria-label="RMK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RMK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Secrets management
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/edenlabllc/rmk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    edenlabllc/rmk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../quickstart/" class="md-tabs__link">
+        
+  
+    
+  
+  Quickstart
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../configuration-management/" class="md-tabs__link">
+          
+  
+    
+  
+  Configuration and management
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../commands/" class="md-tabs__link">
+        
+  
+    
+  
+  Commands
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../development-and-release-flows/" class="md-tabs__link">
+        
+  
+    
+  
+  Development and release flow
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="RMK" class="md-nav__button md-logo" aria-label="RMK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    RMK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/edenlabllc/rmk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    edenlabllc/rmk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quickstart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quickstart
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Configuration and management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration and management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cluster management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Cluster management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cluster-management/cluster-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cluster management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cluster-management/exported-environment-variables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exported environment variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Project management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Project management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project-management/dependencies-management-and-project-inheritance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dependencies management and project inheritance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project-management/preparation-of-project-repository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparation of the project repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project-management/requirement-for-project-repository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Requirement for project repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Release management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Release management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-management/release-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Secrets management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Secrets management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Secrets management
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Secrets management
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sops-age-keys-management" class="md-nav__link">
+    SOPS age keys management
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager" class="md-nav__link">
+    Generating all secrets from scratch in a batch manner using the RMK secrets manager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-a-single-secret-from-scratch-using-the-rmk-secrets-manager" class="md-nav__link">
+    Generating a single secret from scratch using the RMK secrets manager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-a-single-secret" class="md-nav__link">
+    Editing a single secret
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-an-existing-secret" class="md-nav__link">
+    Viewing an existing secret
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotate-secrets-for-specific-scope-and-environment" class="md-nav__link">
+    Rotate secrets for specific scope and environment
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../commands/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Commands
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development-and-release-flows/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development and release flow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sops-age-keys-management" class="md-nav__link">
+    SOPS age keys management
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager" class="md-nav__link">
+    Generating all secrets from scratch in a batch manner using the RMK secrets manager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generating-a-single-secret-from-scratch-using-the-rmk-secrets-manager" class="md-nav__link">
+    Generating a single secret from scratch using the RMK secrets manager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-a-single-secret" class="md-nav__link">
+    Editing a single secret
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-an-existing-secret" class="md-nav__link">
+    Viewing an existing secret
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotate-secrets-for-specific-scope-and-environment" class="md-nav__link">
+    Rotate secrets for specific scope and environment
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="secrets-management">Secrets management<a class="headerlink" href="#secrets-management" title="Permanent link">&para;</a></h1>
+<p>RMK uses <a href="https://github.com/mozilla/sops">SOPS</a> and <a href="https://github.com/mozilla/sops#encrypting-using-age">Age</a>
+for secrets management.
+All RMK commands related to the secrets management can be found under the <a href="../../../commands/#secret">rmk secret</a> command category.</p>
+<p>In a project repository, all secrets files are stored in the <code>etc/&lt;scope&gt;/&lt;env&gt;/secrets/</code> directories.
+For example:</p>
+<div class="highlight"><pre><span></span><code>etc/deps/develop/secrets/mongodb.yaml
+etc/kodjin/develop/secrets/kodjin-minio-config-buckets.yaml
+</code></pre></div>
+<p>Normally, the files are committed to Git because they are encrypted using SOPS age keys and symmetric-key algorithms.
+The keys are stored remotely in an encrypted bucket of AWS S3, downloaded locally when first using RMK
+on that machine.</p>
+<blockquote>
+<p>The secrets are never inherited by projects, in contrast to values. Each project should have its own unique set 
+of secrets for all deployed releases.</p>
+</blockquote>
+<h2 id="sops-age-keys-management">SOPS age keys management<a class="headerlink" href="#sops-age-keys-management" title="Permanent link">&para;</a></h2>
+<p>Initially, a Kubernetes cluster admin creates the keys using the following command:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>keys<span class="w"> </span>create
+</code></pre></div>
+<p>This command will create a set of <code>Age</code> private keys for each scope in the user&rsquo;s home directory 
+at <code>$HOME/.rmk/sops-age-keys/&lt;project_name&gt;-sops-age-keys-&lt;short_AWS_account_id&gt;/*.txt</code>. 
+The command will create a <code>Age</code> private key for the scope for which an empty 
+SOPS configuration file <code>etc/&lt;scope&gt;/&lt;env&gt;/secrets/.sops.yaml</code> was created. 
+Additionally, <code>creation_rules</code> containing the public key and regex for filtering secrets will be automatically added to this file. 
+Example of a <code>.sops.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">creation_rules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path_regex</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.+\.yaml$</span>
+<span class="w">    </span><span class="nt">age</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;age12ugnsdhxd44fa56q5w22mvf09e93p66xrcrnxmxla4dnqpyugpwqs2swag&#39;</span>
+</code></pre></div>
+<blockquote>
+<p>The SOPS configuration files for all secret scopes can be generated using the <code>rmk project generate</code> command.</p>
+</blockquote>
+<p>Then the generated keys might be uploaded explicitly to S3:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>keys<span class="w"> </span>upload
+</code></pre></div>
+<blockquote>
+<p>AWS users must have the <code>AdministratorAccess</code> permissions to be able to upload the SOPS age keys to S3.</p>
+</blockquote>
+<p>After the keys have been created by the cluster admin, they can be downloaded from S3:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>keys<span class="w"> </span>download
+</code></pre></div>
+<blockquote>
+<p>AWS users must have read permissions for downloading keys from S3,
+otherwise they won&rsquo;t be able to encode/decode secrets and release services using RMK.</p>
+</blockquote>
+<p>After that the <code>$HOME/.rmk/sops-age-keys/&lt;project_name&gt;-sops-age-keys-&lt;short_AWS_account_id&gt;</code> directory will have all the needed keys
+needed for secrets encryption or decryption.</p>
+<h2 id="generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager">Generating all secrets from scratch in a batch manner using the RMK secrets manager<a class="headerlink" href="#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager" title="Permanent link">&para;</a></h2>
+<p>In case of a creating tenant from scratch all the needed directories, such as <code>etc/&lt;scope&gt;/&lt;env&gt;/secrets/</code> should first
+be populated with an empty <code>.sops.yaml</code> file (acts as an indicator that this scope and environment will have the secrets).
+Also, before generating the secret files, you must create or complete a secret <code>.spec.yaml.gotmpl</code> file per each scope.
+<code>.spec.yaml.gotmpl</code> is a template that runs the <a href="https://masterminds.github.io/sprig">sprig</a> engine with additional functions.</p>
+<p>The additional functions which included in the template functions are:</p>
+<ul>
+<li><strong>{{`{{ requiredEnv &ldquo;ENV_NAME&rdquo; }}`}}:</strong> The function requires an input of the specified mandatory variable.</li>
+<li><strong>{{`{{ prompt &ldquo;password&rdquo; }}`}}:</strong> The function asks for interactive input. Useful for entering sensitive data.</li>
+</ul>
+<p>Example of the files needed for the generation:</p>
+<div class="highlight"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">etc/deps/develop/secrets/.sops.yaml</span>
+<span class="l l-Scalar l-Scalar-Plain">etc/deps/develop/secrets/.spec.yaml.gotmpl</span>
+</code></pre></div>
+<p>An example of <code>.spec.yaml.gotmpl</code> for the deps scope:</p>
+<div class="highlight"><pre><span></span><code>{{- $minioSecretKey := randAlphaNum 16 -}}
+generation-rules:
+  - name: ecr-token-refresh-operator
+      template: |
+        envSecret:
+          AWS_ACCESS_KEY_ID: {{`{{ requiredEnv &quot;AWS_ACCESS_KEY_ID&quot; }}`}}
+          AWS_SECRET_ACCESS_KEY: {{`{{ requiredEnv &quot;AWS_SECRET_ACCESS_KEY&quot; }}`}}
+  - name: elastic
+      template: |
+        esUserName: admin
+        esPassword: {{ randAlphaNum 16 }}
+  # ...
+  - name: minio
+      template: |
+        rootUser: minio
+        rootPassword: {{ $minioSecretKey }}
+  - name: redis
+      template: |
+        auth:
+          password: {{ randAlphaNum 16 }}
+  # ...
+</code></pre></div>
+<p>Then run the following command to generate all the secrets is a batch manner:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>generate
+</code></pre></div>
+<p>After that the directories with the secret files will be generated. 
+The files will have the plain unencrypted YAML content.
+After that, review the content of the new files and run the following command to encode them:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>encrypt
+</code></pre></div>
+<blockquote>
+<p>The directories without the <code>.sops.yaml</code> or <code>.spec.yaml.gotmpl</code> files will be ignored.</p>
+</blockquote>
+<p>Also, each of the <code>.sops.yaml</code> files will be updated automatically with the correct paths and public keys of the SOPS age keys
+used for encryption.</p>
+<h2 id="generating-a-single-secret-from-scratch-using-the-rmk-secrets-manager">Generating a single secret from scratch using the RMK secrets manager<a class="headerlink" href="#generating-a-single-secret-from-scratch-using-the-rmk-secrets-manager" title="Permanent link">&para;</a></h2>
+<p>To create a single secret from scratch (e.g., when a new service (release) is added), add a template of the new secret 
+to <code>.spec.yaml.gotmpl</code>. For example:</p>
+<div class="highlight"><pre><span></span><code>  # ...
+  - name: new-release
+    template: |
+      envSecret:
+        USERNAME: user
+        PASSWORD: {{ randAlphaNum 16 }}
+  # ...
+</code></pre></div>
+<p>Then generate the new secret as the plain YAML and encrypt it using RMK for the needed scope and environment.
+For example:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>generate<span class="w"> </span>--scope<span class="w"> </span>kodjin<span class="w"> </span>--environment<span class="w"> </span>develop
+rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>encrypt<span class="w"> </span>--scope<span class="w"> </span>kodjin<span class="w"> </span>--environment<span class="w"> </span>develop
+</code></pre></div>
+<blockquote>
+<p>At this moment, the <code>.sops.yaml</code> files has already been populated and therefor need no manual changes.
+The secrets generation process works in an idempotent, declarative mode, which means it will skip previously generated secret files.</p>
+</blockquote>
+<h2 id="editing-a-single-secret">Editing a single secret<a class="headerlink" href="#editing-a-single-secret" title="Permanent link">&para;</a></h2>
+<p>For some environments where the <code>.spec.yaml.gotmpl</code> file and the manager commands were not used for some legacy reasons,
+the <code>rmk secret edit</code> command can be executed. The command works in an idempotent mode, which means that it can be used
+for both creating a new secret (e.g., when adding a new release/service) and editing an existing one:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>edit<span class="w"> </span>&lt;path_to_new_file_or_existing_secret&gt;
+</code></pre></div>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>edit<span class="w"> </span>etc/deps/develop/secrets/mongodb.yaml
+</code></pre></div>
+<p>An CLI editor will be displayed (e.g., <a href="https://www.vim.org/">vim</a>). After the required changes are performed, 
+save and exit the editor. This will result in an encrypted and edited secret file (no need to encode it explicitly).</p>
+<blockquote>
+<p>Manual editing of the encrypted secrets files is strictly forbidden,
+because SOPS automatically controls the checksums of the secret files.</p>
+</blockquote>
+<h2 id="viewing-an-existing-secret">Viewing an existing secret<a class="headerlink" href="#viewing-an-existing-secret" title="Permanent link">&para;</a></h2>
+<p>To view the content of an existing secrets content, use the following command:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>view<span class="w"> </span>&lt;file&gt;
+</code></pre></div>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>view<span class="w"> </span>etc/deps/develop/secrets/minio.yaml
+</code></pre></div>
+<blockquote>
+<p>This might be useful when viewing credentials of the deployed services, e.g., a database or a web UI.</p>
+</blockquote>
+<h2 id="rotate-secrets-for-specific-scope-and-environment">Rotate secrets for specific scope and environment<a class="headerlink" href="#rotate-secrets-for-specific-scope-and-environment" title="Permanent link">&para;</a></h2>
+<p>To force a new generation of the secrets for a specific scope and environment according to the <code>.spec.yaml.gotmpl</code> file,
+run the following command (in this example, the scope is <code>kodjin</code>, the environment is <code>production</code>):</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>generate<span class="w"> </span>--scope<span class="w"> </span>kodjin<span class="w"> </span>--environment<span class="w"> </span>production<span class="w"> </span>--force
+</code></pre></div>
+<blockquote>
+<p>You might need to provide the required environment variables</p>
+</blockquote>
+<p>To encode the generated secrets, run:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>secret<span class="w"> </span>manager<span class="w"> </span>encrypt<span class="w"> </span>--scope<span class="w"> </span>kodjin<span class="w"> </span>--environment<span class="w"> </span>production
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">August 20, 2024</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.highlight", "search.share", "search.suggest", "navigation.expand", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.path"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+    
+  </body>
+</html>
