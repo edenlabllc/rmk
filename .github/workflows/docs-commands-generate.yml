@@ -8,6 +8,7 @@ on:
 
 jobs:
   docs-commands-generate:
+    if: "!contains(github.event.head_commit.message, '[skip ci docs commands generate]')"
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -37,7 +38,7 @@ jobs:
           echo "Generate new commands documentation."
           ./dist/rmk_linux_amd64_v1/rmk doc generate > ./docs/commands.md
           
-          if (git commit --all --message="[skip ci] Update commands documentation"); then
+          if (git commit --all --message="[skip ci docs commands generate] Update commands documentation"); then
             git push
             echo "The new commands documentation has been committed."
           fi
