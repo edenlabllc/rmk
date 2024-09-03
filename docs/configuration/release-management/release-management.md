@@ -9,10 +9,15 @@ Additionally, flags are provided for the commands, which allow extending capabil
 For example:
 
 ```shell
-rmk release build --selector app=name
+rmk release build
+rmk release list --selector app=name
+rmk release template --selector app=name --skip-context-switch
 rmk release sync --helmfile-log-level=debug --selector app=name 
 rmk release destroy 
 ```
+
+> The `--skip-context-switch` (`-s`) flag can be used for the commands like `rmk release template` to skip switching to a Kubernetes cluster.
+> This might be useful in the situations, when a cluster has not been provisioned yet and its releases and values are being developed.
 
 In a project repository, all the release values files are stored in the `etc/<scope>/<env>/values/` directories.
 For example:
@@ -73,9 +78,11 @@ rmk release destroy
 
 Among the `Helmfile` selectors, the following [predefined keys](https://helmfile.readthedocs.io/en/stable/#labels-overview) 
 are provided out of the box: 
+
 - Release name.
 - Release namespace.
 - Chart name.
+
 For example:
 
 ```shell
@@ -146,6 +153,7 @@ it can be integrated with almost any CI/CD system: GitHub Actions, GitLab, Drone
 ### Example of integration with GitHub Actions:
 
 > Prerequisites:
+> 
 > - The project repository has already been generated and [prepared](../project-management/preparation-of-project-repository.md) using RMK.
 
 Create the following workflow in your project repository at `.github/workflows/release-update.yaml`. 
@@ -192,6 +200,7 @@ jobs:
 ```
 
 In this example, we have prepared a `GitHub Action` that expects two input parameters: 
+
 - `image_repository_full_name`
 - `version`
 

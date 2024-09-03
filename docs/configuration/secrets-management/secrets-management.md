@@ -71,8 +71,8 @@ Also, before generating the secret files, you must create or complete a secret `
 
 The additional functions which included in the template functions are:
 
-- **{{`{{ requiredEnv "ENV_NAME" }}`}}:** The function requires an input of the specified mandatory variable.
-- **{{`{{ prompt "password" }}`}}:** The function asks for interactive input. Useful for entering sensitive data.
+- **{{\`{{ requiredEnv "ENV_NAME" }}\`}}:** The function requires an input of the specified mandatory variable.
+- **{{\`{{ prompt "password" }}\`}}:** The function asks for interactive input. Useful for entering sensitive data.
 
 
 Example of the files needed for the generation:

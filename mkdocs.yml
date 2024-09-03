@@ -1,0 +1,89 @@
+# Project information
+site_name: RMK
+site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC
+site_url: https://edenlabllc.github.io/rmk
+
+copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
+
+# Repo Information
+repo_name: edenlabllc/rmk
+repo_url: https://github.com/edenlabllc/rmk
+
+# Theme
+theme:
+  name: material
+  language: en
+  features:
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/
+    - search.highlight
+    - search.share
+    - search.suggest
+    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
+    - navigation.expand
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky # stick navigation tabs below header while scrolling
+    - navigation.top # show back to top button
+    - navigation.tracking
+    - navigation.path
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: grey
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+  favicon: https://edenlab.io/favicon.ico
+  icon:
+    repo: fontawesome/brands/github
+
+# Navigation
+# nav: omitted, because we're using the awesome-pages plugin (https://squidfunk.github.io/mkdocs-material/plugins/awesome-pages/)
+
+# Extensions
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: true
+  - admonition # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+  - pymdownx.highlight: # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#highlight
+      use_pygments: true
+  - pymdownx.inlinehilite # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/#inlinehilite
+  - pymdownx.superfences # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/#superfences
+  - pymdownx.tabbed # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/#tabbed
+  - pymdownx.details # https://squidfunk.github.io/mkdocs-material/extensions/pymdown/#details
+  - pymdownx.emoji: # https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/#configuration
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - smarty # https://python-markdown.github.io/extensions/smarty/
+  - mdx_truly_sane_lists # https://github.com/radude/mdx_truly_sane_lists -> proper indentation of md list items
+
+# Plugins
+plugins:
+  - awesome-pages    # https://squidfunk.github.io/mkdocs-material/plugins/awesome-pages/
+  - git-revision-date-localized: # https://squidfunk.github.io/mkdocs-material/plugins/revision-date/
+      type: date
+  - include-markdown # https://github.com/mondeja/mkdocs-include-markdown-plugin
+  - mike:            # Versioned Docs: https://github.com/jimporter/mike
+      version_selector: true    # set to false to leave out the version selector
+      css_dir: static/css       # the directory to put the version selector's CSS
+      javascript_dir: static/js # the directory to put the version selector's JS
+      canonical_version: null   # the version for <link rel="canonical">; `null` uses the version specified via `mike deploy`
+  - search
+
+# Extra mkdocs-material settings
+extra:
+  version:
+    provider: mike
+    default: latest
+
+# Other Settings
+strict: true # halt processing when a warning is raised
