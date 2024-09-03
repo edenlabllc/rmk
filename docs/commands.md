@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser \
-**Commit:** edbe501 \
-**Date:** 2024-09-02T14:44:39Z \
+**Commit:** 79f9f05 \
+**Date:** 2024-09-03T12:48:24Z \
 **Target:** linux_amd64
 
 **Usage**:
@@ -155,7 +155,7 @@ Initialize configuration for current tenant and selected environment
 
 **--aws-reconfigure, -r**: force AWS profile creation
 
-**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has the values: online
+**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline
 
 **--cloudflare-token, --cft**="": Cloudflare API token for provision NS records
 
@@ -406,3 +406,4 @@ Update RMK CLI to a new version
 ### help, h
 
 Shows a list of commands or help for one command
+
