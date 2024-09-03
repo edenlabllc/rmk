@@ -1,4 +1,4 @@
-name: Generate commands documentation
+name: Generate, update commands documentation
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
       - hotfix/*
 
 jobs:
-  docs-commands-generate:
+  docs-commands-update:
+    if: "!contains(github.event.head_commit.message, '[skip docs commands generate]')"
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -28,7 +29,7 @@ jobs:
           version: v1.23.0
           args: build --clean --skip=validate
 
-      - name: Generate and commit new commands documentation
+      - name: Update and commit new commands documentation
         run: |
           echo "Configure Git user.name and user.email."
           git config user.name github-actions
@@ -37,7 +38,7 @@ jobs:
           echo "Generate new commands documentation."
           ./dist/rmk_linux_amd64_v1/rmk doc generate > ./docs/commands.md
           
-          if (git commit --all --message="[skip ci] Update commands documentation"); then
+          if (git commit --all --message="[skip docs commands update] Update commands documentation"); then
             git push
             echo "The new commands documentation has been committed."
           fi

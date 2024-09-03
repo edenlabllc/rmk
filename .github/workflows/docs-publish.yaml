@@ -12,7 +12,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  publish:
+  docs-publish:
     name: Build, validate, publish, version documentation for GitHub Pages
     runs-on: ubuntu-22.04
     steps:
