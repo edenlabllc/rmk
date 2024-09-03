@@ -52,5 +52,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           
+          echo "Publish documentation"
           resolve_release_envs
           mike deploy --update-aliases --push --rebase "${VERSION}" latest
