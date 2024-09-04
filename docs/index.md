@@ -198,7 +198,7 @@ Check the [issues](https://github.com/edenlabllc/rmk/issues) for more informatio
 
 ## Development and release
 
-The guidelines are available [here](development-and-release.md).
+The guidelines are available at the [link](development-and-release.md).
 
 ## License
 
