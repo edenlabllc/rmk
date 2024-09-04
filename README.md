@@ -79,9 +79,9 @@ The examples of Kubernetes providers, to which Kodjin has been installed already
 - [K3D cluster provider for RMK](https://github.com/edenlabllc/k3d.provisioner.infra)
 - [Helmfile hooks](https://github.com/edenlabllc/helmfile.hooks.infra)
 
-## Development
+## Development and release
 
-The guidelines are available at https://edenlabllc.github.io/rmk/latest/https://edenlabllc.github.io/rmk/latest/development-and-release-flows/
+The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/
 
 ## License
 
