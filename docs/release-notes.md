@@ -1,2 +1,1 @@
-- #27 - Configured GitHub Pages documentation generation using MkDocs Materials, mike.
-- #42 - Fixed markdown headers in rmk doc generate command.
+- #27 - Fixed development-and-release.md guides, links to them from README.md and index.md.

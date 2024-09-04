@@ -28,10 +28,10 @@ Command line tool for reduced management and provisioning of Kubernetes clusters
     * [Release management](configuration/release-management/release-management.md)
     * [Secrets management](configuration/secrets-management/secrets-management.md)
   * [Commands](commands.md)
-  * [Development and release flows](development-and-release-flows.md)
   * [Features](#features)
   * [Supported Kubernetes providers](#supported-kubernetes-providers)
   * [Roadmap](#roadmap)
+  * [Development and release](development-and-release.md)
   * [License](#license)
   * [Code of Conduct](#code-of-conduct)
 
@@ -131,7 +131,7 @@ curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" |
 
 Alternatively, you can go directly to https://github.com/edenlabllc/rmk/releases and download the binary.
 
-As another option, the binary can be [built from source](development-and-release-flows.md#building-from-source).
+As another option, the binary can be [built from source](development-and-release.md#building-from-source).
 
 ## Update
 
@@ -195,6 +195,10 @@ Among the providers are:
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
 
 Check the [issues](https://github.com/edenlabllc/rmk/issues) for more information.
+
+## Development and release
+
+The guidelines are available at the [link](development-and-release.md).
 
 ## License
 
