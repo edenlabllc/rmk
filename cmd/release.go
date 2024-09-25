@@ -35,6 +35,7 @@ type ReleaseCommands struct {
 	WorkDir       string
 	ValuesPath    string
 	UpdateContext bool
+	APICluster    bool
 	K3DCluster    bool
 }
 
@@ -173,31 +174,22 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		"AWS_PROFILE="+rc.Conf.Profile,
 		"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
 		"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
-		// Needed to set the AWS region to force the connection session region for the helm S3 plugin,
-		// if AWS_DEFAULT_REGION and AWS_REGION cannot be trusted.
-		//"HELM_S3_REGION="+rc.Conf.S3ChartsRepoRegion,
 	)
 
-	if _, ok := rc.Conf.Env["ROOT_DOMAIN"]; ok {
-		envs = append(envs, "ROOT_DOMAIN="+rc.Conf.Env["ROOT_DOMAIN"])
-		delete(rc.Conf.Env, "ROOT_DOMAIN")
-	} else {
-		envs = append(envs, "ROOT_DOMAIN="+rc.Conf.RootDomain)
-	}
+	envs = append(envs, "ROOT_DOMAIN="+rc.Conf.RootDomain)
 
 	for _, val := range rc.Conf.HooksMapping {
 		keyTenantEnv := regexp.MustCompile(`[\-.]`).ReplaceAllString(val.Tenant, "_")
 		envs = append(envs, "HELMFILE_"+strings.ToUpper(keyTenantEnv)+"_HOOKS_DIR="+val.DstPath)
 	}
 
-	for key, val := range rc.Conf.Env {
-		envs = append(envs, key+"="+val)
-	}
-
 	// generating additional environment variables to nested helmfiles
 	envs = rc.nestedHelmfiles(envs...)
 
-	if rc.K3DCluster {
+	switch {
+	case rc.APICluster:
+		envs = append(envs, "CAPI_CLUSTER="+strconv.FormatBool(rc.APICluster))
+	case rc.K3DCluster:
 		envs = append(envs, "K3D_CLUSTER="+strconv.FormatBool(rc.K3DCluster))
 	}
 
@@ -324,13 +316,13 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
 
-	cc := &ClusterCommands{
-		Conf:    rc.Conf,
-		Ctx:     rc.Ctx,
-		WorkDir: util.GetPwdPath(""),
-	}
+	//cc := &ClusterCommands{
+	//	Conf:    rc.Conf,
+	//	Ctx:     rc.Ctx,
+	//	WorkDir: util.GetPwdPath(""),
+	//}
 
-	if err := cc.clusterContext(); err != nil {
+	if err := newClusterCommands(rc.Conf, rc.Ctx, util.GetPwdPath("")).awsClusterContext(); err != nil {
 		return err
 	}
 
@@ -342,8 +334,8 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 	rc.SpecCMD = rc.kubeConfig()
 	rc.SpecCMD.Args = append(rc.SpecCMD.Args,
 		"set-credentials", currentContext,
-		"--exec-env", "AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(cc.Conf.Profile), ""),
-		"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(cc.Conf.Profile), ""),
+		"--exec-env", "AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
+		"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
 	)
 	rc.SpecCMD.DisableStdOut = true
 	rc.SpecCMD.Debug = true
@@ -652,7 +644,7 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
@@ -705,7 +697,7 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
@@ -742,7 +734,7 @@ func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 

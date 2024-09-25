@@ -419,7 +419,7 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 			return err
 		}
 
-		return resolveDependencies(conf.InitConfig(false), c, false)
+		return resolveDependencies(conf.InitConfig(), c, false)
 	}
 }
 

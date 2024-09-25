@@ -374,8 +374,6 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		}
 
 		if c.String("cluster-provider") == util.AWSClusterProvider {
-			conf.AwsConfigure = new(aws_provider.AwsConfigure)
-
 			if err := c.Set("config-name-from", conf.Name); err != nil {
 				return err
 			}
@@ -458,7 +456,6 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 	}
 
 	conf.ConfigNameFrom = c.String("config-name-from")
-	conf.CloudflareToken = c.String("cloudflare-token")
 	conf.GitHubToken = c.String("github-token")
 
 	return nil
@@ -535,14 +532,9 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 
 		switch conf.ClusterProvider {
 		case util.AWSClusterProvider:
-			conf.Terraform.BucketKey = util.TenantBucketKey
-			conf.ClusterProvisionerSL = c.Bool("cluster-provisioner-state-locking")
 			conf.AwsConfigure.Profile = gitSpec.ID
 			conf.AWSMFAProfile = c.String("aws-mfa-profile")
 			conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
-			conf.AWSECRHost = c.String("aws-ecr-host")
-			conf.AWSECRRegion = c.String("aws-ecr-region")
-			conf.AWSECRUserName = c.String("aws-ecr-user-name")
 
 			// AWS Profile init configuration with support MFA
 			if err := initAWSProfile(c, conf, gitSpec); err != nil {
@@ -554,13 +546,12 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			awsUID := conf.AccountID[0:3] + conf.AccountID[len(conf.AccountID)-2:]
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+awsUID)
 			conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
-			conf.Terraform.BucketName = conf.Tenant + "-" + util.TenantBucketName + "-" + awsUID
-			conf.Terraform.DDBTableName = util.TenantDDBTablePrefix + "-" + awsUID
 		case util.LocalClusterProvider:
+			conf.AwsConfigure = &aws_provider.AwsConfigure{}
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
 
-		if err := conf.InitConfig(true).SetRootDomain(c, gitSpec.ID); err != nil {
+		if err := conf.InitConfig().SetRootDomain(c, gitSpec.ID); err != nil {
 			return err
 		}
 
@@ -569,18 +560,6 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		}
 
 		if conf.ClusterProvider == util.AWSClusterProvider {
-			if conf.ClusterProvisionerSL {
-				// create dynamodb table for backend terraform
-				if err := conf.CreateDynamoDBTable(conf.Terraform.DDBTableName); err != nil {
-					return err
-				}
-			}
-
-			// create s3 bucket for backend terraform
-			if err := conf.CreateBucket(conf.Terraform.BucketName); err != nil {
-				return err
-			}
-
 			//create s3 bucket for sops age keys
 			if err := conf.CreateBucket(conf.SopsBucketName); err != nil {
 				return err
@@ -590,7 +569,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 				return err
 			}
 
-			if err := resolveDependencies(conf.InitConfig(true), c, false); err != nil {
+			if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 				return err
 			}
 
@@ -599,7 +578,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			return nil
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 

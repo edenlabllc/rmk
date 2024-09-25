@@ -387,7 +387,7 @@ func secretMgrEncryptDecryptAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
@@ -414,7 +414,7 @@ func secretKeysCreateAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
@@ -452,7 +452,7 @@ func secretAction(conf *config.Config, action func(secretRunner SecretRunner) er
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 

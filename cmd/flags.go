@@ -9,36 +9,6 @@ import (
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
-		// TODO: will be transfer to cluster category for AWS provider
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-host",
-				Usage:   "AWS ECR host",
-				Aliases: []string{"aeh"},
-				EnvVars: []string{"RMK_AWS_ECR_HOST"},
-				Value:   util.AWSECRHost,
-			},
-		),
-		// TODO: will be transfer to cluster category for AWS provider
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-region",
-				Usage:   "AWS region for specific ECR host",
-				Aliases: []string{"aer"},
-				EnvVars: []string{"RMK_AWS_ECR_REGION"},
-				Value:   util.AWSECRRegion,
-			},
-		),
-		// TODO: will be transfer to cluster category for AWS provider
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-user-name",
-				Usage:   "AWS ECR user name",
-				Aliases: []string{"aeun"},
-				EnvVars: []string{"RMK_AWS_ECR_USER_NAME"},
-				Value:   util.AWSECRUserName,
-			},
-		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "aws-mfa-profile",
@@ -56,15 +26,6 @@ func flagsConfig() []cli.Flag {
 			Usage:   "force AWS profile creation",
 			Aliases: []string{"r"},
 		},
-		// TODO: will be transfer to cluster category for AWS provider
-		altsrc.NewBoolFlag(
-			&cli.BoolFlag{
-				Name:    "cluster-provisioner-state-locking",
-				Usage:   "disable or enable cluster provisioner state locking",
-				Aliases: []string{"c"},
-				Value:   true,
-			},
-		),
 		&cli.StringFlag{
 			Name:   "config",
 			Hidden: true,
@@ -87,15 +48,6 @@ func flagsConfig() []cli.Flag {
 				Usage:   "personal access token for download GitHub artifacts",
 				Aliases: []string{"ght"},
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
-			},
-		),
-		// TODO: will be transfer to cluster category
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "cloudflare-token",
-				Usage:   "Cloudflare API token for provision NS records",
-				Aliases: []string{"cft"},
-				EnvVars: []string{"RMK_CLOUDFLARE_TOKEN"},
 			},
 		),
 		altsrc.NewStringFlag(
@@ -192,36 +144,26 @@ func flagsClusterK3DImport() []cli.Flag {
 	)
 }
 
-func flagsClusterCRLogin() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.BoolFlag{
-			Name:    "get-token",
-			Usage:   "get ECR token for authentication",
-			Aliases: []string{"g"},
-		},
-	)
-}
+//func flagsClusterPlan() []cli.Flag {
+//	return append(flagsHidden(),
+//		&cli.BoolFlag{
+//			Name:    "plan",
+//			Usage:   "creates an execution Terraform plan",
+//			Aliases: []string{"p"},
+//		},
+//	)
+//}
 
-func flagsClusterPlan() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.BoolFlag{
-			Name:    "plan",
-			Usage:   "creates an execution Terraform plan",
-			Aliases: []string{"p"},
-		},
-	)
-}
-
-func flagsClusterStateDelete() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.StringFlag{
-			Name:    "resource-address",
-			Usage:   "resource address for delete from Terraform state",
-			Aliases: []string{"ra"},
-			EnvVars: []string{"RMK_CLUSTER_STATE_RESOURCE_ADDRESS"},
-		},
-	)
-}
+//func flagsClusterStateDelete() []cli.Flag {
+//	return append(flagsHidden(),
+//		&cli.StringFlag{
+//			Name:    "resource-address",
+//			Usage:   "resource address for delete from Terraform state",
+//			Aliases: []string{"ra"},
+//			EnvVars: []string{"RMK_CLUSTER_STATE_RESOURCE_ADDRESS"},
+//		},
+//	)
+//}
 
 func flagsClusterSwitch() []cli.Flag {
 	return append(flagsHidden(),
@@ -425,12 +367,6 @@ func flagsHidden() []cli.Flag {
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "github-token",
-				Hidden: true,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:   "cloudflare-token",
 				Hidden: true,
 			},
 		),

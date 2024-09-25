@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -29,7 +27,6 @@ type Config struct {
 	Environment                string   `yaml:"environment,omitempty"`
 	ConfigNameFrom             string   `yaml:"config-name-from,omitempty"`
 	RootDomain                 string   `yaml:"root-domain,omitempty"`
-	CloudflareToken            string   `yaml:"cloudflare-token,omitempty"`
 	GitHubToken                string   `yaml:"github-token,omitempty"`
 	ClusterProvider            string   `yaml:"cluster-provider"`
 	SlackNotifications         bool     `yaml:"slack-notifications"`
@@ -38,15 +35,9 @@ type Config struct {
 	SlackMsgDetails            []string `yaml:"slack-message-details,omitempty"`
 	SopsAgeKeys                string   `yaml:"sops-age-keys,omitempty"`
 	SopsBucketName             string   `yaml:"sops-bucket-name,omitempty"`
-	AWSECRHost                 string   `yaml:"aws-ecr-host,omitempty"`
-	AWSECRRegion               string   `yaml:"aws-ecr-region,omitempty"`
-	AWSECRUserName             string   `yaml:"aws-ecr-user-name,omitempty"`
 	AWSMFAProfile              string   `yaml:"aws-mfa-profile,omitempty"`
 	AWSMFATokenExpiration      string   `yaml:"aws-mfa-token-expiration,omitempty"`
 	*aws_provider.AwsConfigure `yaml:"aws,omitempty"`
-	Terraform                  `yaml:"terraform,omitempty"`
-	ClusterProvisionerSL       bool `yaml:"cluster-provisioner-state-locking"`
-	ExportedVars               `yaml:"exported-vars,omitempty"`
 	ProgressBar                bool `yaml:"progress-bar"`
 	ProjectFile                `yaml:"project-file"`
 }
@@ -106,22 +97,9 @@ type Terraform struct {
 	DDBTableName string `yaml:"dynamodb-table-name,omitempty"`
 }
 
-func (conf *Config) InitConfig(terraformOutput bool) *Config {
+func (conf *Config) InitConfig() *Config {
 	conf.ProjectFile = ProjectFile{}
 	if err := conf.ReadProjectFile(util.GetPwdPath(util.TenantProjectFile)); err != nil {
-		zap.S().Fatal(err)
-	}
-
-	if !terraformOutput {
-		return conf
-	}
-
-	conf.ExportedVars = ExportedVars{
-		TerraformOutput: make(map[string]interface{}),
-		Env:             make(map[string]string),
-	}
-
-	if err := conf.GetTerraformOutputs(); err != nil {
 		zap.S().Fatal(err)
 	}
 
@@ -187,83 +165,13 @@ func (conf *Config) GetConfigs(all bool) error {
 }
 
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
-	hostedZoneVar := util.TerraformVarsPrefix + util.TerraformVarHostedZoneName
 	if !c.IsSet("root-domain") {
-		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName.(string)) > 0 {
-			if err := c.Set("root-domain", hostedZoneName.(string)); err != nil {
-				return err
-			}
-		} else {
-			if err := c.Set("root-domain", gitSpecID+util.TenantDomainSuffix); err != nil {
-				return err
-			}
+		if err := c.Set("root-domain", gitSpecID+util.TenantDomainSuffix); err != nil {
+			return err
 		}
 	}
 
 	conf.RootDomain = c.String("root-domain")
-
-	return nil
-}
-
-func (conf *Config) GetTerraformOutputs() error {
-	type GetVar struct {
-		Type  interface{}
-		Value interface{}
-	}
-
-	var (
-		raw     map[string]*json.RawMessage
-		outputs map[string]*json.RawMessage
-		getVar  *GetVar
-	)
-
-	checkWorkspace, err := conf.BucketKeyExists("", conf.Terraform.BucketName, "env:/"+conf.Name+"/tf.tfstate")
-	if err != nil {
-		return err
-	}
-
-	if !checkWorkspace {
-		return nil
-	}
-
-	data, err := conf.GetFileData(conf.Terraform.BucketName, "env:/"+conf.Name+"/tf.tfstate")
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(*raw["outputs"], &outputs); err != nil {
-		return err
-	}
-
-	if len(outputs) == 0 {
-		return nil
-	}
-
-	for key := range outputs {
-		if strings.Contains(key, util.TerraformVarsPrefix) {
-			if err := json.Unmarshal(*outputs[key], &getVar); err != nil {
-				return err
-			}
-
-			envKey := strings.ToUpper(strings.ReplaceAll(key, util.TerraformVarsPrefix, ""))
-
-			switch {
-			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
-				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[envKey] = getVar.Value.(string)
-			case reflect.TypeOf(getVar.Value).Kind() == reflect.Bool && getVar.Type == reflect.Bool.String():
-				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[envKey] = strconv.FormatBool(getVar.Value.(bool))
-			default:
-				zap.S().Warnf("Terraform output variable %s will not be exported as environment variable, "+
-					"does not match string or boolean types, current type: %s", key, getVar.Type)
-			}
-		}
-	}
 
 	return nil
 }

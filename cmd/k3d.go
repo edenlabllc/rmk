@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -41,17 +38,12 @@ func (k *K3DCommands) k3d(args ...string) *util.SpecCMD {
 func (k *K3DCommands) prepareK3D(args ...string) error {
 	k.SpecCMD = k.k3d(args...)
 	k.SpecCMD.Debug = true
-	credentials, err := k.Conf.AwsConfigure.GetECRCredentials(k.Conf.AWSECRRegion)
-	if err != nil {
-		return err
-	}
 
-	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME="+k.Conf.Name)
-
-	if token, ok := credentials[k.Conf.AWSECRUserName]; !ok {
-		return fmt.Errorf("failed to get ECR token")
-	} else {
-		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_AWS_ECR_USER="+k.Conf.AWSECRUserName, "K3D_AWS_ECR_PASSWORD="+token)
+	switch {
+	case k.APICluster:
+		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME=capi")
+	case k.K3DCluster:
+		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME="+k.Conf.Name)
 	}
 
 	if len(k.Ctx.String("k3d-volume-host-path")) > 0 {
@@ -65,50 +57,37 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 }
 
 func (k *K3DCommands) createDeleteK3DCluster() error {
-	var k3dDst string
+	switch k.Ctx.Command.Category {
+	case "capi":
+		k.APICluster = true
+	case "k3d":
+		k.K3DCluster = true
+	}
 
-	k.K3DCluster = true
 	if _, _, err := k.getKubeContext(); err != nil {
 		return err
 	}
 
-	for name, pkg := range k.Conf.Clusters {
-		if strings.HasPrefix(name, util.K3DConfigPrefix) {
-			k3dDst = pkg.DstPath
-			break
-		}
+	k.SpecCMD = k.prepareHelmfile("-l", "app="+k.Ctx.Command.Category+"-cluster", "template")
+	k.SpecCMD.DisableStdOut = true
+	if err := runner(k).runCMD(); err != nil {
+		return err
 	}
 
-	if len(k3dDst) == 0 {
-		return fmt.Errorf("cluster provider with name %s not found", util.K3DConfigPrefix)
-	}
-
-	match, err := util.WalkMatch(k3dDst, util.K3DConfigPrefix+".yaml")
+	k3dConfig, err := util.CreateTempYAMLFile("/tmp", k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())
 	if err != nil {
 		return err
 	}
 
-	if len(match) == 0 {
-		return fmt.Errorf("configuration file for %s not found", util.K3DConfigPrefix)
-	}
-
-	if err := k.prepareK3D("cluster", k.Ctx.Command.Name, "--config", match[0]); err != nil {
+	if err := k.prepareK3D("cluster", k.Ctx.Command.Name, "--config", k3dConfig); err != nil {
 		return err
 	}
 
-	// Creating specific dir for k3d registry configuration
-	k3dRegistryHostPath := filepath.Join(filepath.Dir(match[0]), util.K3DConfigPrefix)
-	k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_REGISTRY_HOST_PATH="+k3dRegistryHostPath)
-
-	if err := os.RemoveAll(k3dRegistryHostPath); err != nil {
+	if err := runner(k).runCMD(); err != nil {
 		return err
 	}
 
-	if err := os.MkdirAll(k3dRegistryHostPath, 0755); err != nil {
-		return err
-	}
-
-	return runner(k).runCMD()
+	return os.RemoveAll(k3dConfig)
 }
 
 func (k *K3DCommands) importImageToK3DCluster() error {
@@ -156,7 +135,7 @@ func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 

@@ -397,3 +397,18 @@ func UnTar(dst, excludeRegexp string, r io.Reader) error {
 		}
 	}
 }
+
+func CreateTempYAMLFile(dirPath, fileName string, content []byte) (string, error) {
+	file, err := os.CreateTemp(dirPath, fileName+".*.yaml")
+	if err != nil {
+		return "", err
+	}
+
+	if _, err := file.Write(content); err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	return file.Name(), nil
+}
