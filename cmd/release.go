@@ -166,6 +166,8 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 }
 
 func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
+	defaultArgs := []string{"--environment", rc.Conf.Environment}
+
 	envs := append([]string{},
 		"NAME="+rc.Conf.Name,
 		"TENANT="+rc.Conf.Tenant,
@@ -193,9 +195,12 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		envs = append(envs, "K3D_CLUSTER="+strconv.FormatBool(rc.K3DCluster))
 	}
 
+	if len(rc.Ctx.String("helmfile-log-level")) > 0 {
+		defaultArgs = append(defaultArgs, "--log-level", rc.Ctx.String("helmfile-log-level"))
+	}
+
 	return &util.SpecCMD{
-		Args: append([]string{"--environment", rc.Conf.Environment, "--log-level",
-			rc.Ctx.String("helmfile-log-level")}, args...),
+		Args:         append(defaultArgs, args...),
 		Command:      "helmfile",
 		Ctx:          rc.Ctx.Context,
 		Dir:          rc.WorkDir,
@@ -230,8 +235,11 @@ func (rc *ReleaseCommands) releaseMiddleware() error {
 	if _, currentContext, err := rc.getKubeContext(); err != nil {
 		return err
 	} else {
-		if strings.Contains(currentContext, util.K3DConfigPrefix) {
+		switch {
+		case strings.Contains(currentContext, util.K3DPrefix) && !strings.Contains(currentContext, util.CAPI):
 			rc.K3DCluster = true
+		case currentContext == util.K3DPrefix+"-"+util.CAPI:
+			rc.APICluster = true
 		}
 	}
 
@@ -288,7 +296,7 @@ func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
 		contextName = ""
 	}
 
-	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, util.K3DConfigPrefix) {
+	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, util.K3DPrefix) {
 		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextName)
 	}
 
@@ -312,15 +320,9 @@ func (rc *ReleaseCommands) releaseKubeContext() error {
 		return nil
 	}
 
-	if strings.Contains(contextName, util.K3DConfigPrefix) && rc.UpdateContext {
+	if strings.Contains(contextName, util.K3DPrefix) && rc.UpdateContext {
 		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
-
-	//cc := &ClusterCommands{
-	//	Conf:    rc.Conf,
-	//	Ctx:     rc.Ctx,
-	//	WorkDir: util.GetPwdPath(""),
-	//}
 
 	if err := newClusterCommands(rc.Conf, rc.Ctx, util.GetPwdPath("")).awsClusterContext(); err != nil {
 		return err

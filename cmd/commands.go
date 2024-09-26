@@ -273,7 +273,7 @@ func Commands() []*cli.Command {
 					Usage:        "Destroy releases",
 					Aliases:      []string{"d"},
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["releaseHelmfile"]),
-					Flags:        flags["releaseHelmfileWithOutput"],
+					Flags:        flags["releaseHelmfile"],
 					Category:     "release",
 					BashComplete: util.ShellCompleteCustomOutput,
 					Action:       releaseHelmfileAction(conf),

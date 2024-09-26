@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -41,7 +42,7 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 
 	switch {
 	case k.APICluster:
-		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME=capi")
+		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME="+util.CAPI)
 	case k.K3DCluster:
 		k.SpecCMD.Envs = append(k.SpecCMD.Envs, "K3D_NAME="+k.Conf.Name)
 	}
@@ -58,9 +59,9 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 
 func (k *K3DCommands) createDeleteK3DCluster() error {
 	switch k.Ctx.Command.Category {
-	case "capi":
+	case util.CAPI:
 		k.APICluster = true
-	case "k3d":
+	case util.K3DPrefix:
 		k.K3DCluster = true
 	}
 
@@ -68,10 +69,11 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 		return err
 	}
 
-	k.SpecCMD = k.prepareHelmfile("-l", "app="+k.Ctx.Command.Category+"-cluster", "template")
+	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "-l", "cluster="+k.Ctx.Command.Category, "template")
 	k.SpecCMD.DisableStdOut = true
 	if err := runner(k).runCMD(); err != nil {
-		return err
+		return fmt.Errorf("Helmfile failed to render template by label release: cluster=%s\n%s",
+			k.Ctx.Command.Category, k.SpecCMD.StderrBuf.String())
 	}
 
 	k3dConfig, err := util.CreateTempYAMLFile("/tmp", k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())

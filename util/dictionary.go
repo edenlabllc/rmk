@@ -3,13 +3,14 @@ package util
 const (
 	AWSClusterProvider      = "aws"
 	AzureClusterProvider    = "azure"
+	CAPI                    = "capi"
 	GitSSHPrivateKey        = ".ssh/id_rsa"
 	GlobalsFileName         = "globals.yaml.gotmpl"
 	HelmfileFileName        = "helmfile.yaml"
 	HelmfileGoTmplName      = HelmfileFileName + ".gotmpl"
 	HelpFlagFull            = "--help"
-	K3DConfigPrefix         = "k3d"
-	LocalClusterProvider    = K3DConfigPrefix
+	K3DPrefix               = "k3d"
+	LocalClusterProvider    = K3DPrefix
 	RMKBin                  = "rmk"
 	RMKBucketName           = "edenlabllc-rmk"
 	RMKBucketRegion         = "eu-north-1"
