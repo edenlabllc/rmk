@@ -57,13 +57,17 @@ func (k *K3DCommands) prepareK3D(args ...string) error {
 	return nil
 }
 
-func (k *K3DCommands) createDeleteK3DCluster() error {
+func (k *K3DCommands) selectCluster() {
 	switch k.Ctx.Command.Category {
 	case util.CAPI:
 		k.APICluster = true
 	case util.K3DPrefix:
 		k.K3DCluster = true
 	}
+}
+
+func (k *K3DCommands) createDeleteK3DCluster() error {
+	k.selectCluster()
 
 	if _, _, err := k.getKubeContext(); err != nil {
 		return err
@@ -102,9 +106,18 @@ func (k *K3DCommands) importImageToK3DCluster() error {
 }
 
 func (k *K3DCommands) listK3DClusters() error {
-	k.K3DCluster = true
+	k.selectCluster()
+
 	if _, _, err := k.getKubeContext(); err != nil {
 		return err
+	}
+
+	if k.APICluster {
+		if err := k.prepareK3D("cluster", k.Ctx.Command.Name, util.CAPI); err != nil {
+			return err
+		}
+
+		return runner(k).runCMD()
 	}
 
 	if err := k.prepareK3D("cluster", k.Ctx.Command.Name); err != nil {
@@ -115,7 +128,8 @@ func (k *K3DCommands) listK3DClusters() error {
 }
 
 func (k *K3DCommands) startStopK3DCluster() error {
-	k.K3DCluster = true
+	k.selectCluster()
+
 	if _, _, err := k.getKubeContext(); err != nil {
 		return err
 	}

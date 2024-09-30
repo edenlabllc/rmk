@@ -134,6 +134,16 @@ func Commands() []*cli.Command {
 							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DAction(conf, K3DRunner.createDeleteK3DCluster),
 						},
+						{
+							Name:         "list",
+							Usage:        "List CAPI clusters",
+							Aliases:      []string{"l"},
+							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
+							Flags:        flags["hidden"],
+							Category:     "capi",
+							BashComplete: util.ShellCompleteCustomOutput,
+							Action:       K3DAction(conf, K3DRunner.listK3DClusters),
+						},
 					},
 				},
 				{
