@@ -227,10 +227,10 @@ rmk project generate \
 rmk config init
 ` + "```" + `
 
-#### Create Cluster API cluster
+#### Create K3D cluster
 
 ` + "```" + `shell
-rmk cluster capi create
+rmk cluster k3d create
 ` + "```" + `
 
 #### Release sync
