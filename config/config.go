@@ -42,11 +42,6 @@ type Config struct {
 	ProjectFile                `yaml:"project-file"`
 }
 
-type ExportedVars struct {
-	TerraformOutput map[string]interface{} `yaml:"terraform-output,omitempty"`
-	Env             map[string]string      `yaml:"env,omitempty"`
-}
-
 type HookMapping struct {
 	Tenant        string `yaml:"tenant,omitempty"`
 	Exists        bool   `yaml:"-"`
@@ -70,7 +65,6 @@ type Package struct {
 }
 
 type Inventory struct {
-	Clusters    map[string]*Package `yaml:"clusters,omitempty"`
 	HelmPlugins map[string]*Package `yaml:"helm-plugins,omitempty"`
 	Hooks       map[string]*Package `yaml:"hooks,omitempty"`
 	Tools       map[string]*Package `yaml:"tools,omitempty"`
@@ -80,9 +74,9 @@ type Project struct {
 	Dependencies []Package     `yaml:"dependencies,omitempty"`
 	HooksMapping []HookMapping `yaml:"hooks-mapping,omitempty"`
 	Spec         struct {
-		Environments []string `yaml:"environments,omitempty"`
-		Owners       []string `yaml:"owners,omitempty"`
-		Scopes       []string `yaml:"scopes,omitempty"`
+		Environments map[string]*ProjectRootDomain `yaml:"environments,omitempty"`
+		Owners       []string                      `yaml:"owners,omitempty"`
+		Scopes       []string                      `yaml:"scopes,omitempty"`
 	} `yaml:"spec,omitempty"`
 }
 
@@ -91,10 +85,8 @@ type ProjectFile struct {
 	Inventory `yaml:"inventory,omitempty"`
 }
 
-type Terraform struct {
-	BucketName   string `yaml:"bucket-name,omitempty"`
-	BucketKey    string `yaml:"bucket-key,omitempty"`
-	DDBTableName string `yaml:"dynamodb-table-name,omitempty"`
+type ProjectRootDomain struct {
+	RootDomain string `yaml:"root-domain,omitempty"`
 }
 
 func (conf *Config) InitConfig() *Config {
@@ -165,13 +157,24 @@ func (conf *Config) GetConfigs(all bool) error {
 }
 
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
-	if !c.IsSet("root-domain") {
-		if err := c.Set("root-domain", gitSpecID+util.TenantDomainSuffix); err != nil {
-			return err
+	for env, val := range conf.Spec.Environments {
+		check := strings.Split(val.RootDomain, "*.")
+		if len(check) > 2 {
+			return fmt.Errorf("root-domain not set correctly for environment %s", env)
 		}
 	}
 
-	conf.RootDomain = c.String("root-domain")
+	for env, val := range conf.Spec.Environments {
+		if env == conf.Environment {
+			if regexp.MustCompile(`^\*\.`).MatchString(val.RootDomain) {
+				conf.RootDomain = strings.ReplaceAll(val.RootDomain, "*", gitSpecID)
+			} else if len(val.RootDomain) > 0 {
+				conf.RootDomain = val.RootDomain
+			} else {
+				conf.RootDomain = "localhost"
+			}
+		}
+	}
 
 	return nil
 }
@@ -210,18 +213,6 @@ func (pf *ProjectFile) parseProjectFileData() error {
 
 	for key, dep := range pf.Dependencies {
 		pf.Dependencies[key].Url, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.Url)
-		if err != nil {
-			return err
-		}
-	}
-
-	for key, provider := range pf.Clusters {
-		if _, err := semver.NewVersion(provider.Version); err != nil {
-			return fmt.Errorf("%s %s for section inventory.clusters", strings.ToLower(err.Error()), provider.Version)
-		}
-
-		pf.Clusters[key].Name = key
-		pf.Clusters[key].Url, err = pf.ParseTemplate(template.New("Clusters"), pf.Clusters[key], provider.Url)
 		if err != nil {
 			return err
 		}

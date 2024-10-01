@@ -26,15 +26,11 @@ const (
 	SopsAgeKeyFile          = ".keys.txt"
 	SopsRootName            = "sops-age-keys"
 	SopsConfigFile          = ".sops.yaml"
-	TenantDomainSuffix      = ".edenlab.dev"
 	TenantProjectCodeOwners = "docs/CODEOWNERS"
 	TenantProjectDIR        = ".PROJECT"
 	TenantProjectFile       = "project.yaml"
 	TenantProjectGitIgn     = ".gitignore"
 	TenantValuesDIR         = "etc"
-	TerraformVarsExt        = "tfvars"
-	TerraformVarsFile       = "variables.auto." + TerraformVarsExt
-	TerraformWGFile         = "worker-groups.auto." + TerraformVarsExt
 	ToolsBinDir             = "bin"
 	ToolsTmpDir             = "tmp"
 	ToolsVersionDir         = "version"

@@ -67,9 +67,61 @@ func newProjectCommand(conf *config.Config, ctx *cli.Context, workDir string) *P
 	}
 }
 
+func (p *ProjectCommands) createProjectFile() error {
+	var buf bytes.Buffer
+
+	if !p.Ctx.IsSet("environments") || !p.Ctx.IsSet("scopes") {
+		return fmt.Errorf("%s file not found or values not set for flags: %s, %s",
+			util.GetPwdPath(util.TenantProjectFile), "environments", "scopes")
+	}
+
+	if p.Ctx.IsSet("environments") {
+		p.projectFile.Spec.Environments = make(map[string]*config.ProjectRootDomain)
+		for _, val := range p.Ctx.StringSlice("environments") {
+			if len(val) > 0 {
+				matchRootDomain := regexp.MustCompile(`^.+\.root-domain=.+$`).MatchString(val)
+				splitRootDomain := strings.SplitN(val, ".", 2)
+
+				if !matchRootDomain && len(splitRootDomain) == 2 {
+					return fmt.Errorf("option %s for environment %s set not correctly",
+						splitRootDomain[1], splitRootDomain[0])
+				}
+
+				if matchRootDomain && len(splitRootDomain) == 2 {
+					p.projectFile.Spec.Environments[splitRootDomain[0]] = &config.ProjectRootDomain{
+						RootDomain: strings.TrimPrefix(splitRootDomain[1], "root-domain="),
+					}
+				}
+
+				if !matchRootDomain || len(splitRootDomain) == 1 {
+					p.projectFile.Spec.Environments[splitRootDomain[0]] = &config.ProjectRootDomain{}
+				}
+			}
+		}
+	}
+
+	if p.Ctx.IsSet("owners") {
+		p.projectFile.Spec.Owners = p.Ctx.StringSlice("owners")
+	}
+
+	if p.Ctx.IsSet("scopes") {
+		p.projectFile.Spec.Scopes = p.Ctx.StringSlice("scopes")
+	}
+
+	encoder := yaml.NewEncoder(&buf)
+	encoder.SetIndent(2)
+	if err := encoder.Encode(&p.projectFile); err != nil {
+		return err
+	}
+
+	return os.WriteFile(util.GetPwdPath(util.TenantProjectFile), buf.Bytes(), 0644)
+}
+
 func (p *ProjectCommands) readProjectFile() error {
 	if !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
-		return fmt.Errorf("%s file not found", util.GetPwdPath(util.TenantProjectFile))
+		if err := p.createProjectFile(); err != nil {
+			return err
+		}
 	}
 
 	data, err := os.ReadFile(util.GetPwdPath(util.TenantProjectFile))
@@ -196,9 +248,15 @@ func (p *ProjectCommands) generateReadme(gitSpec *git_handler.GitSpec) error {
 }
 
 func (p *ProjectCommands) generateHelmfile() error {
-	sort.Strings(p.projectFile.Spec.Environments)
+	var environmentKeys = make([]string, 0, len(p.projectFile.Spec.Environments))
 
-	for key, name := range p.projectFile.Spec.Environments {
+	for key := range p.projectFile.Spec.Environments {
+		environmentKeys = append(environmentKeys, key)
+	}
+
+	sort.Strings(environmentKeys)
+
+	for key, name := range environmentKeys {
 		p.EnvironmentName = name
 		hEnvironments, err := p.Conf.ParseTemplate(template.New("Helmfile"), &p.parseContent, helmfileEnvironments)
 		if err != nil {
@@ -246,14 +304,6 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 	for _, sc := range p.scopes {
 		for _, env := range sc.environments {
 			switch sc.name {
-			case "clusters":
-				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, util.TerraformVarsFile), clusterVariables); err != nil {
-					return err
-				}
-
-				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, util.TerraformWGFile), clusterWorkerGroups); err != nil {
-					return err
-				}
 			case p.TenantName:
 				tGlobals, err := p.Conf.ParseTemplate(template.New("TenantGlobals"), &p.parseContent, tenantGlobals)
 				if err != nil {
@@ -299,10 +349,8 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 				}
 			}
 
-			if sc.name != "clusters" {
-				if err := p.writeProjectFiles(filepath.Join(env.secretsPath, util.SopsConfigFile), sopsConfigFile); err != nil {
-					return err
-				}
+			if err := p.writeProjectFiles(filepath.Join(env.secretsPath, util.SopsConfigFile), sopsConfigFile); err != nil {
+				return err
 			}
 		}
 	}
@@ -357,16 +405,7 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 	for sKey, sc := range p.projectFile.Spec.Scopes {
 		p.Scopes = append(p.Scopes, sc)
 		p.scopes = append(p.scopes, scope{name: sc, environments: make(map[string]*environment)})
-		for _, env := range p.projectFile.Spec.Environments {
-			if sc == "clusters" {
-				p.scopes[sKey].environments[env] = &environment{
-					secretsPath: util.GetPwdPath(util.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "secrets"),
-					valuesPath:  util.GetPwdPath(util.TenantValuesDIR, sc, p.Conf.ClusterProvider, env, "values"),
-				}
-
-				continue
-			}
-
+		for env := range p.projectFile.Spec.Environments {
 			p.scopes[sKey].environments[env] = &environment{
 				globalsPath:  util.GetPwdPath(util.TenantValuesDIR, sc, env, util.GlobalsFileName),
 				releasesPath: util.GetPwdPath(util.TenantValuesDIR, sc, env, util.ReleasesFileName),
@@ -415,11 +454,7 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 			return err
 		}
 
-		if err := newProjectCommand(conf, c, util.GetPwdPath()).generateProject(gitSpec); err != nil {
-			return err
-		}
-
-		return resolveDependencies(conf.InitConfig(), c, false)
+		return newProjectCommand(conf, c, util.GetPwdPath()).generateProject(gitSpec)
 	}
 }
 

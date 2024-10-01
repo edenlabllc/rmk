@@ -174,7 +174,7 @@ func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 		}
 	case !sc.Ctx.IsSet("scope") && sc.Ctx.IsSet("environment"):
 		for _, environment := range sc.Ctx.StringSlice("environment") {
-			for _, env := range sc.Conf.Project.Spec.Environments {
+			for env := range sc.Conf.Project.Spec.Environments {
 				if environment == env {
 					check++
 				}

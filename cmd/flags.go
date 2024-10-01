@@ -59,15 +59,6 @@ func flagsConfig() []cli.Flag {
 				Value:   util.AWSClusterProvider,
 			},
 		),
-		// TODO: will be transfer to cluster category for AWS provider
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "root-domain",
-				Usage:   "domain name for external access to app services via ingress controller",
-				Aliases: []string{"rd"},
-				EnvVars: []string{"RMK_ROOT_DOMAIN"},
-			},
-		),
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "progress-bar",
@@ -144,27 +135,6 @@ func flagsClusterK3DImport() []cli.Flag {
 	)
 }
 
-//func flagsClusterPlan() []cli.Flag {
-//	return append(flagsHidden(),
-//		&cli.BoolFlag{
-//			Name:    "plan",
-//			Usage:   "creates an execution Terraform plan",
-//			Aliases: []string{"p"},
-//		},
-//	)
-//}
-
-//func flagsClusterStateDelete() []cli.Flag {
-//	return append(flagsHidden(),
-//		&cli.StringFlag{
-//			Name:    "resource-address",
-//			Usage:   "resource address for delete from Terraform state",
-//			Aliases: []string{"ra"},
-//			EnvVars: []string{"RMK_CLUSTER_STATE_RESOURCE_ADDRESS"},
-//		},
-//	)
-//}
-
 func flagsClusterSwitch() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.BoolFlag{
@@ -181,6 +151,21 @@ func flagsProjectGenerate() []cli.Flag {
 			Name:    "create-sops-age-keys",
 			Usage:   "create SOPS age keys for generated project structure",
 			Aliases: []string{"c"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "environments",
+			Usage:   "list of project environments. Root domain can take form of <environment>.root-domain=<domain-name>",
+			Aliases: []string{"e"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "owners",
+			Usage:   "list of project owners",
+			Aliases: []string{"o"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "scopes",
+			Usage:   "list of project scopes",
+			Aliases: []string{"s"},
 		},
 	)
 }

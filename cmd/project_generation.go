@@ -1,50 +1,6 @@
 package cmd
 
 const (
-	clusterVariables = `# Kubernetes user list
-k8s_master_usernames = []
-k8s_cluster_version  = "" # Actual EKS Kubernetes version
-# Bastion
-bastion_enabled = false
-# IAM Roles
-aws_lb_controller_role_enabled   = true
-external_dns_role_enabled        = true
-ebs_csi_controller_roles_enabled = true
-`
-
-	clusterWorkerGroups = `# For example:
-# worker_groups = [
-#   {
-#     name                 = "<stateless app name>"
-#     instance_type        = "t3.medium"
-#     additional_userdata  = "t3.medium"
-#     asg_desired_capacity = 3
-#     asg_max_size         = 3
-#     asg_min_size         = 3
-#     ami_id               = "ami-<ID>"
-#     kubelet_extra_args   = "--node-labels=key1=value1"
-#     root_volume_size     = "10"
-#     root_volume_type     = "gp3"
-#     enable_monitoring    = false
-#   },
-#   {
-#     name                 = "<stateful app name>"
-#     instance_type        = "t3.medium"
-#     additional_userdata  = "t3.medium"
-#     asg_desired_capacity = 3
-#     asg_max_size         = 3
-#     asg_min_size         = 3
-#     ami_id               = "ami-<ID>"
-#     kubelet_extra_args   = "--node-labels=key2=value2 --register-with-taints=key2=value2:NoSchedule"
-#     root_volume_size     = "10"
-#     root_volume_type     = "gp3"
-#     enable_monitoring    = false
-#   },
-# ]
-
-worker_groups = []
-`
-
 	codeOwners = `# These owners will be the default owners for everything in
 # the repo and will be requested for review when someone opens a pull request.
 `
@@ -146,9 +102,33 @@ helmfiles: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameE
 `
 
 	helmfileReleases = `releases:
-  # TODO: It is recommended to adapt this example considering security, performance and configuration management 
-  # TODO: requirements specific to your application or infrastructure.
+  # TODO: Releases from group 1 are needed to deploy Cluster API or K3D clusters. 
+  # TODO: If you do not inherit upstream repositories, you can leave these releases as is, 
+  # TODO: or make sure that upstream repositories do not have the same releases to avoid conflicts.
   # Group 1
+  - name: capi-cluster
+    namespace: kube-system
+    chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/k3d-cluster"
+    version: 0.1.0
+    labels:
+      cluster: capi
+    installed: ` + escapeOpen + `{{ eq (env "CAPI_CLUSTER" | default "false") "true" }}` + escapeClose + `
+    inherit:
+      - template: release
+
+  - name: k3d-cluster
+    namespace: kube-system
+    chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/k3d-cluster"
+    version: 0.1.0
+    labels:
+      cluster: k3d
+    installed: ` + escapeOpen + `{{ eq (env "K3D_CLUSTER" | default "false") "true" }}` + escapeClose + `
+    inherit:
+      - template: release
+
+  # TODO: It is recommended to adapt this example considering security, performance and configuration management 
+  # TODO: requirements specific to your application or infrastructure.  
+  # Group 2
   - name: {{ .TenantName }}-app
     namespace: {{ .TenantName }}
     chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/app"
@@ -187,7 +167,7 @@ Detailed information about requirements and installation instructions can be fou
   * hooks
 - Note: K3D v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
 - Python >= 3.9
-- [RMK CLI](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes) >= v.0.42.4
+- [RMK CLI](https://edenlabllc.github.io/rmk/latest)
 
 ### GitLab flow strategy
 
@@ -230,17 +210,27 @@ This example shows how the following options are configured and interact with ea
 {{- end }}
 ### Basic RMK commands for project management
 
+#### Project generate
+
+` + "```" + `shell
+rmk project generate \
+    --environment=develop.root-domain=*.example.com \
+    --environment=staging.root-domain=test.example.com \
+    --environment=production \
+    --owners=user \
+    --scopes=rmt-test
+` + "```" + `
+
 #### Initialization configuration
 
 ` + "```" + `shell
 rmk config init
 ` + "```" + `
 
-#### Cluster provision
+#### Create Cluster API cluster
 
 ` + "```" + `shell
-rmk cluster provision --plan
-rmk cluster provision
+rmk cluster capi create
 ` + "```" + `
 
 #### Release sync
@@ -249,7 +239,7 @@ rmk cluster provision
 rmk release sync
 ` + "```" + `
 
-> Note: A complete list of RMK commands and capabilities can be found at the [link](https://github.com/edenlabllc/rmk?tab=readme-ov-file#rmk-cli---reduced-management-for-kubernetes)
+> Note: A complete list of RMK commands and capabilities can be found at the [link](https://edenlabllc.github.io/rmk/latest)
 `
 
 	releasesFile = `# This file defines the release list, is located in the environment directory

@@ -24,7 +24,6 @@ const (
 var (
 	TenantPrDependenciesDir = filepath.Join(util.TenantProjectDIR, "dependencies")
 	TenantPrInventoryDir    = filepath.Join(util.TenantProjectDIR, "inventory")
-	TenantPrInvClustersDir  = filepath.Join(TenantPrInventoryDir, "clusters")
 	TenantPrInvHooksDir     = filepath.Join(TenantPrInventoryDir, "hooks")
 )
 
@@ -206,11 +205,6 @@ func uniqueHooksMapping(hooks []config.HookMapping) []config.HookMapping {
 }
 
 func (is *InventoryState) saveState(inv config.Inventory) {
-	is.clustersState = make(map[string]struct{})
-	for key := range inv.Clusters {
-		is.clustersState[key] = struct{}{}
-	}
-
 	is.helmPluginsState = make(map[string]struct{})
 	for key := range inv.HelmPlugins {
 		is.helmPluginsState[key] = struct{}{}
@@ -220,26 +214,6 @@ func (is *InventoryState) saveState(inv config.Inventory) {
 	for key := range inv.Tools {
 		is.toolsState[key] = struct{}{}
 	}
-}
-
-func (is *InventoryState) resolveClusters(invPkg map[string]*config.Package, conf *config.Config) (map[string]*config.Package, error) {
-	if len(conf.Clusters) == 0 {
-		conf.Clusters = make(map[string]*config.Package)
-	}
-
-	for key, pkg := range invPkg {
-		vPkg, _ := semver.NewVersion(pkg.Version)
-		if _, ok := conf.Clusters[key]; !ok {
-			conf.Clusters[key] = pkg
-		} else if _, found := is.clustersState[key]; !found {
-			vP, _ := semver.NewVersion(conf.Clusters[key].Version)
-			if vPkg.GreaterThan(vP) {
-				conf.Clusters[key] = pkg
-			}
-		}
-	}
-
-	return conf.Clusters, nil
 }
 
 func (is *InventoryState) resolveHelmPlugins(invPkg map[string]*config.Package, conf *config.Config) (map[string]*config.Package, error) {
@@ -308,11 +282,6 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 				return err
 			}
 
-			// Resolve and recursively download repositories containing clusters
-			if conf.Clusters, invErr = invState.resolveClusters(projectFile.Clusters, conf); invErr != nil {
-				return invErr
-			}
-
 			// Resolve and recursively download repositories containing helm plugins
 			if conf.HelmPlugins, invErr = invState.resolveHelmPlugins(projectFile.HelmPlugins, conf); invErr != nil {
 				return invErr
@@ -363,10 +332,6 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 	}
 
 	if err := recursivelyDownload(); err != nil {
-		return err
-	}
-
-	if err := updateClusters(conf, ctx, silent); err != nil {
 		return err
 	}
 
@@ -459,21 +424,6 @@ func updateDependencies(conf *config.Config, ctx *cli.Context, silent bool) erro
 			return fmt.Errorf("%s or %s not found in dependent project %s",
 				util.HelmfileFileName, util.HelmfileGoTmplName, spec.PkgName)
 		}
-	}
-
-	return nil
-}
-
-func updateClusters(conf *config.Config, ctx *cli.Context, silent bool) error {
-	pwd := util.GetPwdPath(TenantPrInvClustersDir)
-
-	for key, val := range conf.Clusters {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, rmOldDir: true}
-		if err := spec.batchUpdate(pwd, *val, silent); err != nil {
-			return err
-		}
-
-		conf.Clusters[key].DstPath = spec.PkgDst
 	}
 
 	return nil
