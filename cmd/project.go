@@ -83,7 +83,7 @@ func (p *ProjectCommands) createProjectFile() error {
 				splitRootDomain := strings.SplitN(val, ".", 2)
 
 				if !matchRootDomain && len(splitRootDomain) == 2 {
-					return fmt.Errorf("option %s for environment %s set not correctly",
+					return fmt.Errorf("option %s for environment %s not set correctly",
 						splitRootDomain[1], splitRootDomain[0])
 				}
 

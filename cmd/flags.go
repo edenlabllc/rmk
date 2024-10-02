@@ -154,17 +154,17 @@ func flagsProjectGenerate() []cli.Flag {
 		},
 		&cli.StringSliceFlag{
 			Name:    "environments",
-			Usage:   "list of project environments. Root domain can take form of <environment>.root-domain=<domain-name>",
+			Usage:   "list project environments. Root domain can take form of <environment>.root-domain=<domain-name>",
 			Aliases: []string{"e"},
 		},
 		&cli.StringSliceFlag{
 			Name:    "owners",
-			Usage:   "list of project owners",
+			Usage:   "list project owners",
 			Aliases: []string{"o"},
 		},
 		&cli.StringSliceFlag{
 			Name:    "scopes",
-			Usage:   "list of project scopes",
+			Usage:   "list project scopes",
 			Aliases: []string{"s"},
 		},
 	)

@@ -214,9 +214,7 @@ This example shows how the following options are configured and interact with ea
 
 ` + "```" + `shell
 rmk project generate \
-    --environment=develop.root-domain=*.example.com \
-    --environment=staging.root-domain=test.example.com \
-    --environment=production \
+    --environment=develop \
     --owners=user \
     --scopes=rmt-test
 ` + "```" + `
