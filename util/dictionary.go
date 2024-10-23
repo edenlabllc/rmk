@@ -1,9 +1,8 @@
 package util
 
 const (
-	AWSClusterProvider      = "aws"
-	AzureClusterProvider    = "azure"
 	CAPI                    = "capi"
+	CAPIContextName         = K3DPrefix + "-" + CAPI
 	GitSSHPrivateKey        = ".ssh/id_rsa"
 	GlobalsFileName         = "globals.yaml.gotmpl"
 	HelmfileFileName        = "helmfile.yaml"

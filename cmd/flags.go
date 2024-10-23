@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
-
 	"rmk/util"
 )
 
@@ -21,9 +20,43 @@ func flagsConfig() []cli.Flag {
 				Hidden: true,
 			},
 		),
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-client-id",
+			Usage:    "Azure client ID for Service Principal",
+			Aliases:  []string{"azc"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_ID", "AZURE_CLIENT_ID"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-client-secret",
+			Usage:    "Azure client secret for Service Principal",
+			Aliases:  []string{"azp"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", "AZURE_CLIENT_SECRET"},
+		},
 		&cli.BoolFlag{
-			Name:    "aws-reconfigure",
-			Usage:   "force AWS profile creation",
+			Category: azureFlagsCategory,
+			Name:     "azure-service-principle",
+			Usage:    "Azure Service Principal stdin content",
+			Aliases:  []string{"azsp"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-subscription-id",
+			Usage:    "Azure subscription ID for current Azure platform domain",
+			Aliases:  []string{"azs"},
+			EnvVars:  []string{"RMK_AZURE_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-tenant-id",
+			Usage:    "Azure tenant ID for Service Principal",
+			Aliases:  []string{"azt"},
+			EnvVars:  []string{"RMK_AZURE_TENANT_ID", "AZURE_TENANT_ID"},
+		},
+		&cli.BoolFlag{
+			Name:    "reconfigure",
+			Usage:   "force Cluster Providers credentials recreate",
 			Aliases: []string{"r"},
 		},
 		&cli.StringFlag{
@@ -56,7 +89,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "select cluster provider to provision clusters",
 				Aliases: []string{"cp"},
 				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   util.AWSClusterProvider,
+				Value:   util.LocalClusterProvider,
 			},
 		),
 		altsrc.NewBoolFlag(

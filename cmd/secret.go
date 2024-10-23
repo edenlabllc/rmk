@@ -72,13 +72,13 @@ func (sc *SecretCommands) createAgeKey(scope string) error {
 
 	sc.SpecCMD = sc.ageKeygen("-o", keyPath)
 	sc.SpecCMD.DisableStdOut = true
-	if err := runner(sc).runCMD(); err != nil {
+	if err := releaseRunner(sc).runCMD(); err != nil {
 		return err
 	}
 
 	sc.SpecCMD = sc.ageKeygen("-y", keyPath)
 	sc.SpecCMD.DisableStdOut = true
-	return runner(sc).runCMD()
+	return releaseRunner(sc).runCMD()
 }
 
 func (sc *SecretCommands) CreateKeys() error {
@@ -265,7 +265,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 		switch sc.Ctx.Command.Name {
 		case "decrypt":
 			sc.SpecCMD.Args = append(sc.SpecCMD.Args, sc.Ctx.Command.Name, "-i", secret)
-			if err := runner(sc).runCMD(); err != nil {
+			if err := releaseRunner(sc).runCMD(); err != nil {
 				if strings.Contains(sc.SpecCMD.StderrBuf.String(), util.HelmSecretsIsNotEncrypted+secret) {
 					zap.S().Warnf(strings.ToLower(util.HelmSecretsIsNotEncrypted)+"%s", secret)
 					continue
@@ -277,7 +277,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 			zap.S().Infof("decrypting: %s", secret)
 		case "encrypt":
 			sc.SpecCMD.Args = append(sc.SpecCMD.Args, sc.Ctx.Command.Name, "-i", secret)
-			if err := runner(sc).runCMD(); err != nil {
+			if err := releaseRunner(sc).runCMD(); err != nil {
 				if strings.Contains(sc.SpecCMD.StderrBuf.String(), util.HelmSecretsAlreadyEncrypted+filepath.Base(secret)) {
 					zap.S().Warnf(strings.ToLower(util.HelmSecretsAlreadyEncrypted)+"%s", secret)
 					continue
@@ -349,7 +349,7 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 		return fmt.Errorf("file does not exist: %s", secretFilePath)
 	}
 
-	if err := runner(sc).runCMD(); err != nil {
+	if err := releaseRunner(sc).runCMD(); err != nil {
 		if returnCMDError {
 			return err
 		}
@@ -379,6 +379,7 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 
 func secretMgrEncryptDecryptAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
+		//TODO: deprecate after full list CAPI providers will be implemented
 		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
@@ -406,6 +407,7 @@ func secretMgrGenerateAction(conf *config.Config) cli.ActionFunc {
 }
 func secretKeysCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
+		//TODO: deprecate after full list CAPI providers will be implemented
 		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
@@ -444,6 +446,7 @@ func secretKeysUploadAction(conf *config.Config) cli.ActionFunc {
 
 func secretAction(conf *config.Config, action func(secretRunner SecretRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
+		//TODO: deprecate after full list CAPI providers will be implemented
 		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}

@@ -16,6 +16,7 @@ import (
 	"rmk/config"
 	"rmk/git_handler"
 	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
 	"rmk/util"
 )
 
@@ -94,12 +95,12 @@ func (c *ConfigCommands) checkAwsEnv() (map[string]string, bool) {
 func (c *ConfigCommands) configAws() error {
 	if awsEnvs, ok := c.checkAwsEnv(); !ok {
 		c.SpecCMD = c.awsConfigure(c.Conf.Profile)
-		return runner(c).runCMD()
+		return releaseRunner(c).runCMD()
 	} else {
 		for key, val := range awsEnvs {
 			c.SpecCMD = c.awsConfigure(c.Conf.Profile)
 			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := runner(c).runCMD(); err != nil {
+			if err := releaseRunner(c).runCMD(); err != nil {
 				return err
 			}
 		}
@@ -165,7 +166,7 @@ func (c *ConfigCommands) configAwsMFA() error {
 		for key, val := range MFAProfileArgs {
 			c.SpecCMD = c.awsConfigure(c.Conf.AWSMFAProfile)
 			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := runner(c).runCMD(); err != nil {
+			if err := releaseRunner(c).runCMD(); err != nil {
 				return err
 			}
 		}
@@ -173,7 +174,7 @@ func (c *ConfigCommands) configAwsMFA() error {
 		for key, val := range regularProfileArgs {
 			c.SpecCMD = c.awsConfigure(regularProfile)
 			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := runner(c).runCMD(); err != nil {
+			if err := releaseRunner(c).runCMD(); err != nil {
 				return err
 			}
 		}
@@ -195,7 +196,7 @@ func (c *ConfigCommands) copyAWSProfile(profile string) error {
 	for key, val := range profileArgs {
 		c.SpecCMD = c.awsConfigure(profile)
 		c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-		if err := runner(c).runCMD(); err != nil {
+		if err := releaseRunner(c).runCMD(); err != nil {
 			return err
 		}
 	}
@@ -206,7 +207,7 @@ func (c *ConfigCommands) copyAWSProfile(profile string) error {
 func (c *ConfigCommands) installHelmPlugin(plugin config.Package, args ...string) error {
 	c.SpecCMD = c.helmPlugin()
 	c.SpecCMD.Args = append(c.SpecCMD.Args, args...)
-	if err := runner(c).runCMD(); err != nil {
+	if err := releaseRunner(c).runCMD(); err != nil {
 		if !strings.Contains(c.SpecCMD.StderrBuf.String(), util.HelmPluginExist) {
 			return fmt.Errorf("Helm plugin %s installation failed: \n%s", plugin.Name, c.SpecCMD.StderrBuf.String())
 		}
@@ -228,7 +229,7 @@ func (c *ConfigCommands) configHelmPlugins() error {
 	c.SpecCMD = c.helmPlugin()
 	c.SpecCMD.Args = append(c.SpecCMD.Args, "list")
 
-	if err := runner(c).runCMD(); err != nil {
+	if err := releaseRunner(c).runCMD(); err != nil {
 		return fmt.Errorf("get Helm plugin list failed: %s", c.SpecCMD.StderrBuf.String())
 	}
 
@@ -258,7 +259,7 @@ func (c *ConfigCommands) configHelmPlugins() error {
 		zap.S().Infof("Helm plugin %s detect new version %s from %s", plugin.Name, plugin.Version, util.TenantProjectFile)
 		c.SpecCMD = c.helmPlugin()
 		c.SpecCMD.Args = append(c.SpecCMD.Args, "uninstall", plugin.Name)
-		if err := runner(c).runCMD(); err != nil {
+		if err := releaseRunner(c).runCMD(); err != nil {
 			return fmt.Errorf("Helm plugin %s uninstallation failed: \n%s",
 				plugin.Name, c.SpecCMD.StderrBuf.String())
 		}
@@ -281,7 +282,7 @@ func (c *ConfigCommands) configHelmPlugins() error {
 
 func (c *ConfigCommands) rmkConfig() error {
 	c.SpecCMD = c.rmkConfigInit()
-	return runner(c).runCMD()
+	return releaseRunner(c).runCMD()
 }
 
 func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -294,7 +295,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		profile = conf.Profile
 	}
 
-	if c.Bool("aws-reconfigure") {
+	if c.Bool("reconfigure") {
 		if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.Profile), "")); err != nil {
 			return err
 		}
@@ -348,7 +349,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 			return err
 		}
-	} else if !c.Bool("aws-reconfigure") {
+	} else if !c.Bool("reconfigure") {
 		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 			return err
 		}
@@ -373,7 +374,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 			return err
 		}
 
-		if c.String("cluster-provider") == util.AWSClusterProvider {
+		if c.String("cluster-provider") == aws_provider.AWSClusterProvider {
 			if err := c.Set("config-name-from", conf.Name); err != nil {
 				return err
 			}
@@ -437,6 +438,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		return nil
 	}
 
+	//TODO: deprecate after full list CAPI providers will be implemented
 	if err := util.ValidateGitHubToken(c, "required parameter --github-token not set"); err != nil {
 		return err
 	}
@@ -451,7 +453,7 @@ func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_
 		}
 	}
 
-	if c.String("cluster-provider") == util.AWSClusterProvider {
+	if c.String("cluster-provider") == aws_provider.AWSClusterProvider {
 		conf.AwsConfigure = new(aws_provider.AwsConfigure)
 	}
 
@@ -467,8 +469,13 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		// TODO: It is necessary to think about whether to delete unconditionally or check taking into account the AWS provider.
-		if c.String("cluster-provider") == util.AWSClusterProvider {
+		switch {
+		case c.String("cluster-provider") == azure_provider.AzureClusterProvider:
+			if err := os.RemoveAll(util.GetHomePath(azure_provider.AzureHomeDir,
+				azure_provider.AzurePrefix+conf.Name+".json")); err != nil {
+				return err
+			}
+		case c.String("cluster-provider") == aws_provider.AWSClusterProvider:
 			// Delete MFA profile
 			if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
 				if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.AWSMFAProfile), "")); err != nil {
@@ -531,7 +538,56 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		}
 
 		switch conf.ClusterProvider {
-		case util.AWSClusterProvider:
+		case azure_provider.AzureClusterProvider:
+			conf.AwsConfigure = &aws_provider.AwsConfigure{}
+			ac := azure_provider.NewAzureConfigure()
+			asp := azure_provider.NewRawSP()
+
+			if util.IsExists(
+				util.GetHomePath(azure_provider.AzureHomeDir, azure_provider.AzurePrefix+gitSpec.ID+".json"), true) {
+				if err := ac.ReadSPCredentials(gitSpec.ID); err != nil {
+					return err
+				}
+			}
+
+			if c.Bool("azure-service-principle") {
+				if err := json.NewDecoder(os.Stdin).Decode(&asp); err != nil {
+					return fmt.Errorf("unable to deserialize json from stdin: %s", err.Error())
+				}
+
+				ac.MergeAzureRawSP(asp)
+			}
+
+			if c.IsSet("azure-client-id") {
+				ac.ClientID = c.String("azure-client-id")
+			}
+
+			if c.IsSet("azure-client-secret") {
+				ac.ClientSecret = c.String("azure-client-secret")
+			}
+
+			if c.IsSet("azure-subscription-id") {
+				ac.SubscriptionID = c.String("azure-subscription-id")
+			}
+
+			if c.IsSet("azure-tenant-id") {
+				ac.TenantID = c.String("azure-tenant-id")
+			}
+
+			if err := ac.CheckSPCredentials(); err != nil {
+				return err
+			} else {
+				conf.AzureConfigure = azure_provider.NewAzureConfigure()
+				conf.AzureConfigure.SubscriptionID = ac.SubscriptionID
+			}
+
+			if err := ac.WriteSPCredentials(gitSpec.ID); err != nil {
+				return err
+			}
+
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+azure_provider.AzureClusterProvider)
+		case aws_provider.AWSClusterProvider:
+			conf.AzureConfigure = &azure_provider.AzureConfigure{}
 			conf.AwsConfigure.Profile = gitSpec.ID
 			conf.AWSMFAProfile = c.String("aws-mfa-profile")
 			conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
@@ -548,6 +604,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
 		case util.LocalClusterProvider:
 			conf.AwsConfigure = &aws_provider.AwsConfigure{}
+			conf.AzureConfigure = &azure_provider.AzureConfigure{}
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
 
@@ -559,7 +616,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			return err
 		}
 
-		if conf.ClusterProvider == util.AWSClusterProvider {
+		if conf.ClusterProvider == aws_provider.AWSClusterProvider {
 			//create s3 bucket for sops age keys
 			if err := conf.CreateBucket(conf.SopsBucketName); err != nil {
 				return err

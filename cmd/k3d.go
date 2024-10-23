@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -69,13 +70,13 @@ func (k *K3DCommands) selectCluster() {
 func (k *K3DCommands) createDeleteK3DCluster() error {
 	k.selectCluster()
 
-	if _, _, err := k.getKubeContext(); err != nil {
+	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
 
 	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "-l", "cluster="+k.Ctx.Command.Category, "template")
 	k.SpecCMD.DisableStdOut = true
-	if err := runner(k).runCMD(); err != nil {
+	if err := releaseRunner(k).runCMD(); err != nil {
 		return fmt.Errorf("Helmfile failed to render template by label release: cluster=%s\n%s",
 			k.Ctx.Command.Category, k.SpecCMD.StderrBuf.String())
 	}
@@ -89,7 +90,11 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 		return err
 	}
 
-	if err := runner(k).runCMD(); err != nil {
+	if err := releaseRunner(k).runCMD(); err != nil {
+		if err := os.RemoveAll(k3dConfig); err != nil {
+			return err
+		}
+
 		return err
 	}
 
@@ -102,13 +107,13 @@ func (k *K3DCommands) importImageToK3DCluster() error {
 		return err
 	}
 
-	return runner(k).runCMD()
+	return releaseRunner(k).runCMD()
 }
 
 func (k *K3DCommands) listK3DClusters() error {
 	k.selectCluster()
 
-	if _, _, err := k.getKubeContext(); err != nil {
+	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
 
@@ -117,20 +122,31 @@ func (k *K3DCommands) listK3DClusters() error {
 			return err
 		}
 
-		return runner(k).runCMD()
+		k.SpecCMD.DisableStdOut = true
+		if err := releaseRunner(k).runCMD(); err != nil {
+			if strings.Contains(k.SpecCMD.StderrBuf.String(), "No nodes found for given cluster") {
+				return fmt.Errorf("cluster %s not running", util.CAPI)
+			} else {
+				return fmt.Errorf("%s", k.SpecCMD.StderrBuf.String())
+			}
+		}
+
+		fmt.Printf("%s", k.SpecCMD.StdoutBuf.String())
+
+		return nil
 	}
 
 	if err := k.prepareK3D("cluster", k.Ctx.Command.Name); err != nil {
 		return err
 	}
 
-	return runner(k).runCMD()
+	return releaseRunner(k).runCMD()
 }
 
 func (k *K3DCommands) startStopK3DCluster() error {
 	k.selectCluster()
 
-	if _, _, err := k.getKubeContext(); err != nil {
+	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
 
@@ -138,11 +154,12 @@ func (k *K3DCommands) startStopK3DCluster() error {
 		return err
 	}
 
-	return runner(k).runCMD()
+	return releaseRunner(k).runCMD()
 }
 
 func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
+		//TODO: deprecate after full list CAPI providers will be implemented
 		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}
@@ -161,6 +178,7 @@ func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 
 func K3DAction(conf *config.Config, action func(k3dRunner K3DRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
+		//TODO: deprecate after full list CAPI providers will be implemented
 		if err := util.ValidateGitHubToken(c, ""); err != nil {
 			return err
 		}

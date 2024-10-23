@@ -31,6 +31,10 @@ import (
 	"rmk/util"
 )
 
+const (
+	AWSClusterProvider = "aws"
+)
+
 type AwsConfigure struct {
 	Profile               string `yaml:"profile,omitempty"`
 	Region                string `yaml:"region,omitempty"`
