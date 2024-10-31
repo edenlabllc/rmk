@@ -272,22 +272,14 @@ func (cc *ClusterCommands) switchKubeContext() error {
 
 	switch cc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
-		//if err := cc.awsClusterContext(); err != nil {
-		//	return err
-		//}
-		//
-		//_, currentContext, err := cc.getKubeContext()
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//cc.SpecCMD = cc.kubectl("config", "set-credentials", currentContext,
-		//	"--exec-env", "AWS_CONFIG_FILE="+strings.Join(cc.Conf.AWSSharedConfigFile(cc.Conf.Profile), ""),
-		//	"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(cc.Conf.AWSSharedCredentialsFile(cc.Conf.Profile), ""),
-		//)
-		//cc.SpecCMD.DisableStdOut = true
-		//cc.SpecCMD.Debug = true
-		//return releaseRunner(cc).runCMD()
+		clusterContext, err := cc.AWSClusterContext()
+		if err != nil {
+			return err
+		}
+
+		if err := cc.mergeKubeConfig(clusterContext); err != nil {
+			return err
+		}
 	case azure_provider.AzureClusterProvider:
 		clusterContext, err := cc.azureClusterContext()
 		if err != nil {
