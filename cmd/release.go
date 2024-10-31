@@ -20,6 +20,8 @@ import (
 	"rmk/config"
 	"rmk/git_handler"
 	"rmk/notification"
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
 	"rmk/util"
 )
 
@@ -87,31 +89,33 @@ type HelmStatus struct {
 }
 
 func (rc *ReleaseCommands) runCMD() error {
-	if err := rc.SpecCMD.AddEnv(); err != nil {
+	if err := rc.SpecCMD.AddOSEnv(); err != nil {
 		return err
 	}
 
 	if err := rc.SpecCMD.ExecCMD(); err != nil {
-		if rc.SpecCMD.Debug {
-			zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
-			zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
-			for _, val := range rc.SpecCMD.Envs {
-				zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
-			}
-		}
+		rc.debugLevel()
 
 		return err
 	}
 
+	rc.debugLevel()
+
+	return nil
+}
+
+func (rc *ReleaseCommands) debugLevel() {
 	if rc.SpecCMD.Debug {
 		zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
 		zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
 		for _, val := range rc.SpecCMD.Envs {
-			zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
+			if len(rc.Conf.GitHubToken) > 0 {
+				zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
+			} else {
+				zap.S().Debugf("env: %s", val)
+			}
 		}
 	}
-
-	return nil
 }
 
 func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
@@ -129,20 +133,38 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 }
 
 func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
+	var sensKeyWords []string
+
 	defaultArgs := []string{"--environment", rc.Conf.Environment}
 
+	// generating common environment variables
 	envs := append([]string{},
 		"NAME="+rc.Conf.Name,
-		"TENANT="+rc.Conf.Tenant,
+		"ROOT_DOMAIN="+rc.Conf.RootDomain,
 		"SOPS_AGE_KEY_FILE="+filepath.Join(rc.Conf.SopsAgeKeys, util.SopsAgeKeyFile),
-		"GITHUB_TOKEN="+rc.Conf.GitHubToken,
-		"AWS_PROFILE="+rc.Conf.Profile,
-		"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
-		"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
-		"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
+		"TENANT="+rc.Conf.Tenant,
 	)
 
-	envs = append(envs, "ROOT_DOMAIN="+rc.Conf.RootDomain)
+	if len(rc.Conf.GitHubToken) > 0 {
+		sensKeyWords = []string{rc.Conf.GitHubToken}
+		envs = append(envs, "GITHUB_TOKEN="+rc.Conf.GitHubToken)
+	} else {
+		sensKeyWords = []string{}
+	}
+
+	// generating additional environment variables to specific cluster provider
+	switch rc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		envs = append(envs,
+			"AWS_PROFILE="+rc.Conf.Profile,
+			"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
+			"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
+		)
+	case azure_provider.AzureClusterProvider:
+		envs = append(envs,
+			"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
+		)
+	}
 
 	for _, val := range rc.Conf.HooksMapping {
 		keyTenantEnv := regexp.MustCompile(`[\-.]`).ReplaceAllString(val.Tenant, "_")
@@ -170,7 +192,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		Dir:          rc.WorkDir,
 		Envs:         envs,
 		Debug:        true,
-		SensKeyWords: []string{rc.Conf.GitHubToken},
+		SensKeyWords: sensKeyWords,
 	}
 }
 
@@ -503,11 +525,6 @@ func (sr *SpecRelease) checkStatusRelease() error {
 
 func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -557,11 +574,6 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 
 func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -595,11 +607,6 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 
 func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}

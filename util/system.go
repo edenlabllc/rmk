@@ -32,7 +32,7 @@ type SpecCMD struct {
 	SensKeyWords  []string
 }
 
-func (s *SpecCMD) AddEnv() error {
+func (s *SpecCMD) AddOSEnv() error {
 	path, exists := os.LookupEnv("PATH")
 	if exists {
 		if err := os.Setenv("PATH", GetHomePath(".local", "bin")+":"+path); err != nil {

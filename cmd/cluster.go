@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 
@@ -42,8 +43,15 @@ func newClusterCommands(conf *config.Config, ctx *cli.Context, workDir string) *
 func (cc *ClusterCommands) clusterCTL(args ...string) *util.SpecCMD {
 	var envs []string
 
-	switch {
-	case cc.Conf.ClusterProvider == azure_provider.AzureClusterProvider:
+	switch cc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		envs = []string{
+			"AWS_B64ENCODED_CREDENTIALS=",
+			"CAPA_EKS_IAM=true",
+			"CAPA_EKS_ADD_ROLES=true",
+			"EXP_MACHINE_POOL=true",
+		}
+	case azure_provider.AzureClusterProvider:
 		envs = []string{
 			"EXP_AKS=true",
 			"EXP_MACHINE_POOL=true",
@@ -70,6 +78,15 @@ func (cc *ClusterCommands) kubectl(args ...string) *util.SpecCMD {
 		DisableStdOut: false,
 		Debug:         true,
 	}
+}
+
+func createManifestFile(object interface{}, dir, fileName string) (string, error) {
+	data, err := json.Marshal(object)
+	if err != nil {
+		return "", err
+	}
+
+	return util.CreateTempYAMLFile(dir, fileName, data)
 }
 
 func createClusterCTLConfigFile(output []byte) (string, error) {
@@ -99,7 +116,7 @@ func (cc *ClusterCommands) getClusterCTLConfig() (string, string, error) {
 	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "config=clusterctl", "template")
 	cc.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(cc).runCMD(); err != nil {
-		return "", "", fmt.Errorf("Helmfile failed to render template by label release: config=clusterctl\n%s",
+		return "", "", fmt.Errorf("Helmfile failed to render template by release label: config=clusterctl\n%s",
 			cc.SpecCMD.StderrBuf.String())
 	}
 
@@ -254,6 +271,23 @@ func (cc *ClusterCommands) switchKubeContext() error {
 	}
 
 	switch cc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		//if err := cc.awsClusterContext(); err != nil {
+		//	return err
+		//}
+		//
+		//_, currentContext, err := cc.getKubeContext()
+		//if err != nil {
+		//	return err
+		//}
+		//
+		//cc.SpecCMD = cc.kubectl("config", "set-credentials", currentContext,
+		//	"--exec-env", "AWS_CONFIG_FILE="+strings.Join(cc.Conf.AWSSharedConfigFile(cc.Conf.Profile), ""),
+		//	"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(cc.Conf.AWSSharedCredentialsFile(cc.Conf.Profile), ""),
+		//)
+		//cc.SpecCMD.DisableStdOut = true
+		//cc.SpecCMD.Debug = true
+		//return releaseRunner(cc).runCMD()
 	case azure_provider.AzureClusterProvider:
 		clusterContext, err := cc.azureClusterContext()
 		if err != nil {
@@ -263,23 +297,6 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		if err := cc.mergeKubeConfig(clusterContext); err != nil {
 			return err
 		}
-	case aws_provider.AWSClusterProvider:
-		if err := cc.awsClusterContext(); err != nil {
-			return err
-		}
-
-		_, currentContext, err := cc.getKubeContext()
-		if err != nil {
-			return err
-		}
-
-		cc.SpecCMD = cc.kubectl("config", "set-credentials", currentContext,
-			"--exec-env", "AWS_CONFIG_FILE="+strings.Join(cc.Conf.AWSSharedConfigFile(cc.Conf.Profile), ""),
-			"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(cc.Conf.AWSSharedCredentialsFile(cc.Conf.Profile), ""),
-		)
-		cc.SpecCMD.DisableStdOut = true
-		cc.SpecCMD.Debug = true
-		return releaseRunner(cc).runCMD()
 	}
 
 	return nil
@@ -303,6 +320,15 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 		}
 
 		switch cc.Conf.ClusterProvider {
+		case aws_provider.AWSClusterProvider:
+			clusterContext, err := cc.AWSClusterContext()
+			if err != nil {
+				return err
+			}
+
+			if err := cc.mergeKubeConfig(clusterContext); err != nil {
+				return err
+			}
 		case azure_provider.AzureClusterProvider:
 			clusterContext, err := cc.azureClusterContext()
 			if err != nil {
@@ -378,7 +404,14 @@ func CAPIInitAction(conf *config.Config) cli.AfterFunc {
 			return err
 		}
 
-		return cc.applyAzureClusterIdentity()
+		switch cc.Conf.ClusterProvider {
+		case aws_provider.AWSClusterProvider:
+			return cc.applyAWSClusterIdentity()
+		case azure_provider.AzureClusterProvider:
+			return cc.applyAzureClusterIdentity()
+		}
+
+		return nil
 	}
 }
 
@@ -401,7 +434,14 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		return cc.applyAzureClusterIdentity()
+		switch cc.Conf.ClusterProvider {
+		case aws_provider.AWSClusterProvider:
+			return cc.applyAWSClusterIdentity()
+		case azure_provider.AzureClusterProvider:
+			return cc.applyAzureClusterIdentity()
+		}
+
+		return nil
 	}
 }
 

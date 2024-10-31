@@ -36,7 +36,7 @@ type AzureConfigure struct {
 	AzureClient    `json:"-" yaml:"-"`
 	ClientID       string `json:"client-id,omitempty" yaml:"-"`
 	ClientSecret   string `json:"client-secret,omitempty" yaml:"-"`
-	SubscriptionID string `json:"subscription-id,omitempty"`
+	SubscriptionID string `json:"subscription-id,omitempty" yaml:"subscription-id,omitempty"`
 	TenantID       string `json:"tenant-id,omitempty" yaml:"-"`
 }
 
@@ -56,35 +56,27 @@ func (ac *AzureConfigure) MergeAzureRawSP(asp *AzureRawServicePrincipal) {
 
 func getTagStructName(i interface{}, name string) error {
 	if field, ok := reflect.TypeOf(i).Elem().FieldByName(name); ok {
-		return fmt.Errorf("service principal option %s not defined", strings.TrimSuffix(field.Tag.Get("json"), ",omitempty"))
+		return fmt.Errorf("service principal option %s required", strings.TrimSuffix(field.Tag.Get("json"), ",omitempty"))
 	} else {
-		return fmt.Errorf("field by name %s not defined", name)
+		return fmt.Errorf("field with name %s not defined", name)
 	}
 }
 
-func (ac *AzureConfigure) CheckSPCredentials() error {
+func (ac *AzureConfigure) ValidateSPCredentials() error {
 	if len(ac.ClientID) == 0 {
-		if err := getTagStructName(ac, "ClientID"); err != nil {
-			return err
-		}
+		return getTagStructName(ac, "ClientID")
 	}
 
 	if len(ac.ClientSecret) == 0 {
-		if err := getTagStructName(ac, "ClientSecret"); err != nil {
-			return err
-		}
+		return getTagStructName(ac, "ClientSecret")
 	}
 
 	if len(ac.SubscriptionID) == 0 {
-		if err := getTagStructName(ac, "SubscriptionID"); err != nil {
-			return err
-		}
+		return getTagStructName(ac, "SubscriptionID")
 	}
 
 	if len(ac.TenantID) == 0 {
-		if err := getTagStructName(ac, "TenantID"); err != nil {
-			return err
-		}
+		return getTagStructName(ac, "TenantID")
 	}
 
 	return nil
@@ -107,10 +99,8 @@ func (ac *AzureConfigure) WriteSPCredentials(fileSuffix string) error {
 
 	data = []byte(string(data) + "\n")
 
-	if !util.IsExists(util.GetHomePath(AzureHomeDir), false) {
-		if err := os.MkdirAll(util.GetHomePath(AzureHomeDir), 0755); err != nil {
-			return err
-		}
+	if err := os.MkdirAll(util.GetHomePath(AzureHomeDir), 0755); err != nil {
+		return err
 	}
 
 	return os.WriteFile(

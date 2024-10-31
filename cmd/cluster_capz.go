@@ -6,11 +6,9 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/json"
 	v1 "k8s.io/client-go/applyconfigurations/core/v1"
 
 	"rmk/providers/azure_provider"
-	"rmk/util"
 )
 
 const (
@@ -88,15 +86,6 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 	return acic
 }
 
-func createManifestFile(object interface{}, dir, fileName string) (string, error) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		return "", err
-	}
-
-	return util.CreateTempYAMLFile(dir, fileName, data)
-}
-
 func (acic *AzureClusterIdentityConfig) createAzureClusterIdentityManifestFiles() error {
 	if err := os.MkdirAll(acic.ManifestFilesDir, 0775); err != nil {
 		return err
@@ -138,6 +127,10 @@ func (cc *ClusterCommands) applyAzureClusterIdentity() error {
 
 	cc.SpecCMD = cc.kubectl(kubectlArgs...)
 	if err := releaseRunner(cc).runCMD(); err != nil {
+		if err := os.RemoveAll(acic.ManifestFilesDir); err != nil {
+			return err
+		}
+
 		return err
 	}
 

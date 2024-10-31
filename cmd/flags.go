@@ -3,11 +3,40 @@ package cmd
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+
 	"rmk/util"
 )
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-access-key-id",
+			Usage:    "AWS access key ID for IAM user",
+			Aliases:  []string{"awid"},
+			EnvVars:  []string{"RMK_AWS_ACCESS_KEY_ID", "AWS_ACCESS_KEY_ID"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-region",
+			Usage:    "AWS region for current AWS account",
+			Aliases:  []string{"awr"},
+			EnvVars:  []string{"RMK_AWS_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-secret-access-key",
+			Usage:    "AWS secret access key for IAM user",
+			Aliases:  []string{"awsk"},
+			EnvVars:  []string{"RMK_AWS_SECRET_ACCESS_KEY", "AWS_SECRET_ACCESS_KEY"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-session-token",
+			Usage:    "AWS session token for IAM user",
+			Aliases:  []string{"awst"},
+			EnvVars:  []string{"RMK_AWS_SESSION_TOKEN", "AWS_SESSION_TOKEN"},
+		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "aws-mfa-profile",
@@ -24,7 +53,7 @@ func flagsConfig() []cli.Flag {
 			Category: azureFlagsCategory,
 			Name:     "azure-client-id",
 			Usage:    "Azure client ID for Service Principal",
-			Aliases:  []string{"azc"},
+			Aliases:  []string{"azid"},
 			EnvVars:  []string{"RMK_AZURE_CLIENT_ID", "AZURE_CLIENT_ID"},
 		},
 		&cli.StringFlag{
@@ -37,13 +66,13 @@ func flagsConfig() []cli.Flag {
 		&cli.BoolFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-service-principle",
-			Usage:    "Azure Service Principal stdin content",
+			Usage:    "Azure service principal STDIN content",
 			Aliases:  []string{"azsp"},
 		},
 		&cli.StringFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-subscription-id",
-			Usage:    "Azure subscription ID for current Azure platform domain",
+			Usage:    "Azure subscription ID for current platform domain",
 			Aliases:  []string{"azs"},
 			EnvVars:  []string{"RMK_AZURE_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID"},
 		},
@@ -54,31 +83,14 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"azt"},
 			EnvVars:  []string{"RMK_AZURE_TENANT_ID", "AZURE_TENANT_ID"},
 		},
-		&cli.BoolFlag{
-			Name:    "reconfigure",
-			Usage:   "force Cluster Providers credentials recreate",
-			Aliases: []string{"r"},
-		},
 		&cli.StringFlag{
 			Name:   "config",
 			Hidden: true,
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:   "config-name-from",
-				Hidden: true,
-			},
-		),
-		&cli.StringFlag{
-			Name:    "config-from",
-			Usage:   "inheritance of RMK config credentials from another RMK config",
-			Aliases: []string{"cf"},
-			EnvVars: []string{"RMK_CONFIG_FROM"},
-		},
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
 				Name:    "github-token",
-				Usage:   "personal access token for download GitHub artifacts",
+				Usage:   "GitHub personal access token, required when using private repositories",
 				Aliases: []string{"ght"},
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
@@ -102,33 +114,37 @@ func flagsConfig() []cli.Flag {
 		),
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
-				Name:    "slack-notifications",
-				Usage:   "enable Slack notifications",
-				Aliases: []string{"n"},
+				Category: "Slack notifications",
+				Name:     "slack-notifications",
+				Usage:    "enable Slack notifications",
+				Aliases:  []string{"n"},
 			},
 		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:    "slack-webhook",
-				Usage:   "URL for Slack webhook",
-				Aliases: []string{"sw"},
-				EnvVars: []string{"RMK_SLACK_WEBHOOK"},
+				Category: "Slack notifications",
+				Name:     "slack-webhook",
+				Usage:    "URL for Slack webhook",
+				Aliases:  []string{"sw"},
+				EnvVars:  []string{"RMK_SLACK_WEBHOOK"},
 			},
 		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:    "slack-channel",
-				Usage:   "channel name for Slack notification",
-				Aliases: []string{"sc"},
-				EnvVars: []string{"RMK_SLACK_CHANNEL"},
+				Category: "Slack notifications",
+				Name:     "slack-channel",
+				Usage:    "channel name for Slack notifications",
+				Aliases:  []string{"sc"},
+				EnvVars:  []string{"RMK_SLACK_CHANNEL"},
 			},
 		),
 		altsrc.NewStringSliceFlag(
 			&cli.StringSliceFlag{
-				Name:    "slack-message-details",
-				Usage:   "additional information for body of Slack message",
-				Aliases: []string{"smd"},
-				EnvVars: []string{"RMK_SLACK_MESSAGE_DETAILS"},
+				Category: "Slack notifications",
+				Name:     "slack-message-details",
+				Usage:    "additional information for body of Slack messages",
+				Aliases:  []string{"smd"},
+				EnvVars:  []string{"RMK_SLACK_MESSAGE_DETAILS"},
 			},
 		),
 	}

@@ -10,54 +10,84 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	ddbtype "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go-v2/service/ecr"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
+	eksType "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3type "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/aws/smithy-go"
 	"go.uber.org/zap"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 
 	"rmk/util"
 )
 
 const (
 	AWSClusterProvider = "aws"
+
+	AWSConfigTemplateFile = `[profile {{ .Profile }}]
+region = {{ .Region }}
+output = {{ .Output }}
+`
+
+	AWSCredentialsTemplateFile = `[{{ .Profile }}]
+aws_access_key_id = {{ .AwsCredentialsProfile.AccessKeyID }}
+aws_secret_access_key = {{ .AwsCredentialsProfile.SecretAccessKey }}
+{{- if .AwsCredentialsProfile.SessionToken }}
+aws_session_token = {{ .AwsCredentialsProfile.SessionToken }}
+{{- end }}
+`
 )
 
 type AwsConfigure struct {
-	Profile               string `yaml:"profile,omitempty"`
-	Region                string `yaml:"region,omitempty"`
-	AccountID             string `yaml:"account_id,omitempty"`
-	UserName              string `yaml:"user_name,omitempty"`
-	MFADeviceSerialNumber string `yaml:"mfa_device,omitempty"`
 	*MFAToken             `yaml:"-"`
+	AccountID             string `yaml:"account_id,omitempty"`
+	AwsCredentialsProfile `yaml:"-"`
+	ConfigSource          string          `yaml:"config-source"`
+	CredentialsSource     string          `yaml:"credentials-source"`
+	Ctx                   context.Context `yaml:"-"`
+	IAMUserName           string          `yaml:"user-name,omitempty"`
+	MFADeviceSerialNumber string          `yaml:"mfa-device,omitempty"`
 	MFAProfileCredentials aws.Credentials `yaml:"-"`
+	Output                string          `yaml:"output,omitempty"`
+	Profile               string          `yaml:"profile,omitempty"`
+	Region                string          `json:"aws-region,omitempty" yaml:"region,omitempty"`
 }
 
 type MFAToken struct {
-	AccessKeyId     string
+	AccessKeyID     string
 	Expiration      time.Time
 	SecretAccessKey string
 	SessionToken    string
 }
 
+type AwsCredentialsProfile struct {
+	AccessKeyID     string `json:"aws-access-key-id,omitempty" yaml:"-"`
+	SecretAccessKey string `json:"aws-secret-access-key,omitempty" yaml:"-"`
+	SessionToken    string `yaml:"-"`
+}
+
 func (a *AwsConfigure) AWSSharedConfigFile(profile string) []string {
-	return []string{util.GetHomePath(".aws", "config_"+profile)}
+	return []string{config.DefaultSharedConfigFilename() + "_" + profile}
 }
 
 func (a *AwsConfigure) AWSSharedCredentialsFile(profile string) []string {
-	return []string{util.GetHomePath(".aws", "credentials_"+profile)}
+	return []string{config.DefaultSharedCredentialsFilename() + "_" + profile}
+}
+
+func NewAwsConfigure(ctx context.Context, profile string) *AwsConfigure {
+	return &AwsConfigure{Ctx: ctx, Output: "text", Profile: profile}
 }
 
 func (a *AwsConfigure) errorProxy(cfg aws.Config, err error) (aws.Config, error) {
@@ -82,31 +112,128 @@ func (a *AwsConfigure) configOptions() []func(options *config.LoadOptions) error
 	}
 }
 
-func (a *AwsConfigure) GetUserName() error {
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
-	if err != nil {
-		return err
+func getTagStructName(i interface{}, name string) error {
+	if field, ok := reflect.TypeOf(i).Elem().FieldByName(name); ok {
+		return fmt.Errorf("profile option %s required", strings.TrimSuffix(field.Tag.Get("json"), ",omitempty"))
+	} else {
+		return fmt.Errorf("field with name %s not defined", name)
+	}
+}
+
+// ValidateAWSCredentials will validate the required parameters for AWS authentication
+func (a *AwsConfigure) ValidateAWSCredentials() error {
+	if len(a.AwsCredentialsProfile.AccessKeyID) == 0 {
+		return getTagStructName(&a.AwsCredentialsProfile, "AccessKeyID")
 	}
 
-	user, err := iam.NewFromConfig(cfg).GetUser(ctx, &iam.GetUserInput{})
-	if err != nil {
-		return err
+	if len(a.AwsCredentialsProfile.SecretAccessKey) == 0 {
+		return getTagStructName(&a.AwsCredentialsProfile, "SecretAccessKey")
 	}
 
-	a.UserName = aws.ToString(user.User.UserName)
+	if len(a.Region) == 0 {
+		return getTagStructName(a, "Region")
+	}
 
 	return nil
 }
 
-func (a *AwsConfigure) GetAWSCredentials() error {
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
+// RenderAWSConfigProfile will render the AWS profile.
+func (a *AwsConfigure) RenderAWSConfigProfile(temp string) ([]byte, error) {
+	tmpl, err := template.New("AWS config Profile").Parse(temp)
+	if err != nil {
+		return nil, err
+	}
+
+	var credsFileStr bytes.Buffer
+	err = tmpl.Execute(&credsFileStr, a)
+	if err != nil {
+		return nil, err
+	}
+
+	return credsFileStr.Bytes(), nil
+}
+
+// RenderBase64EncodedAWSConfigProfile will render the AWS profile, encoded in base 64.
+func (a *AwsConfigure) RenderBase64EncodedAWSConfigProfile(temp string) (string, error) {
+	configProfile, err := a.RenderAWSConfigProfile(temp)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(configProfile), nil
+}
+
+func (a *AwsConfigure) ReadAWSConfigProfile() error {
+	cfg, err := config.LoadDefaultConfig(a.Ctx, a.configOptions()...)
 	if err != nil {
 		return err
 	}
 
-	if a.MFAProfileCredentials, err = cfg.Credentials.Retrieve(ctx); err != nil {
+	for _, val := range cfg.ConfigSources {
+		switch result := val.(type) {
+		case config.SharedConfig:
+			a.AwsCredentialsProfile.AccessKeyID = result.Credentials.AccessKeyID
+			a.AwsCredentialsProfile.SecretAccessKey = result.Credentials.SecretAccessKey
+			a.AwsCredentialsProfile.SessionToken = result.Credentials.SessionToken
+			a.Region = result.Region
+		}
+	}
+
+	return nil
+}
+
+func (a *AwsConfigure) WriteAWSConfigProfile() error {
+	var (
+		err         error
+		sharedFiles = make(map[string][]byte)
+	)
+
+	sharedFiles[a.ConfigSource], err = a.RenderAWSConfigProfile(AWSConfigTemplateFile)
+	if err != nil {
+		return err
+	}
+
+	sharedFiles[a.CredentialsSource], err = a.RenderAWSConfigProfile(AWSCredentialsTemplateFile)
+	if err != nil {
+		return err
+	}
+
+	for key, val := range sharedFiles {
+		if err := os.MkdirAll(filepath.Dir(key), 0755); err != nil {
+			return err
+		}
+
+		if err := os.WriteFile(key, val, 0644); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (a *AwsConfigure) GetUserName() error {
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return err
+	}
+
+	user, err := iam.NewFromConfig(cfg).GetUser(a.Ctx, &iam.GetUserInput{})
+	if err != nil {
+		return err
+	}
+
+	a.IAMUserName = aws.ToString(user.User.UserName)
+
+	return nil
+}
+
+func (a *AwsConfigure) GetMFACredentials() error {
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return err
+	}
+
+	if a.MFAProfileCredentials, err = cfg.Credentials.Retrieve(a.Ctx); err != nil {
 		return err
 	}
 
@@ -120,18 +247,17 @@ func (a *AwsConfigure) GetMFADevicesSerialNumbers() error {
 		return err
 	}
 
-	if err := a.GetAWSCredentials(); err != nil {
+	if err := a.GetMFACredentials(); err != nil {
 		return err
 	}
 
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
 	}
 
-	mfaDevices, err := iam.NewFromConfig(cfg).ListMFADevices(ctx,
-		&iam.ListMFADevicesInput{UserName: aws.String(a.UserName)})
+	mfaDevices, err := iam.NewFromConfig(cfg).ListMFADevices(a.Ctx,
+		&iam.ListMFADevicesInput{UserName: aws.String(a.IAMUserName)})
 	if err != nil {
 		return err
 	}
@@ -155,8 +281,7 @@ func (a *AwsConfigure) GetMFADevicesSerialNumbers() error {
 }
 
 func (a *AwsConfigure) GetMFASessionToken() error {
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
 	}
@@ -165,7 +290,7 @@ func (a *AwsConfigure) GetMFASessionToken() error {
 		return err
 	}
 
-	token, err := sts.NewFromConfig(cfg).GetSessionToken(ctx, &sts.GetSessionTokenInput{
+	token, err := sts.NewFromConfig(cfg).GetSessionToken(a.Ctx, &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int32(43200),
 		SerialNumber:    aws.String(a.MFADeviceSerialNumber),
 		TokenCode:       aws.String(util.ReadStdin("TOTP")),
@@ -175,7 +300,7 @@ func (a *AwsConfigure) GetMFASessionToken() error {
 	}
 
 	a.MFAToken = &MFAToken{
-		AccessKeyId:     aws.ToString(token.Credentials.AccessKeyId),
+		AccessKeyID:     aws.ToString(token.Credentials.AccessKeyId),
 		Expiration:      aws.ToTime(token.Credentials.Expiration),
 		SecretAccessKey: aws.ToString(token.Credentials.SecretAccessKey),
 		SessionToken:    aws.ToString(token.Credentials.SessionToken),
@@ -185,8 +310,7 @@ func (a *AwsConfigure) GetMFASessionToken() error {
 }
 
 func (a *AwsConfigure) GetAwsConfigure(profile string) (bool, error) {
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx,
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx,
 		config.WithSharedConfigFiles(a.AWSSharedConfigFile(profile)),
 		config.WithSharedCredentialsFiles(a.AWSSharedCredentialsFile(profile)),
 		config.WithSharedConfigProfile(profile),
@@ -196,7 +320,7 @@ func (a *AwsConfigure) GetAwsConfigure(profile string) (bool, error) {
 	}
 
 	client := sts.NewFromConfig(cfg)
-	identity, err := client.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
+	identity, err := client.GetCallerIdentity(a.Ctx, &sts.GetCallerIdentityInput{})
 	if err != nil {
 		return false, err
 	}
@@ -207,39 +331,99 @@ func (a *AwsConfigure) GetAwsConfigure(profile string) (bool, error) {
 	return true, nil
 }
 
-func (a *AwsConfigure) GetECRCredentials(region string) (map[string]string, error) {
-	ctx := context.TODO()
-	ecrCredentials := make(map[string]string)
-
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
+func (a *AwsConfigure) GetAWSClusterContext(clusterName string) ([]byte, error) {
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return nil, err
 	}
 
-	// needed for specific AWS account where ECR used
-	cfg.Region = region
-
-	svc := ecr.NewFromConfig(cfg)
-	token, err := svc.GetAuthorizationToken(ctx, &ecr.GetAuthorizationTokenInput{})
+	client := eks.NewFromConfig(cfg)
+	cluster, err := client.DescribeCluster(a.Ctx, &eks.DescribeClusterInput{Name: aws.String(clusterName)})
 	if err != nil {
 		return nil, err
 	}
 
-	authData := token.AuthorizationData[0].AuthorizationToken
-	data, err := base64.StdEncoding.DecodeString(*authData)
+	return a.generateUserKubeconfig(cluster.Cluster)
+}
+
+func (a *AwsConfigure) generateUserKubeconfig(cluster *eksType.Cluster) ([]byte, error) {
+	var execEnvVars []api.ExecEnvVar
+
+	clusterName := aws.ToString(cluster.Name)
+	userName := a.getKubeConfigUserName(clusterName)
+
+	cfg, err := a.generateBaseKubeConfig(cluster)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("creating base kubeconfig: %w", err)
 	}
 
-	parts := strings.SplitN(string(data), ":", 2)
-	if len(parts) < 2 {
-		return nil, fmt.Errorf("it is impossible to get ECR user and password "+
-			"for current AWS profile: %s", a.Profile)
+	execEnvVars = append(execEnvVars,
+		api.ExecEnvVar{Name: "AWS_PROFILE", Value: a.Profile},
+		api.ExecEnvVar{Name: "AWS_CONFIG_FILE", Value: strings.Join(a.AWSSharedConfigFile(a.Profile), "")},
+		api.ExecEnvVar{Name: "AWS_SHARED_CREDENTIALS_FILE", Value: strings.Join(a.AWSSharedCredentialsFile(a.Profile), "")},
+	)
+
+	// Version v1alpha1 was removed in Kubernetes v1.23.
+	// Version v1 was released in Kubernetes v1.23.
+	// Version v1beta1 was selected as it has the widest range of support
+	// This should be changed to v1 once EKS no longer supports Kubernetes <v1.23
+	execConfig := &api.ExecConfig{
+		APIVersion: "client.authentication.k8s.io/v1beta1",
+		Args: []string{
+			"token",
+			"-i",
+			clusterName,
+		},
+		Command: "aws-iam-authenticator",
+		Env:     execEnvVars,
 	}
 
-	ecrCredentials[parts[0]] = parts[1]
+	cfg.AuthInfos = map[string]*api.AuthInfo{
+		userName: {
+			Exec: execConfig,
+		},
+	}
 
-	return ecrCredentials, nil
+	out, err := clientcmd.Write(*cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize kubeconfig to yaml: %w", err)
+	}
+
+	return out, nil
+}
+
+func (a *AwsConfigure) generateBaseKubeConfig(cluster *eksType.Cluster) (*api.Config, error) {
+	clusterName := aws.ToString(cluster.Name)
+	contextName := aws.ToString(cluster.Name)
+	userName := a.getKubeConfigUserName(clusterName)
+
+	certData, err := base64.StdEncoding.DecodeString(aws.ToString(cluster.CertificateAuthority.Data))
+	if err != nil {
+		return nil, fmt.Errorf("decoding cluster CA cert: %w", err)
+	}
+
+	cfg := &api.Config{
+		APIVersion: api.SchemeGroupVersion.Version,
+		Clusters: map[string]*api.Cluster{
+			clusterName: {
+				Server:                   aws.ToString(cluster.Endpoint),
+				CertificateAuthorityData: certData,
+			},
+		},
+		Contexts: map[string]*api.Context{
+			contextName: {
+				Cluster:  clusterName,
+				AuthInfo: userName,
+			},
+		},
+		CurrentContext: contextName,
+	}
+
+	return cfg, nil
+}
+
+func (a *AwsConfigure) getKubeConfigUserName(clusterName string) string {
+	return fmt.Sprintf("%s-capi-admin", clusterName)
 }
 
 func (a *AwsConfigure) CreateBucket(bucketName string) error {
@@ -320,56 +504,6 @@ func (a *AwsConfigure) CreateBucket(bucketName string) error {
 	}
 
 	zap.S().Infof("created S3 bucket: %s - %s", bucketName, *resp.Location)
-
-	return nil
-}
-
-func (a *AwsConfigure) CreateDynamoDBTable(tableName string) error {
-	ctx := context.TODO()
-	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
-	if err != nil {
-		return err
-	}
-
-	client := dynamodb.NewFromConfig(cfg)
-	dTableParams := &dynamodb.CreateTableInput{
-		AttributeDefinitions: []ddbtype.AttributeDefinition{
-			{
-				AttributeName: aws.String("LockID"),
-				AttributeType: ddbtype.ScalarAttributeTypeS,
-			},
-		},
-		KeySchema: []ddbtype.KeySchemaElement{
-			{
-				AttributeName: aws.String("LockID"),
-				KeyType:       ddbtype.KeyTypeHash,
-			},
-		},
-		TableName:   aws.String(tableName),
-		BillingMode: ddbtype.BillingModePayPerRequest,
-	}
-
-	resp, err := client.CreateTable(ctx, dTableParams)
-	if err != nil {
-		var (
-			tableExist   *ddbtype.ResourceInUseException
-			accessDenied smithy.APIError
-			operation    *smithy.OperationError
-		)
-
-		if errors.As(err, &tableExist) {
-			zap.S().Infof("DynamoDB table %s already exists", tableName)
-			return nil
-		} else if errors.As(err, &accessDenied) && errors.As(err, &operation) &&
-			operation.Operation() == "CreateTable" && accessDenied.ErrorCode() == "AccessDeniedException" {
-			zap.S().Warnf("DynamoDB table %s is not created, you don't have permissions", tableName)
-			return nil
-		}
-
-		return err
-	}
-
-	zap.S().Infof("created DynamoDB table: %s - %s", tableName, *resp.TableDescription.TableArn)
 
 	return nil
 }

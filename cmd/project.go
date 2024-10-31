@@ -446,11 +446,6 @@ func (p *ProjectCommands) generateProject(gitSpec *git_handler.GitSpec) error {
 
 func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -461,11 +456,6 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 
 func projectUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}

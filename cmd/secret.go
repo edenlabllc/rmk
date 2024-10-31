@@ -379,11 +379,6 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 
 func secretMgrEncryptDecryptAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -407,11 +402,6 @@ func secretMgrGenerateAction(conf *config.Config) cli.ActionFunc {
 }
 func secretKeysCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -446,11 +436,6 @@ func secretKeysUploadAction(conf *config.Config) cli.ActionFunc {
 
 func secretAction(conf *config.Config, action func(secretRunner SecretRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 1); err != nil {
 			return err
 		}

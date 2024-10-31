@@ -125,7 +125,7 @@ func (k *K3DCommands) listK3DClusters() error {
 		k.SpecCMD.DisableStdOut = true
 		if err := releaseRunner(k).runCMD(); err != nil {
 			if strings.Contains(k.SpecCMD.StderrBuf.String(), "No nodes found for given cluster") {
-				return fmt.Errorf("cluster %s not running", util.CAPI)
+				return fmt.Errorf("%s management cluster not found", strings.ToUpper(util.CAPI))
 			} else {
 				return fmt.Errorf("%s", k.SpecCMD.StderrBuf.String())
 			}
@@ -159,11 +159,6 @@ func (k *K3DCommands) startStopK3DCluster() error {
 
 func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
@@ -178,11 +173,6 @@ func K3DCreateAction(conf *config.Config) cli.ActionFunc {
 
 func K3DAction(conf *config.Config, action func(k3dRunner K3DRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		//TODO: deprecate after full list CAPI providers will be implemented
-		if err := util.ValidateGitHubToken(c, ""); err != nil {
-			return err
-		}
-
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}

@@ -28,20 +28,6 @@ func newConfigCommands(conf *config.Config, ctx *cli.Context, workDir string) *C
 	return &ConfigCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
 }
 
-func (c *ConfigCommands) awsConfigure(profile string) *util.SpecCMD {
-	return &util.SpecCMD{
-		Args: []string{"configure", "--profile", profile},
-		Envs: []string{
-			"AWS_CONFIG_FILE=" + strings.Join(c.Conf.AWSSharedConfigFile(profile), ""),
-			"AWS_SHARED_CREDENTIALS_FILE=" + strings.Join(c.Conf.AWSSharedCredentialsFile(profile), ""),
-		},
-		Command: "aws",
-		Ctx:     c.Ctx.Context,
-		Dir:     c.WorkDir,
-		Debug:   false,
-	}
-}
-
 func (c *ConfigCommands) helmPlugin() *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:          []string{"plugin"},
@@ -53,67 +39,55 @@ func (c *ConfigCommands) helmPlugin() *util.SpecCMD {
 	}
 }
 
-func (c *ConfigCommands) rmkConfigInit() *util.SpecCMD {
-	exRMK, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
+func (c *ConfigCommands) configAws(profile string) error {
+	ac := aws_provider.NewAwsConfigure(c.Ctx.Context, profile)
+	ac.ConfigSource = strings.Join(ac.AWSSharedConfigFile(profile), "")
+	ac.CredentialsSource = strings.Join(ac.AWSSharedCredentialsFile(profile), "")
 
-	return &util.SpecCMD{
-		Args:    []string{"config", "init"},
-		Command: exRMK,
-		Dir:     c.WorkDir,
-		Ctx:     c.Ctx.Context,
-		Debug:   true,
-	}
-}
-
-func (c *ConfigCommands) checkAwsEnv() (map[string]string, bool) {
-	awsEnvs := map[string]string{
-		"region":                "AWS_REGION",
-		"aws_access_key_id":     "AWS_ACCESS_KEY_ID",
-		"aws_secret_access_key": "AWS_SECRET_ACCESS_KEY",
-		"aws_session_token":     "AWS_SESSION_TOKEN",
-	}
-
-	for key, val := range awsEnvs {
-		value, ok := os.LookupEnv(val)
-		if !ok {
-			delete(awsEnvs, key)
-		} else {
-			awsEnvs[key] = value
+	if util.IsExists(ac.ConfigSource, true) {
+		if err := ac.ReadAWSConfigProfile(); err != nil {
+			return err
 		}
 	}
 
-	if len(awsEnvs) > 0 {
-		return awsEnvs, true
-	} else {
-		return nil, false
+	if c.Ctx.IsSet("aws-access-key-id") && c.Ctx.IsSet("aws-secret-access-key") {
+		ac.AwsCredentialsProfile.AccessKeyID = c.Ctx.String("aws-access-key-id")
+		ac.AwsCredentialsProfile.SecretAccessKey = c.Ctx.String("aws-secret-access-key")
+	} else if c.Ctx.IsSet("aws-access-key-id") {
+		ac.AwsCredentialsProfile.AccessKeyID = c.Ctx.String("aws-access-key-id")
+		ac.AwsCredentialsProfile.SecretAccessKey = ""
+	} else if c.Ctx.IsSet("aws-secret-access-key") {
+		ac.AwsCredentialsProfile.AccessKeyID = ""
+		ac.AwsCredentialsProfile.SecretAccessKey = c.Ctx.String("aws-secret-access-key")
 	}
-}
 
-func (c *ConfigCommands) configAws() error {
-	if awsEnvs, ok := c.checkAwsEnv(); !ok {
-		c.SpecCMD = c.awsConfigure(c.Conf.Profile)
-		return releaseRunner(c).runCMD()
-	} else {
-		for key, val := range awsEnvs {
-			c.SpecCMD = c.awsConfigure(c.Conf.Profile)
-			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := releaseRunner(c).runCMD(); err != nil {
-				return err
-			}
-		}
-
-		zap.S().Infof("AWS profile by name %s was created", c.Conf.Profile)
-		return nil
+	if c.Ctx.IsSet("aws-region") {
+		ac.Region = c.Ctx.String("aws-region")
 	}
+
+	if c.Ctx.IsSet("aws-session-token") {
+		ac.AwsCredentialsProfile.SessionToken = c.Ctx.String("aws-session-token")
+	}
+
+	if err := ac.ValidateAWSCredentials(); err != nil {
+		return err
+	} else {
+		c.Conf.AwsConfigure = ac
+	}
+
+	if err := ac.WriteAWSConfigProfile(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *ConfigCommands) configAwsMFA() error {
 	var tokenExpiration time.Time
 	currentTime := time.Now()
 	regularProfile := c.Conf.Profile
+	regularProfileConfigSource := c.Conf.ConfigSource
+	regularProfileCredentialsSource := c.Conf.CredentialsSource
 
 	if len(c.Conf.AWSMFATokenExpiration) > 0 {
 		unixTime, err := strconv.ParseInt(c.Conf.AWSMFATokenExpiration, 10, 64)
@@ -136,6 +110,41 @@ func (c *ConfigCommands) configAwsMFA() error {
 
 	if len(c.Conf.MFADeviceSerialNumber) > 0 {
 		zap.S().Infof("MFA device SerialNumber: %s", c.Conf.MFADeviceSerialNumber)
+	} else {
+		if len(c.Conf.AWSMFAProfile) > 0 && len(c.Conf.AWSMFATokenExpiration) > 0 {
+			ac := aws_provider.NewAwsConfigure(c.Ctx.Context, c.Conf.AWSMFAProfile)
+			ac.ConfigSource = strings.Join(ac.AWSSharedConfigFile(c.Conf.AWSMFAProfile), "")
+			ac.CredentialsSource = strings.Join(ac.AWSSharedCredentialsFile(c.Conf.AWSMFAProfile), "")
+			if util.IsExists(ac.ConfigSource, true) {
+				if err := ac.ReadAWSConfigProfile(); err != nil {
+					return err
+				}
+			}
+
+			ac.Profile = strings.TrimSuffix(regularProfile, "-mfa")
+			ac.ConfigSource = strings.TrimSuffix(regularProfileConfigSource, "-mfa")
+			ac.CredentialsSource = strings.TrimSuffix(regularProfileCredentialsSource, "-mfa")
+
+			if err := ac.WriteAWSConfigProfile(); err != nil {
+				return err
+			}
+
+			if err := os.RemoveAll(strings.Join(c.Conf.AWSSharedConfigFile(c.Conf.AWSMFAProfile), "")); err != nil {
+				return err
+			}
+
+			if err := os.RemoveAll(strings.Join(c.Conf.AWSSharedCredentialsFile(c.Conf.AWSMFAProfile), "")); err != nil {
+				return err
+			}
+
+			c.Conf.AWSMFAProfile = ""
+			c.Conf.AWSMFATokenExpiration = ""
+			c.Conf.AwsConfigure.Profile = ac.Profile
+			c.Conf.AwsConfigure.ConfigSource = ac.ConfigSource
+			c.Conf.AwsConfigure.CredentialsSource = ac.CredentialsSource
+
+			return nil
+		}
 	}
 
 	if currentTime.Before(tokenExpiration) {
@@ -150,56 +159,33 @@ func (c *ConfigCommands) configAwsMFA() error {
 		c.Conf.AWSMFAProfile = regularProfile + "-mfa"
 		c.Conf.AWSMFATokenExpiration = strconv.FormatInt(c.Conf.Expiration.Unix(), 10)
 
-		MFAProfileArgs := map[string]string{
-			"aws_access_key_id":     c.Conf.MFAProfileCredentials.AccessKeyID,
-			"aws_secret_access_key": c.Conf.MFAProfileCredentials.SecretAccessKey,
-			"output":                "text",
-			"region":                c.Conf.Region,
+		acMFA := aws_provider.NewAwsConfigure(c.Ctx.Context, regularProfile+"-mfa")
+		acMFA.AwsCredentialsProfile.AccessKeyID = c.Conf.MFAProfileCredentials.AccessKeyID
+		acMFA.AwsCredentialsProfile.SecretAccessKey = c.Conf.MFAProfileCredentials.SecretAccessKey
+		acMFA.ConfigSource = regularProfileConfigSource + "-mfa"
+		acMFA.CredentialsSource = regularProfileCredentialsSource + "-mfa"
+		acMFA.Region = c.Conf.Region
+
+		if err := acMFA.WriteAWSConfigProfile(); err != nil {
+			return err
 		}
 
-		regularProfileArgs := map[string]string{
-			"aws_access_key_id":     c.Conf.MFAToken.AccessKeyId,
-			"aws_secret_access_key": c.Conf.MFAToken.SecretAccessKey,
-			"aws_session_token":     c.Conf.MFAToken.SessionToken,
-		}
+		acRegular := aws_provider.NewAwsConfigure(c.Ctx.Context, regularProfile)
+		acRegular.AwsCredentialsProfile.AccessKeyID = c.Conf.MFAToken.AccessKeyID
+		acRegular.AwsCredentialsProfile.SecretAccessKey = c.Conf.MFAToken.SecretAccessKey
+		acRegular.AwsCredentialsProfile.SessionToken = c.Conf.MFAToken.SessionToken
+		acRegular.ConfigSource = regularProfileConfigSource
+		acRegular.CredentialsSource = regularProfileCredentialsSource
+		acRegular.Region = c.Conf.Region
 
-		for key, val := range MFAProfileArgs {
-			c.SpecCMD = c.awsConfigure(c.Conf.AWSMFAProfile)
-			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := releaseRunner(c).runCMD(); err != nil {
-				return err
-			}
-		}
-
-		for key, val := range regularProfileArgs {
-			c.SpecCMD = c.awsConfigure(regularProfile)
-			c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-			if err := releaseRunner(c).runCMD(); err != nil {
-				return err
-			}
-		}
-	}
-
-	c.Conf.AwsConfigure.Profile = regularProfile
-
-	return nil
-}
-
-func (c *ConfigCommands) copyAWSProfile(profile string) error {
-	profileArgs := map[string]string{
-		"aws_access_key_id":     c.Conf.MFAProfileCredentials.AccessKeyID,
-		"aws_secret_access_key": c.Conf.MFAProfileCredentials.SecretAccessKey,
-		"output":                "text",
-		"region":                c.Conf.Region,
-	}
-
-	for key, val := range profileArgs {
-		c.SpecCMD = c.awsConfigure(profile)
-		c.SpecCMD.Args = append(c.SpecCMD.Args, "set", key, val)
-		if err := releaseRunner(c).runCMD(); err != nil {
+		if err := acRegular.WriteAWSConfigProfile(); err != nil {
 			return err
 		}
 	}
+
+	c.Conf.AwsConfigure.Profile = strings.TrimSuffix(regularProfile, "-mfa")
+	c.Conf.AwsConfigure.ConfigSource = strings.TrimSuffix(regularProfileConfigSource, "-mfa")
+	c.Conf.AwsConfigure.CredentialsSource = strings.TrimSuffix(regularProfileCredentialsSource, "-mfa")
 
 	return nil
 }
@@ -280,13 +266,12 @@ func (c *ConfigCommands) configHelmPlugins() error {
 	return nil
 }
 
-func (c *ConfigCommands) rmkConfig() error {
-	c.SpecCMD = c.rmkConfigInit()
-	return releaseRunner(c).runCMD()
-}
-
 func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
 	var profile string
+
+	conf.AwsConfigure = aws_provider.NewAwsConfigure(c.Context, gitSpec.ID)
+	conf.AWSMFAProfile = c.String("aws-mfa-profile")
+	conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
 
 	// Detect if MFA is enabled
 	if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
@@ -295,170 +280,67 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		profile = conf.Profile
 	}
 
-	if c.Bool("reconfigure") {
-		if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.Profile), "")); err != nil {
-			return err
-		}
-
-		// Reconfigure regular AWS profile
-		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-
-		// Get CallerIdentity and region for regular AWS profile
-		if _, err := conf.AwsConfigure.GetAwsConfigure(conf.Profile); err != nil {
-			return err
-		}
-
-		// Delete MFA profile
-		if strings.Contains(profile, "-mfa") {
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(profile), "")); err != nil {
-				return err
-			}
-
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(profile), "")); err != nil {
-				return err
-			}
-		}
-
-		// Reset ConfigFrom value for config for current environment
-		conf.ConfigNameFrom = gitSpec.ID
-		// Reset AWSMFAProfile value for config for current environment
-		conf.AWSMFAProfile = ""
-		// Reset AWSMFATokenExpiration value for config for current environment
-		conf.AWSMFATokenExpiration = ""
-		// Returning a regular profile value
-		profile = conf.Profile
-
-		// Create new MFA profile
-		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
-			return err
-		}
+	if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAws(profile); err != nil {
+		return err
 	}
 
 	if ok, err := conf.AwsConfigure.GetAwsConfigure(profile); err != nil && ok {
 		zap.S().Warnf("%s", err.Error())
-		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-
-		if _, err := conf.AwsConfigure.GetAwsConfigure(profile); err != nil {
-			return err
-		}
-
-		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
-			return err
-		}
-	} else if !c.Bool("reconfigure") {
-		if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
-			return err
-		}
 	} else if !ok && err != nil {
+		return err
+	}
+
+	if err := newConfigCommands(conf, c, util.GetPwdPath("")).configAwsMFA(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func getConfigFromEnvironment(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
-	// TODO: A possible solution is to check the current cluster provider with from and prohibit such inheritance
-	// currentClusterProvider := c.String("cluster-provider")
+func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
+	ac := azure_provider.NewAzureConfigure()
+	asp := azure_provider.NewRawSP()
 
-	if len(c.String("config-from")) > 0 {
-		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, c.String("config-from")+".yaml")
-
-		if err := conf.ReadConfigFile(configPath); err != nil {
-			zap.S().Errorf("RMK config %s.yaml not initialized, please check RMK configs of exists "+
-				"via command 'rmk config list' and run command 'rmk config init' with specific parameters",
-				c.String("config-from"))
-			return err
-		}
-
-		if c.String("cluster-provider") == aws_provider.AWSClusterProvider {
-			if err := c.Set("config-name-from", conf.Name); err != nil {
-				return err
-			}
-
-			// Delete regular profile
-			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID), "")); err != nil {
-				return err
-			}
-
-			if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
-				regularProfile := conf.Profile
-
-				// Get MFA profile credentials.
-				conf.AwsConfigure.Profile = conf.AWSMFAProfile
-				if err := conf.GetAWSCredentials(); err != nil {
-					return err
-				}
-
-				// Copy MFA profile for current environment
-				conf.AwsConfigure.Profile = regularProfile
-				if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
-					return err
-				}
-			} else {
-				// Delete config MFA profile
-				if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(gitSpec.ID+"-mfa"), "")); err != nil {
-					return err
-				}
-
-				// Delete credentials MFA profile
-				if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(gitSpec.ID+"-mfa"), "")); err != nil {
-					return err
-				}
-
-				// Get regular profile credentials.
-				if err := conf.GetAWSCredentials(); err != nil {
-					return err
-				}
-
-				// Copy regular profile for current environment
-				if err := newConfigCommands(conf, c, util.GetPwdPath("")).copyAWSProfile(gitSpec.ID); err != nil {
-					return err
-				}
-			}
-
-			// Reset AWSMFAProfile value for config for current environment
-			if err := c.Set("aws-mfa-profile", ""); err != nil {
-				return err
-			}
-
-			// Reset AWSMFATokenExpiration value for config for current environment
-			if err := c.Set("aws-mfa-token-expiration", ""); err != nil {
-				return err
-			}
-
-			conf.AwsConfigure.Profile = gitSpec.ID
-		}
-
-		conf.ConfigNameFrom = c.String("config-name-from")
-
-		return nil
-	}
-
-	//TODO: deprecate after full list CAPI providers will be implemented
-	if err := util.ValidateGitHubToken(c, "required parameter --github-token not set"); err != nil {
-		return err
-	}
-
-	if err := util.ValidateNArg(c, 0); err != nil {
-		return err
-	}
-
-	if !c.IsSet("config-name-from") {
-		if err := c.Set("config-name-from", gitSpec.ID); err != nil {
+	if util.IsExists(
+		util.GetHomePath(azure_provider.AzureHomeDir, azure_provider.AzurePrefix+gitSpec.ID+".json"), true) {
+		if err := ac.ReadSPCredentials(gitSpec.ID); err != nil {
 			return err
 		}
 	}
 
-	if c.String("cluster-provider") == aws_provider.AWSClusterProvider {
-		conf.AwsConfigure = new(aws_provider.AwsConfigure)
+	if c.Bool("azure-service-principle") {
+		if err := json.NewDecoder(os.Stdin).Decode(&asp); err != nil {
+			return fmt.Errorf("unable to deserialize JSON from STDIN: %s", err.Error())
+		}
+
+		ac.MergeAzureRawSP(asp)
 	}
 
-	conf.ConfigNameFrom = c.String("config-name-from")
-	conf.GitHubToken = c.String("github-token")
+	if c.IsSet("azure-client-id") {
+		ac.ClientID = c.String("azure-client-id")
+	}
+
+	if c.IsSet("azure-client-secret") {
+		ac.ClientSecret = c.String("azure-client-secret")
+	}
+
+	if c.IsSet("azure-subscription-id") {
+		ac.SubscriptionID = c.String("azure-subscription-id")
+	}
+
+	if c.IsSet("azure-tenant-id") {
+		ac.TenantID = c.String("azure-tenant-id")
+	}
+
+	if err := ac.ValidateSPCredentials(); err != nil {
+		return err
+	} else {
+		conf.AzureConfigure = ac
+	}
+
+	if err := ac.WriteSPCredentials(gitSpec.ID); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -470,11 +352,6 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 		}
 
 		switch {
-		case c.String("cluster-provider") == azure_provider.AzureClusterProvider:
-			if err := os.RemoveAll(util.GetHomePath(azure_provider.AzureHomeDir,
-				azure_provider.AzurePrefix+conf.Name+".json")); err != nil {
-				return err
-			}
 		case c.String("cluster-provider") == aws_provider.AWSClusterProvider:
 			// Delete MFA profile
 			if len(conf.AWSMFAProfile) > 0 && len(conf.AWSMFATokenExpiration) > 0 {
@@ -487,13 +364,18 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 				}
 			}
 
-			// Delete config MFA profile
+			// Delete config regular profile
 			if err := os.RemoveAll(strings.Join(conf.AWSSharedConfigFile(conf.Profile), "")); err != nil {
 				return err
 			}
 
-			// Delete credentials MFA profile
+			// Delete credentials regular profile
 			if err := os.RemoveAll(strings.Join(conf.AWSSharedCredentialsFile(conf.Profile), "")); err != nil {
+				return err
+			}
+		case c.String("cluster-provider") == azure_provider.AzureClusterProvider:
+			if err := os.RemoveAll(util.GetHomePath(azure_provider.AzureHomeDir,
+				azure_provider.AzurePrefix+conf.Name+".json")); err != nil {
 				return err
 			}
 		}
@@ -510,10 +392,6 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 
 func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := getConfigFromEnvironment(c, conf, gitSpec); err != nil {
-			return err
-		}
-
 		zap.S().Infof("loaded config file by path: %s", c.String("config"))
 
 		start := time.Now()
@@ -523,6 +401,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		conf.Environment = gitSpec.DefaultBranch
 		conf.ClusterProvider = c.String("cluster-provider")
 		conf.ProgressBar = c.Bool("progress-bar")
+		conf.GitHubToken = c.String("github-token")
 		zap.S().Infof("RMK will use values for %s environment", conf.Environment)
 
 		if c.Bool("slack-notifications") {
@@ -538,73 +417,23 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		}
 
 		switch conf.ClusterProvider {
-		case azure_provider.AzureClusterProvider:
-			conf.AwsConfigure = &aws_provider.AwsConfigure{}
-			ac := azure_provider.NewAzureConfigure()
-			asp := azure_provider.NewRawSP()
-
-			if util.IsExists(
-				util.GetHomePath(azure_provider.AzureHomeDir, azure_provider.AzurePrefix+gitSpec.ID+".json"), true) {
-				if err := ac.ReadSPCredentials(gitSpec.ID); err != nil {
-					return err
-				}
-			}
-
-			if c.Bool("azure-service-principle") {
-				if err := json.NewDecoder(os.Stdin).Decode(&asp); err != nil {
-					return fmt.Errorf("unable to deserialize json from stdin: %s", err.Error())
-				}
-
-				ac.MergeAzureRawSP(asp)
-			}
-
-			if c.IsSet("azure-client-id") {
-				ac.ClientID = c.String("azure-client-id")
-			}
-
-			if c.IsSet("azure-client-secret") {
-				ac.ClientSecret = c.String("azure-client-secret")
-			}
-
-			if c.IsSet("azure-subscription-id") {
-				ac.SubscriptionID = c.String("azure-subscription-id")
-			}
-
-			if c.IsSet("azure-tenant-id") {
-				ac.TenantID = c.String("azure-tenant-id")
-			}
-
-			if err := ac.CheckSPCredentials(); err != nil {
-				return err
-			} else {
-				conf.AzureConfigure = azure_provider.NewAzureConfigure()
-				conf.AzureConfigure.SubscriptionID = ac.SubscriptionID
-			}
-
-			if err := ac.WriteSPCredentials(gitSpec.ID); err != nil {
-				return err
-			}
-
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+azure_provider.AzureClusterProvider)
 		case aws_provider.AWSClusterProvider:
-			conf.AzureConfigure = &azure_provider.AzureConfigure{}
-			conf.AwsConfigure.Profile = gitSpec.ID
-			conf.AWSMFAProfile = c.String("aws-mfa-profile")
-			conf.AWSMFATokenExpiration = c.String("aws-mfa-token-expiration")
-
-			// AWS Profile init configuration with support MFA
+			conf.AzureConfigure = nil
 			if err := initAWSProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
 
-			//Formation of a unique bucket name, consisting of the prefix tenant of the repository,
-			//constant and the first 3 and last 2 numbers AWS account id
-			awsUID := conf.AccountID[0:3] + conf.AccountID[len(conf.AccountID)-2:]
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+awsUID)
-			conf.SopsBucketName = conf.Tenant + "-" + util.SopsRootName + "-" + awsUID
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+aws_provider.AWSClusterProvider)
+		case azure_provider.AzureClusterProvider:
+			conf.AwsConfigure = nil
+			if err := initAzureProfile(c, conf, gitSpec); err != nil {
+				return err
+			}
+
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+azure_provider.AzureClusterProvider)
 		case util.LocalClusterProvider:
-			conf.AwsConfigure = &aws_provider.AwsConfigure{}
-			conf.AzureConfigure = &azure_provider.AzureConfigure{}
+			conf.AwsConfigure = nil
+			conf.AzureConfigure = nil
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
 
@@ -614,25 +443,6 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 
 		if err := conf.CreateConfigFile(); err != nil {
 			return err
-		}
-
-		if conf.ClusterProvider == aws_provider.AWSClusterProvider {
-			//create s3 bucket for sops age keys
-			if err := conf.CreateBucket(conf.SopsBucketName); err != nil {
-				return err
-			}
-
-			if err := conf.DownloadFromBucket("", conf.SopsBucketName, conf.SopsAgeKeys, conf.Tenant); err != nil {
-				return err
-			}
-
-			if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
-				return err
-			}
-
-			zap.S().Infof("time spent on initialization: %.fs", time.Since(start).Seconds())
-
-			return nil
 		}
 
 		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
