@@ -302,7 +302,7 @@ func (cc *ClusterCommands) deleteKubeConfigItem(itemType, itemName string) error
 		return fmt.Errorf("%s", cc.SpecCMD.StderrBuf.String())
 	}
 
-	zap.S().Info(cc.SpecCMD.StdoutBuf.String())
+	zap.S().Infof("%s", cc.SpecCMD.StdoutBuf.String())
 
 	return nil
 }
