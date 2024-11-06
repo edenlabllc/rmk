@@ -299,10 +299,10 @@ func (cc *ClusterCommands) deleteKubeConfigItem(itemType, itemName string) error
 	cc.SpecCMD = cc.kubectl("config", itemType, itemName)
 	cc.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(cc).runCMD(); err != nil {
-		return fmt.Errorf("%s", cc.SpecCMD.StderrBuf.String())
+		return fmt.Errorf("%s", strings.ReplaceAll(cc.SpecCMD.StderrBuf.String(), "\n", ""))
 	}
 
-	zap.S().Infof("%s", cc.SpecCMD.StdoutBuf.String())
+	zap.S().Infof("%s", strings.ReplaceAll(cc.SpecCMD.StdoutBuf.String(), "\n", ""))
 
 	return nil
 }
@@ -384,6 +384,18 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			if err := cc.deleteKubeConfigItem("delete-user", context.AuthInfo); err != nil {
 				return err
 			}
+		}
+
+		if err := cc.deleteKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
+			return err
+		}
+
+		if err := cc.deleteKubeConfigItem("delete-cluster", cc.Conf.Name); err != nil {
+			return err
+		}
+
+		if err := cc.deleteKubeConfigItem("delete-user", cc.Conf.Name); err != nil {
+			return err
 		}
 	}
 
