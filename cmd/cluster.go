@@ -149,7 +149,19 @@ func (cc *ClusterCommands) initClusterCTLConfig() error {
 	return os.RemoveAll(clusterCTLConfig)
 }
 
-func (cc *ClusterCommands) mergeKubeConfig(clusterContext []byte) error {
+func (cc *ClusterCommands) manageKubeConfigItem(itemType, itemName string) error {
+	cc.SpecCMD = cc.kubectl("config", itemType, itemName)
+	cc.SpecCMD.DisableStdOut = true
+	if err := releaseRunner(cc).runCMD(); err != nil {
+		return fmt.Errorf("%s", strings.ReplaceAll(cc.SpecCMD.StderrBuf.String(), "\n", ""))
+	}
+
+	zap.S().Infof("%s", strings.ReplaceAll(cc.SpecCMD.StdoutBuf.String(), "\n", ""))
+
+	return nil
+}
+
+func (cc *ClusterCommands) mergeKubeConfigs(clusterContext []byte) error {
 	var object interface{}
 
 	if err := yaml.Unmarshal(clusterContext, &object); err != nil {
@@ -177,12 +189,12 @@ func (cc *ClusterCommands) mergeKubeConfig(clusterContext []byte) error {
 		return err
 	}
 
-	json, err := runtime.Encode(clientcmdlatest.Codec, mergeConfig)
+	data, err := runtime.Encode(clientcmdlatest.Codec, mergeConfig)
 	if err != nil {
 		return err
 	}
 
-	kubeConfig, err := yaml2.JSONToYAML(json)
+	kubeConfig, err := yaml2.JSONToYAML(data)
 	if err != nil {
 		return err
 	}
@@ -191,9 +203,7 @@ func (cc *ClusterCommands) mergeKubeConfig(clusterContext []byte) error {
 		return err
 	}
 
-	cc.SpecCMD = cc.kubectl("config", "use-context", cc.Conf.Name)
-
-	return releaseRunner(cc).runCMD()
+	return cc.manageKubeConfigItem("use-context", cc.Conf.Name)
 }
 
 func (cc *ClusterCommands) getKubeContext() (string, string, error) {
@@ -251,8 +261,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		}
 
 		if _, ok := kubeConfig.Contexts[util.CAPIContextName]; ok && currentContextName != util.CAPIContextName {
-			cc.SpecCMD = cc.kubectl("config", "use-context", util.CAPIContextName)
-			return releaseRunner(cc).runCMD()
+			return cc.manageKubeConfigItem("use-context", util.CAPIContextName)
 		} else if ok && currentContextName == util.CAPIContextName {
 			return nil
 		}
@@ -260,8 +269,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 
 	if len(contextName) > 0 && !cc.UpdateContext {
 		if contextName != currentContextName {
-			cc.SpecCMD = cc.kubectl("config", "use-context", contextName)
-			return releaseRunner(cc).runCMD()
+			return cc.manageKubeConfigItem("use-context", contextName)
 		}
 
 		return nil
@@ -278,7 +286,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 			return err
 		}
 
-		if err := cc.mergeKubeConfig(clusterContext); err != nil {
+		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
 		}
 	case azure_provider.AzureClusterProvider:
@@ -287,22 +295,10 @@ func (cc *ClusterCommands) switchKubeContext() error {
 			return err
 		}
 
-		if err := cc.mergeKubeConfig(clusterContext); err != nil {
+		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
 		}
 	}
-
-	return nil
-}
-
-func (cc *ClusterCommands) deleteKubeConfigItem(itemType, itemName string) error {
-	cc.SpecCMD = cc.kubectl("config", itemType, itemName)
-	cc.SpecCMD.DisableStdOut = true
-	if err := releaseRunner(cc).runCMD(); err != nil {
-		return fmt.Errorf("%s", strings.ReplaceAll(cc.SpecCMD.StderrBuf.String(), "\n", ""))
-	}
-
-	zap.S().Infof("%s", strings.ReplaceAll(cc.SpecCMD.StdoutBuf.String(), "\n", ""))
 
 	return nil
 }
@@ -339,7 +335,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 
-			if err := cc.mergeKubeConfig(clusterContext); err != nil {
+			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
@@ -348,7 +344,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 
-			if err := cc.mergeKubeConfig(clusterContext); err != nil {
+			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 				return err
 			}
 		}
@@ -373,28 +369,28 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 		}
 
 		if context, ok := kubeConfig.Contexts[cc.Conf.Name]; ok {
-			if err := cc.deleteKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
+			if err := cc.manageKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
 				return err
 			}
 
-			if err := cc.deleteKubeConfigItem("delete-cluster", context.Cluster); err != nil {
+			if err := cc.manageKubeConfigItem("delete-cluster", context.Cluster); err != nil {
 				return err
 			}
 
-			if err := cc.deleteKubeConfigItem("delete-user", context.AuthInfo); err != nil {
+			if err := cc.manageKubeConfigItem("delete-user", context.AuthInfo); err != nil {
 				return err
 			}
 		}
 
-		if err := cc.deleteKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
+		if err := cc.manageKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
 			return err
 		}
 
-		if err := cc.deleteKubeConfigItem("delete-cluster", cc.Conf.Name); err != nil {
+		if err := cc.manageKubeConfigItem("delete-cluster", cc.Conf.Name); err != nil {
 			return err
 		}
 
-		if err := cc.deleteKubeConfigItem("delete-user", cc.Conf.Name); err != nil {
+		if err := cc.manageKubeConfigItem("delete-user", cc.Conf.Name); err != nil {
 			return err
 		}
 	}
