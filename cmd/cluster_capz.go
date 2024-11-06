@@ -137,7 +137,7 @@ func (cc *ClusterCommands) applyAzureClusterIdentity() error {
 	return os.RemoveAll(acic.ManifestFilesDir)
 }
 
-func (cc *ClusterCommands) azureClusterContext() ([]byte, error) {
+func (cc *ClusterCommands) getAzureClusterContext() ([]byte, error) {
 	ac := azure_provider.NewAzureConfigure()
 
 	if err := ac.NewAzureManagedClustersClient(cc.Ctx.Context, cc.Conf.Name); err != nil {

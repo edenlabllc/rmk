@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"os"
 	"regexp"
 	"strings"
@@ -272,7 +273,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 
 	switch cc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
-		clusterContext, err := cc.AWSClusterContext()
+		clusterContext, err := cc.getAWSClusterContext()
 		if err != nil {
 			return err
 		}
@@ -281,7 +282,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 			return err
 		}
 	case azure_provider.AzureClusterProvider:
-		clusterContext, err := cc.azureClusterContext()
+		clusterContext, err := cc.getAzureClusterContext()
 		if err != nil {
 			return err
 		}
@@ -290,6 +291,18 @@ func (cc *ClusterCommands) switchKubeContext() error {
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (cc *ClusterCommands) deleteKubeConfigItem(itemType, itemName string) error {
+	cc.SpecCMD = cc.kubectl("config", itemType, itemName)
+	cc.SpecCMD.DisableStdOut = true
+	if err := releaseRunner(cc).runCMD(); err != nil {
+		return fmt.Errorf("%s", cc.SpecCMD.StderrBuf.String())
+	}
+
+	zap.S().Info(cc.SpecCMD.StdoutBuf.String())
 
 	return nil
 }
@@ -306,6 +319,14 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 
 	switch cc.Ctx.Command.Name {
 	case "provision":
+		switch cc.Conf.ClusterProvider {
+		case aws_provider.AWSClusterProvider:
+			if err := cc.createAWSClusterSSHKey(); err != nil {
+				return err
+			}
+		case azure_provider.AzureClusterProvider:
+		}
+
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "sync")
 		if err := releaseRunner(cc).runCMD(); err != nil {
 			return err
@@ -313,7 +334,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 
 		switch cc.Conf.ClusterProvider {
 		case aws_provider.AWSClusterProvider:
-			clusterContext, err := cc.AWSClusterContext()
+			clusterContext, err := cc.getAWSClusterContext()
 			if err != nil {
 				return err
 			}
@@ -322,7 +343,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
-			clusterContext, err := cc.azureClusterContext()
+			clusterContext, err := cc.getAzureClusterContext()
 			if err != nil {
 				return err
 			}
@@ -337,6 +358,14 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			return err
 		}
 
+		switch cc.Conf.ClusterProvider {
+		case aws_provider.AWSClusterProvider:
+			if err := cc.deleteAWSClusterSSHKey(); err != nil {
+				return err
+			}
+		case azure_provider.AzureClusterProvider:
+		}
+
 		kubeConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 			clientcmd.NewDefaultClientConfigLoadingRules(), &clientcmd.ConfigOverrides{}).RawConfig()
 		if err != nil {
@@ -344,18 +373,15 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 		}
 
 		if context, ok := kubeConfig.Contexts[cc.Conf.Name]; ok {
-			cc.SpecCMD = cc.kubectl("config", "delete-context", cc.Conf.Name)
-			if err := releaseRunner(cc).runCMD(); err != nil {
+			if err := cc.deleteKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
 				return err
 			}
 
-			cc.SpecCMD = cc.kubectl("config", "delete-cluster", context.Cluster)
-			if err := releaseRunner(cc).runCMD(); err != nil {
+			if err := cc.deleteKubeConfigItem("delete-cluster", context.Cluster); err != nil {
 				return err
 			}
 
-			cc.SpecCMD = cc.kubectl("config", "delete-user", context.AuthInfo)
-			if err := releaseRunner(cc).runCMD(); err != nil {
+			if err := cc.deleteKubeConfigItem("delete-user", context.AuthInfo); err != nil {
 				return err
 			}
 		}

@@ -162,6 +162,14 @@ func (cc *ClusterCommands) applyAWSClusterIdentity() error {
 	return os.RemoveAll(acic.ManifestFilesDir)
 }
 
-func (cc *ClusterCommands) AWSClusterContext() ([]byte, error) {
+func (cc *ClusterCommands) getAWSClusterContext() ([]byte, error) {
 	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).GetAWSClusterContext(cc.Conf.Name)
+}
+
+func (cc *ClusterCommands) createAWSClusterSSHKey() error {
+	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).CreateEC2SSHKey(cc.Conf.Name)
+}
+
+func (cc *ClusterCommands) deleteAWSClusterSSHKey() error {
+	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).DeleteEC2SSHKey(cc.Conf.Name)
 }

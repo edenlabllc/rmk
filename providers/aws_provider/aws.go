@@ -20,12 +20,15 @@ import (
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	ec2Type "github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	eksType "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3type "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/smithy-go"
 	"go.uber.org/zap"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -424,6 +427,66 @@ func (a *AwsConfigure) generateBaseKubeConfig(cluster *eksType.Cluster) (*api.Co
 
 func (a *AwsConfigure) getKubeConfigUserName(clusterName string) string {
 	return fmt.Sprintf("%s-capi-admin", clusterName)
+}
+
+func (a *AwsConfigure) CreateEC2SSHKey(clusterName string) error {
+	var respError smithy.APIError
+
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return err
+	}
+
+	params := &ec2.CreateKeyPairInput{
+		KeyName: aws.String(clusterName),
+		DryRun:  aws.Bool(false),
+		KeyType: ec2Type.KeyTypeEd25519,
+		TagSpecifications: append([]ec2Type.TagSpecification{}, ec2Type.TagSpecification{
+			ResourceType: ec2Type.ResourceTypeKeyPair,
+			Tags: append([]ec2Type.Tag{}, ec2Type.Tag{
+				Key:   aws.String("kubernetes.io/cluster/" + clusterName),
+				Value: aws.String("owned"),
+			}),
+		}),
+	}
+
+	client := ec2.NewFromConfig(cfg)
+	sshKey, err := client.CreateKeyPair(a.Ctx, params)
+	if err != nil {
+		if errors.As(err, &respError) && respError.ErrorCode() != "InvalidKeyPair.Duplicate" {
+			return err
+		}
+	}
+
+	if sshKey != nil {
+		zap.S().Infof("SSHKey %s with id %s was created", aws.ToString(sshKey.KeyName), aws.ToString(sshKey.KeyPairId))
+	}
+
+	return nil
+}
+
+func (a *AwsConfigure) DeleteEC2SSHKey(clusterName string) error {
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return err
+	}
+
+	params := &ec2.DeleteKeyPairInput{
+		KeyName: aws.String(clusterName),
+		DryRun:  aws.Bool(false),
+	}
+
+	client := ec2.NewFromConfig(cfg)
+	sshKey, err := client.DeleteKeyPair(a.Ctx, params)
+	if err != nil {
+		return err
+	}
+
+	if sshKey.KeyPairId != nil {
+		zap.S().Infof("SSHKey %s with id %s was deleted", clusterName, aws.ToString(sshKey.KeyPairId))
+	}
+
+	return nil
 }
 
 func (a *AwsConfigure) CreateBucket(bucketName string) error {
