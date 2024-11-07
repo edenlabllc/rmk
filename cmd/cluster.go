@@ -381,18 +381,6 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		}
-
-		if err := cc.manageKubeConfigItem("delete-context", cc.Conf.Name); err != nil {
-			return err
-		}
-
-		if err := cc.manageKubeConfigItem("delete-cluster", cc.Conf.Name); err != nil {
-			return err
-		}
-
-		if err := cc.manageKubeConfigItem("delete-user", cc.Conf.Name); err != nil {
-			return err
-		}
 	}
 
 	return nil
