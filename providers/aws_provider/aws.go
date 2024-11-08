@@ -459,7 +459,7 @@ func (a *AwsConfigure) CreateEC2SSHKey(clusterName string) error {
 	}
 
 	if sshKey != nil {
-		zap.S().Infof("SSHKey %s with id %s was created", aws.ToString(sshKey.KeyName), aws.ToString(sshKey.KeyPairId))
+		zap.S().Infof("created SSHKey %s with id %s", aws.ToString(sshKey.KeyName), aws.ToString(sshKey.KeyPairId))
 	}
 
 	return nil
@@ -483,7 +483,7 @@ func (a *AwsConfigure) DeleteEC2SSHKey(clusterName string) error {
 	}
 
 	if sshKey.KeyPairId != nil {
-		zap.S().Infof("SSHKey %s with id %s was deleted", clusterName, aws.ToString(sshKey.KeyPairId))
+		zap.S().Infof("deleted SSHKey %s with id %s", clusterName, aws.ToString(sshKey.KeyPairId))
 	}
 
 	return nil
