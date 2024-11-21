@@ -22,6 +22,7 @@ import (
 	"rmk/notification"
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -163,6 +164,11 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	case azure_provider.AzureClusterProvider:
 		envs = append(envs,
 			"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
+		)
+	case google_provider.GoogleClusterProvider:
+		envs = append(envs,
+			"GCP_PROJECT_ID="+rc.Conf.GCPConfigure.ProjectID,
+			"GOOGLE_APPLICATION_CREDENTIALS="+rc.Conf.GCPConfigure.AppCredentialsPath,
 		)
 	}
 

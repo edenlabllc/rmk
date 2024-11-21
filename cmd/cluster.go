@@ -18,6 +18,7 @@ import (
 	"rmk/config"
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -57,6 +58,11 @@ func (cc *ClusterCommands) clusterCTL(args ...string) *util.SpecCMD {
 			"EXP_AKS=true",
 			"EXP_MACHINE_POOL=true",
 			"EXP_CLUSTER_RESOURCE_SET=false",
+		}
+	case google_provider.GoogleClusterProvider:
+		envs = []string{
+			"GCP_B64ENCODED_CREDENTIALS=",
+			"EXP_CAPG_GKE=true",
 		}
 	}
 
@@ -298,6 +304,15 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
 		}
+	case google_provider.GoogleClusterProvider:
+		clusterContext, err := cc.getGCPClusterContext()
+		if err != nil {
+			return err
+		}
+
+		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -321,6 +336,9 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
+			// Pre-provision hook for Azure
+		case google_provider.GoogleClusterProvider:
+			// Pre-provision hook for GCP
 		}
 
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "sync")
@@ -347,6 +365,15 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 				return err
 			}
+		case google_provider.GoogleClusterProvider:
+			clusterContext, err := cc.getGCPClusterContext()
+			if err != nil {
+				return err
+			}
+
+			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
+				return err
+			}
 		}
 	case "destroy":
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "destroy")
@@ -360,6 +387,9 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
+			// Pre-destroy hook for Azure
+		case google_provider.GoogleClusterProvider:
+			// Pre-destroy hook for GCP
 		}
 
 		kubeConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
@@ -423,6 +453,8 @@ func CAPIInitAction(conf *config.Config) cli.AfterFunc {
 			return cc.applyAWSClusterIdentity()
 		case azure_provider.AzureClusterProvider:
 			return cc.applyAzureClusterIdentity()
+		case google_provider.GoogleClusterProvider:
+			return cc.applyGCPClusterIdentitySecret()
 		}
 
 		return nil
@@ -453,6 +485,8 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 			return cc.applyAWSClusterIdentity()
 		case azure_provider.AzureClusterProvider:
 			return cc.applyAzureClusterIdentity()
+		case google_provider.GoogleClusterProvider:
+			return cc.applyGCPClusterIdentitySecret()
 		}
 
 		return nil

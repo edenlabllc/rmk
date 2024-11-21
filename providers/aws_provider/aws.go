@@ -343,7 +343,8 @@ func (a *AwsConfigure) GetAWSClusterContext(clusterName string) ([]byte, error) 
 	client := eks.NewFromConfig(cfg)
 	cluster, err := client.DescribeCluster(a.Ctx, &eks.DescribeClusterInput{Name: aws.String(clusterName)})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+			strings.ToUpper(AWSClusterProvider), clusterName)
 	}
 
 	return a.generateUserKubeconfig(cluster.Cluster)

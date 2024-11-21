@@ -28,8 +28,9 @@ type AzureRawServicePrincipal struct {
 }
 
 type AzureClient struct {
-	ARMClient *armcontainerservice.ManagedClustersClient `json:"-" yaml:"-"`
-	Ctx       context.Context                            `json:"-" yaml:"-"`
+	ManagedClustersClient *armcontainerservice.ManagedClustersClient `json:"-" yaml:"-"`
+	//SSHPublicKeysClient   *armcompute.SSHPublicKeysClient            `json:"-" yaml:"-"`
+	Ctx context.Context `json:"-" yaml:"-"`
 }
 
 type AzureConfigure struct {
@@ -118,26 +119,51 @@ func (ac *AzureConfigure) NewAzureManagedClustersClient(ctx context.Context, fil
 		return err
 	}
 
-	factory, err := armcontainerservice.NewClientFactory(ac.SubscriptionID, cred, nil)
+	ManagedClustersFactory, err := armcontainerservice.NewClientFactory(ac.SubscriptionID, cred, nil)
 	if err != nil {
 		return err
 	}
 
-	ac.ARMClient = factory.NewManagedClustersClient()
+	//SSHPublicKeysFactory, err := armcompute.NewClientFactory(ac.SubscriptionID, cred, nil)
+	//if err != nil {
+	//	return err
+	//}
+
 	ac.Ctx = ctx
+	ac.ManagedClustersClient = ManagedClustersFactory.NewManagedClustersClient()
+	//ac.SSHPublicKeysClient = SSHPublicKeysFactory.NewSSHPublicKeysClient()
 
 	return nil
 }
 
 func (ac *AzureConfigure) GetAzureClusterContext(groupName, clusterName string) ([]byte, error) {
-	credentials, err := ac.ARMClient.ListClusterAdminCredentials(ac.Ctx, groupName, clusterName, nil)
+	var cpTitle = strings.ToUpper(AzureClusterProvider[:1]) + strings.ToLower(AzureClusterProvider[1:])
+
+	credentials, err := ac.ManagedClustersClient.ListClusterAdminCredentials(ac.Ctx, groupName, clusterName, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+			cpTitle, clusterName)
 	}
 
 	if len(credentials.CredentialResults.Kubeconfigs) == 1 {
 		return credentials.CredentialResults.Kubeconfigs[0].Value, nil
 	}
 
-	return nil, fmt.Errorf("context for cluster %s not found", clusterName)
+	return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+		cpTitle, clusterName)
 }
+
+//func (ac *AzureConfigure) CreateVMSSHKey(groupName, clusterName string) ([]byte, error) {
+//	res, err := ac.SSHPublicKeysClient.GenerateKeyPair(ac.Ctx, groupName, clusterName,
+//		&armcompute.SSHPublicKeysClientGenerateKeyPairOptions{
+//			Parameters: &armcompute.SSHGenerateKeyPairInputParameters{
+//				EncryptionType: to.Ptr(armcompute.SSHEncryptionTypesEd25519),
+//			},
+//		},
+//	)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return res.MarshalJSON()
+//}

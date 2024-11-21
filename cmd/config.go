@@ -17,6 +17,7 @@ import (
 	"rmk/git_handler"
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -345,6 +346,30 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 	return nil
 }
 
+func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
+	gcp := google_provider.NewGCPConfigure(c.Context,
+		util.GetHomePath(google_provider.GoogleHomeDir, google_provider.GooglePrefix+gitSpec.ID+".json"))
+
+	if c.IsSet("google-application-credentials") {
+		gcp.AppCredentialsPath = c.String("google-application-credentials")
+		if err := gcp.ReadSACredentials(); err != nil {
+			return err
+		}
+
+		if err := gcp.CopySACredentials(gitSpec.ID); err != nil {
+			return err
+		}
+	} else {
+		if err := gcp.ReadSACredentials(); err != nil {
+			return err
+		}
+	}
+
+	conf.GCPConfigure = gcp
+
+	return nil
+}
+
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		if err := util.ValidateNArg(c, 0); err != nil {
@@ -376,6 +401,11 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 		case c.String("cluster-provider") == azure_provider.AzureClusterProvider:
 			if err := os.RemoveAll(util.GetHomePath(azure_provider.AzureHomeDir,
 				azure_provider.AzurePrefix+conf.Name+".json")); err != nil {
+				return err
+			}
+		case c.String("cluster-provider") == google_provider.GoogleClusterProvider:
+			if err := os.RemoveAll(util.GetHomePath(google_provider.GoogleHomeDir,
+				google_provider.GooglePrefix+conf.Name+".json")); err != nil {
 				return err
 			}
 		}
@@ -419,6 +449,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		switch conf.ClusterProvider {
 		case aws_provider.AWSClusterProvider:
 			conf.AzureConfigure = nil
+			conf.GCPConfigure = nil
 			if err := initAWSProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
@@ -426,14 +457,24 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+aws_provider.AWSClusterProvider)
 		case azure_provider.AzureClusterProvider:
 			conf.AwsConfigure = nil
+			conf.GCPConfigure = nil
 			if err := initAzureProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
 
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+azure_provider.AzureClusterProvider)
+		case google_provider.GoogleClusterProvider:
+			conf.AwsConfigure = nil
+			conf.AzureConfigure = nil
+			if err := initGCPProfile(c, conf, gitSpec); err != nil {
+				return err
+			}
+
+			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+google_provider.GoogleClusterProvider)
 		case util.LocalClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
+			conf.GCPConfigure = nil
 			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
 

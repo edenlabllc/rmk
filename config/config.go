@@ -19,6 +19,7 @@ import (
 	"rmk/git_handler"
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -39,6 +40,7 @@ type Config struct {
 	AWSMFATokenExpiration          string   `yaml:"aws-mfa-token-expiration,omitempty"`
 	*aws_provider.AwsConfigure     `yaml:"aws,omitempty"`
 	*azure_provider.AzureConfigure `yaml:"azure,omitempty"`
+	*google_provider.GCPConfigure  `yaml:"gcp,omitempty"`
 	ProgressBar                    bool `yaml:"progress-bar"`
 	ProjectFile                    `yaml:"project-file"`
 }

@@ -83,6 +83,15 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"azt"},
 			EnvVars:  []string{"RMK_AZURE_TENANT_ID", "AZURE_TENANT_ID"},
 		},
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Name:    "cluster-provider",
+				Usage:   "select cluster provider to provision clusters",
+				Aliases: []string{"cp"},
+				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
+				Value:   util.LocalClusterProvider,
+			},
+		),
 		&cli.StringFlag{
 			Name:   "config",
 			Hidden: true,
@@ -95,15 +104,13 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
 		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "cluster-provider",
-				Usage:   "select cluster provider to provision clusters",
-				Aliases: []string{"cp"},
-				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   util.LocalClusterProvider,
-			},
-		),
+		&cli.StringFlag{
+			Category: gcpFlagsCategory,
+			Name:     "google-application-credentials",
+			Usage:    "GCP service account credentials file path in JSON format",
+			Aliases:  []string{"gac"},
+			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
+		},
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "progress-bar",
