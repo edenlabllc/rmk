@@ -343,7 +343,7 @@ func (a *AwsConfigure) GetAWSClusterContext(clusterName string) ([]byte, error) 
 	client := eks.NewFromConfig(cfg)
 	cluster, err := client.DescribeCluster(a.Ctx, &eks.DescribeClusterInput{Name: aws.String(clusterName)})
 	if err != nil {
-		return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+		return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
 			strings.ToUpper(AWSClusterProvider), clusterName)
 	}
 
@@ -390,7 +390,7 @@ func (a *AwsConfigure) generateUserKubeconfig(cluster *eksType.Cluster) ([]byte,
 
 	out, err := clientcmd.Write(*cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize kubeconfig to yaml: %w", err)
+		return nil, fmt.Errorf("failed to serialize kubeconfig to YAML: %w", err)
 	}
 
 	return out, nil

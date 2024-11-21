@@ -77,7 +77,7 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 			},
 		},
 		SecretApplyConfiguration: v1.Secret(azureClusterIdentitySecret, azureClusterIdentityNamespace),
-		ManifestFilesDir:         filepath.Join("/tmp", azureClusterIdentityName),
+		ManifestFilesDir:         filepath.Join(os.TempDir(), azureClusterIdentityName),
 	}
 
 	acic.SecretApplyConfiguration.Type = &azureClusterIdentitySecretType

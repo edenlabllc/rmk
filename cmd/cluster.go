@@ -107,7 +107,7 @@ func createClusterCTLConfigFile(output []byte) (string, error) {
 		return "", err
 	}
 
-	return util.CreateTempYAMLFile("/tmp", clusterCTL.Metadata["name"], data)
+	return util.CreateTempYAMLFile(os.TempDir(), clusterCTL.Metadata["name"], data)
 }
 
 func (cc *ClusterCommands) getClusterCTLConfig() (string, string, error) {
@@ -174,7 +174,7 @@ func (cc *ClusterCommands) mergeKubeConfigs(clusterContext []byte) error {
 		return err
 	}
 
-	file, err := createManifestFile(object, "/tmp", cc.Conf.Name+"-"+cc.Conf.ClusterProvider+"-kubeconfig")
+	file, err := createManifestFile(object, os.TempDir(), cc.Conf.Name+"-"+cc.Conf.ClusterProvider+"-kubeconfig")
 	if err != nil {
 		return err
 	}

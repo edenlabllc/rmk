@@ -86,7 +86,7 @@ func flagsConfig() []cli.Flag {
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:    "cluster-provider",
-				Usage:   "select cluster provider to provision clusters",
+				Usage:   "cluster provider for provisioning",
 				Aliases: []string{"cp"},
 				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
 				Value:   util.LocalClusterProvider,
@@ -107,7 +107,7 @@ func flagsConfig() []cli.Flag {
 		&cli.StringFlag{
 			Category: gcpFlagsCategory,
 			Name:     "google-application-credentials",
-			Usage:    "GCP service account credentials file path in JSON format",
+			Usage:    "path to GCP service account credentials JSON file",
 			Aliases:  []string{"gac"},
 			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
 		},

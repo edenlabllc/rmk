@@ -80,7 +80,7 @@ func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSCluste
 		},
 		AWSIAMControllerSecret:   v1.Secret(awsIAMControllerSecret, awsClusterStaticIdentityNamespace),
 		SecretApplyConfiguration: v1.Secret(awsClusterStaticIdentitySecret, awsClusterStaticIdentityNamespace),
-		ManifestFilesDir:         filepath.Join("/tmp", awsClusterStaticIdentityName),
+		ManifestFilesDir:         filepath.Join(os.TempDir(), awsClusterStaticIdentityName),
 	}
 
 	profile, err := ac.RenderAWSConfigProfile(awsIAMControllerCredentialsTemplate)

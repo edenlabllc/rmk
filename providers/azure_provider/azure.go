@@ -141,7 +141,7 @@ func (ac *AzureConfigure) GetAzureClusterContext(groupName, clusterName string) 
 
 	credentials, err := ac.ManagedClustersClient.ListClusterAdminCredentials(ac.Ctx, groupName, clusterName, nil)
 	if err != nil {
-		return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+		return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
 			cpTitle, clusterName)
 	}
 
@@ -149,7 +149,7 @@ func (ac *AzureConfigure) GetAzureClusterContext(groupName, clusterName string) 
 		return credentials.CredentialResults.Kubeconfigs[0].Value, nil
 	}
 
-	return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+	return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
 		cpTitle, clusterName)
 }
 

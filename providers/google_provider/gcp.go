@@ -92,7 +92,7 @@ func (gcp *GCPConfigure) GetGCPClusterContext(clusterName string) ([]byte, error
 		return gcp.generateUserKubeconfig(cluster)
 	}
 
-	return nil, fmt.Errorf("kubecontext to %s provider's for cluster %s not found",
+	return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
 		strings.ToUpper(GoogleClusterProvider), clusterName)
 }
 
@@ -130,7 +130,7 @@ func (gcp *GCPConfigure) generateUserKubeconfig(cluster *container.Cluster) ([]b
 
 	out, err := clientcmd.Write(*cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize kubeconfig to yaml: %w", err)
+		return nil, fmt.Errorf("failed to serialize kubeconfig to YAML: %w", err)
 	}
 
 	return out, nil

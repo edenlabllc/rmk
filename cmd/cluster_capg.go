@@ -28,7 +28,7 @@ type GCPClusterIdentityConfig struct {
 func NewGCPClusterIdentityConfig(gcp *google_provider.GCPConfigure) *GCPClusterIdentityConfig {
 	gcpcc := &GCPClusterIdentityConfig{
 		SecretApplyConfiguration: v1.Secret(gcpClusterIdentitySecret, gcpClusterIdentityNamespace),
-		ManifestFilesDir:         filepath.Join("/tmp", gcpClusterIdentityName),
+		ManifestFilesDir:         filepath.Join(os.TempDir(), gcpClusterIdentityName),
 	}
 
 	gcpcc.SecretApplyConfiguration.Type = &gcpClusterIdentitySecretType

@@ -81,7 +81,7 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 			k.Ctx.Command.Category, k.SpecCMD.StderrBuf.String())
 	}
 
-	k3dConfig, err := util.CreateTempYAMLFile("/tmp", k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())
+	k3dConfig, err := util.CreateTempYAMLFile("os.TempDir()", k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())
 	if err != nil {
 		return err
 	}
