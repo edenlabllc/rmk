@@ -63,6 +63,7 @@ func (cc *ClusterCommands) clusterCTL(args ...string) *util.SpecCMD {
 		envs = []string{
 			"GCP_B64ENCODED_CREDENTIALS=",
 			"EXP_CAPG_GKE=true",
+			"EXP_MACHINE_POOL=true",
 		}
 	}
 
