@@ -63,6 +63,13 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"azp"},
 			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", "AZURE_CLIENT_SECRET"},
 		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-location",
+			Usage:    "Azure location region",
+			Aliases:  []string{"azl"},
+			EnvVars:  []string{"RMK_AZURE_LOCATION", "AZURE_LOCATION"},
+		},
 		&cli.BoolFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-service-principle",

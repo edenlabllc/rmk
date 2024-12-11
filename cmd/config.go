@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -325,6 +326,10 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 		ac.ClientSecret = c.String("azure-client-secret")
 	}
 
+	if c.IsSet("azure-location") {
+		ac.Location = c.String("azure-location")
+	}
+
 	if c.IsSet("azure-subscription-id") {
 		ac.SubscriptionID = c.String("azure-subscription-id")
 	}
@@ -341,6 +346,35 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 
 	if err := ac.WriteSPCredentials(gitSpec.ID); err != nil {
 		return err
+	}
+
+	if err := ac.NewAzureClient(c.Context, gitSpec.ID); err != nil {
+		return err
+	}
+
+	ok, err := ac.GetAzureKeyVault(conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		err := ac.CreateAzureKeyVault(conf.Tenant)
+		if err != nil {
+			return err
+		}
+	} else {
+		secrets, err := ac.GetAzureSecrets()
+		if err != nil {
+			return err
+		}
+
+		for key, val := range secrets {
+			zap.S().Infof("download Azure key vault secret %s to %s",
+				key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+			if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -432,6 +466,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		conf.ClusterProvider = c.String("cluster-provider")
 		conf.ProgressBar = c.Bool("progress-bar")
 		conf.GitHubToken = c.String("github-token")
+		conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant)
 		zap.S().Infof("RMK will use values for %s environment", conf.Environment)
 
 		if c.Bool("slack-notifications") {
@@ -453,29 +488,22 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			if err := initAWSProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+aws_provider.AWSClusterProvider)
 		case azure_provider.AzureClusterProvider:
 			conf.AwsConfigure = nil
 			conf.GCPConfigure = nil
 			if err := initAzureProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+azure_provider.AzureClusterProvider)
 		case google_provider.GoogleClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			if err := initGCPProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+google_provider.GoogleClusterProvider)
 		case util.LocalClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil
-			conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant+"-"+util.SopsRootName+"-"+util.LocalClusterProvider)
 		}
 
 		if err := conf.InitConfig().SetRootDomain(c, gitSpec.ID); err != nil {

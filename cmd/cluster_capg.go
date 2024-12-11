@@ -85,3 +85,8 @@ func (cc *ClusterCommands) getGCPClusterContext() ([]byte, error) {
 	return google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath).
 		GetGCPClusterContext(cc.Conf.Name)
 }
+
+//func (cc *ClusterCommands) createGCPNATGateway() error {
+//	return google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath).
+//		CreateGateway()
+//}

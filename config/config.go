@@ -35,7 +35,6 @@ type Config struct {
 	SlackChannel                   string   `yaml:"slack-channel,omitempty"`
 	SlackMsgDetails                []string `yaml:"slack-message-details,omitempty"`
 	SopsAgeKeys                    string   `yaml:"sops-age-keys,omitempty"`
-	SopsBucketName                 string   `yaml:"sops-bucket-name,omitempty"`
 	AWSMFAProfile                  string   `yaml:"aws-mfa-profile,omitempty"`
 	AWSMFATokenExpiration          string   `yaml:"aws-mfa-token-expiration,omitempty"`
 	*aws_provider.AwsConfigure     `yaml:"aws,omitempty"`

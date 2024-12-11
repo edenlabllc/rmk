@@ -337,9 +337,16 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
-			// Pre-provision hook for Azure
+			if err := cc.createAzureSecrets(cc.Conf.AzureConfigure); err != nil {
+				return err
+			}
 		case google_provider.GoogleClusterProvider:
 			// Pre-provision hook for GCP
+			//if err := cc.createGCPNATGateway(); err != nil {
+			//	return err
+			//}
+
+			//return nil
 		}
 
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "sync")

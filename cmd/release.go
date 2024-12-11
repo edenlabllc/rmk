@@ -163,6 +163,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		)
 	case azure_provider.AzureClusterProvider:
 		envs = append(envs,
+			"AZURE_LOCATION="+rc.Conf.AzureConfigure.Location,
 			"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
 		)
 	case google_provider.GoogleClusterProvider:

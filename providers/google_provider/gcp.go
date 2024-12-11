@@ -64,6 +64,35 @@ func (gcp *GCPConfigure) CopySACredentials(fileSuffix string) error {
 		gcp.AppCredentials.JSON(), 0644)
 }
 
+//func (gcp *GCPConfigure) CreateGateway() error {
+//	if err := gcp.ReadSACredentials(); err != nil {
+//		return err
+//	}
+//
+//	client, err := compute.NewService(gcp.Ctx, option.WithAuthCredentials(gcp.AppCredentials))
+//	if err != nil {
+//		return err
+//	}
+//
+//	client.BasePath = compute.CloudPlatformScope + "/v1"
+//
+//	fmt.Printf("%#v\n", *client)
+//
+//	req := client.Routers.List(gcp.ProjectID, "europe-central2")
+//	if err := req.Pages(gcp.Ctx, func(page *compute.RouterList) error {
+//		for _, router := range page.Items {
+//			// process each `router` resource:
+//			fmt.Printf("%#v\n", router)
+//			// NAT Gateways are found in router.nats
+//		}
+//		return nil
+//	}); err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	return nil
+//}
+
 func (gcp *GCPConfigure) GetGCPClusterContext(clusterName string) ([]byte, error) {
 	var cluster *container.Cluster
 

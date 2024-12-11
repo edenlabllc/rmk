@@ -13,6 +13,9 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"rmk/config"
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -148,6 +151,72 @@ func (sc *SecretCommands) CreateKeys() error {
 	}
 
 	return nil
+}
+
+func (sc *SecretCommands) DownloadKeys() error {
+	switch sc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		return nil
+	case azure_provider.AzureClusterProvider:
+		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
+			return err
+		}
+
+		secrets, err := sc.Conf.GetAzureSecrets()
+		if err != nil {
+			return err
+		}
+
+		for key, val := range secrets {
+			zap.S().Infof("download Azure key vault secret %s to %s",
+				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	case google_provider.GoogleClusterProvider:
+		return nil
+	default:
+		return nil
+	}
+}
+
+func (sc *SecretCommands) UploadKeys() error {
+	switch sc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		return nil
+	case azure_provider.AzureClusterProvider:
+		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
+			return err
+		}
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+			value := string(file)
+
+			if err := sc.Conf.SetAzureSecret(keyName, value); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	case google_provider.GoogleClusterProvider:
+		return nil
+	default:
+		return nil
+	}
 }
 
 func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
@@ -420,7 +489,7 @@ func secretKeysDownloadAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		return conf.DownloadFromBucket("", conf.SopsBucketName, conf.SopsAgeKeys, conf.Tenant)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).DownloadKeys()
 	}
 }
 
@@ -430,7 +499,7 @@ func secretKeysUploadAction(conf *config.Config) cli.ActionFunc {
 			return err
 		}
 
-		return conf.UploadToBucket(conf.SopsBucketName, conf.SopsAgeKeys, "*"+util.SopsAgeKeyExt)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).UploadKeys()
 	}
 }
 

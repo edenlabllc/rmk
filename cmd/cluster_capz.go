@@ -3,12 +3,14 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/core/v1"
 
 	"rmk/providers/azure_provider"
+	"rmk/util"
 )
 
 const (
@@ -140,9 +142,45 @@ func (cc *ClusterCommands) applyAzureClusterIdentity() error {
 func (cc *ClusterCommands) getAzureClusterContext() ([]byte, error) {
 	ac := azure_provider.NewAzureConfigure()
 
-	if err := ac.NewAzureManagedClustersClient(cc.Ctx.Context, cc.Conf.Name); err != nil {
+	if err := ac.NewAzureClient(cc.Ctx.Context, cc.Conf.Name); err != nil {
 		return nil, err
 	}
 
 	return ac.GetAzureClusterContext(cc.Conf.Tenant, cc.Conf.Name)
+}
+
+func (cc *ClusterCommands) createAzureSecrets(ac *azure_provider.AzureConfigure) error {
+	if err := ac.NewAzureClient(cc.Ctx.Context, cc.Conf.Name); err != nil {
+		return err
+	}
+
+	secrets, err := ac.GetAzureSecrets()
+	if err != nil {
+		return err
+	}
+
+	if len(secrets) > 0 {
+		return err
+	}
+
+	walkMatch, err := util.WalkMatch(cc.Conf.SopsAgeKeys, cc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+	if err != nil {
+		return err
+	}
+
+	for _, val := range walkMatch {
+		file, err := os.ReadFile(val)
+		if err != nil {
+			return err
+		}
+
+		keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+		value := string(file)
+
+		if err := ac.SetAzureSecret(keyName, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
