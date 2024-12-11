@@ -66,7 +66,7 @@ func flagsConfig() []cli.Flag {
 		&cli.StringFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-location",
-			Usage:    "Azure location region",
+			Usage:    "Azure location",
 			Aliases:  []string{"azl"},
 			EnvVars:  []string{"RMK_AZURE_LOCATION", "AZURE_LOCATION"},
 		},
