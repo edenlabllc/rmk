@@ -3,11 +3,13 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/client-go/applyconfigurations/core/v1"
 
 	"rmk/providers/google_provider"
+	"rmk/util"
 )
 
 const (
@@ -86,7 +88,45 @@ func (cc *ClusterCommands) getGCPClusterContext() ([]byte, error) {
 		GetGCPClusterContext(cc.Conf.Name)
 }
 
-//func (cc *ClusterCommands) createGCPNATGateway() error {
-//	return google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath).
-//		CreateGateway()
-//}
+func (cc *ClusterCommands) createGCPNATGateway() error {
+	return google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath).
+		CreateGCPCloudNATGateway(cc.Conf.GCPRegion)
+}
+
+func (cc *ClusterCommands) deleteGCPNATGateway() error {
+	return google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath).
+		DeleteGCPCloudNATGateway(cc.Conf.GCPRegion)
+}
+
+func (cc *ClusterCommands) createGCPSecrets() error {
+	gcp := google_provider.NewGCPConfigure(cc.Ctx.Context, cc.Conf.GCPConfigure.AppCredentialsPath)
+
+	secrets, err := gcp.GetGCPSecrets(cc.Conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	if len(secrets) > 0 {
+		return nil
+	}
+
+	walkMatch, err := util.WalkMatch(cc.Conf.SopsAgeKeys, cc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+	if err != nil {
+		return err
+	}
+
+	for _, val := range walkMatch {
+		file, err := os.ReadFile(val)
+		if err != nil {
+			return err
+		}
+
+		keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+		if err := gcp.SetGCPSecret(cc.Conf.Tenant, cc.Conf.GCPRegion, keyName, file); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

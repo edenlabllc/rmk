@@ -157,8 +157,10 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	switch rc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
 		envs = append(envs,
-			"AWS_PROFILE="+rc.Conf.Profile,
+			"AWS_ACCOUNT_ID="+rc.Conf.AccountID,
 			"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
+			"AWS_PROFILE="+rc.Conf.Profile,
+			"AWS_REGION="+rc.Conf.Region,
 			"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
 		)
 	case azure_provider.AzureClusterProvider:
@@ -169,6 +171,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	case google_provider.GoogleClusterProvider:
 		envs = append(envs,
 			"GCP_PROJECT_ID="+rc.Conf.GCPConfigure.ProjectID,
+			"GCP_REGION="+rc.Conf.GCPRegion,
 			"GOOGLE_APPLICATION_CREDENTIALS="+rc.Conf.GCPConfigure.AppCredentialsPath,
 		)
 	}

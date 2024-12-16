@@ -177,6 +177,21 @@ func (sc *SecretCommands) DownloadKeys() error {
 
 		return nil
 	case google_provider.GoogleClusterProvider:
+		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
+
+		secrets, err := gcp.GetGCPSecrets(sc.Conf.Tenant)
+		if err != nil {
+			return err
+		}
+
+		for key, val := range secrets {
+			zap.S().Infof("download GCP secret %s to %s",
+				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	default:
 		return nil
@@ -213,6 +228,26 @@ func (sc *SecretCommands) UploadKeys() error {
 
 		return nil
 	case google_provider.GoogleClusterProvider:
+		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+			if err := gcp.SetGCPSecret(sc.Conf.Tenant, sc.Conf.GCPRegion, keyName, file); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	default:
 		return nil

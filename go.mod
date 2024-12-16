@@ -6,6 +6,7 @@ toolchain go1.22.8
 
 require (
 	cloud.google.com/go/auth v0.10.2
+	cloud.google.com/go/secretmanager v1.11.5
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.14.0
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.7.0
 	github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets v0.12.0
@@ -27,6 +28,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.11.0
 	github.com/google/go-github v17.0.0+incompatible
+	github.com/googleapis/gax-go/v2 v2.12.3
 	github.com/hashicorp/go-getter v1.7.3
 	github.com/slack-go/slack v0.12.3
 	github.com/urfave/cli/v2 v2.27.1
@@ -98,7 +100,6 @@ require (
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
-	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect

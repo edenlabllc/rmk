@@ -160,7 +160,7 @@ func (cc *ClusterCommands) createAzureSecrets(ac *azure_provider.AzureConfigure)
 	}
 
 	if len(secrets) > 0 {
-		return err
+		return nil
 	}
 
 	walkMatch, err := util.WalkMatch(cc.Conf.SopsAgeKeys, cc.Conf.Tenant+"*"+util.SopsAgeKeyExt)

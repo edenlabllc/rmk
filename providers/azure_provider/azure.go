@@ -302,32 +302,6 @@ func (ac *AzureConfigure) GetAzureKeyVault(tenant string) (bool, error) {
 	return true, nil
 }
 
-func (ac *AzureConfigure) SetAzureSecret(keyName, value string) error {
-	client, err := azsecrets.NewClient(ac.KeyVaultURI, ac.Credentials, nil)
-	if err != nil {
-		return err
-	}
-
-	params := azsecrets.SetSecretParameters{
-		Value: to.Ptr(value),
-	}
-
-	secret, err := client.SetSecret(ac.Ctx, keyName, params, nil)
-	if err != nil {
-		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to create Azure key vault secret: %s", keyName)
-			return nil
-		}
-
-		return err
-	}
-
-	zap.S().Infof("created Azure key vault secret: %s, %s", keyName, *secret.ID)
-
-	return nil
-}
-
 func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 	var secrets = make(map[string][]byte)
 
@@ -373,4 +347,30 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 	}
 
 	return secrets, nil
+}
+
+func (ac *AzureConfigure) SetAzureSecret(keyName, value string) error {
+	client, err := azsecrets.NewClient(ac.KeyVaultURI, ac.Credentials, nil)
+	if err != nil {
+		return err
+	}
+
+	params := azsecrets.SetSecretParameters{
+		Value: to.Ptr(value),
+	}
+
+	secret, err := client.SetSecret(ac.Ctx, keyName, params, nil)
+	if err != nil {
+		var respErr *azcore.ResponseError
+		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+			zap.S().Warnf("permission denied to create Azure key vault secret: %s", keyName)
+			return nil
+		}
+
+		return err
+	}
+
+	zap.S().Infof("created Azure key vault secret: %s, %s", keyName, *secret.ID)
+
+	return nil
 }

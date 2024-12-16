@@ -382,7 +382,7 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 
 func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
 	gcp := google_provider.NewGCPConfigure(c.Context,
-		util.GetHomePath(google_provider.GoogleHomeDir, google_provider.GooglePrefix+gitSpec.ID+".json"))
+		util.GetHomePath(google_provider.GoogleHomeDir, google_provider.GoogleCredentialsPrefix+gitSpec.ID+".json"))
 
 	if c.IsSet("google-application-credentials") {
 		gcp.AppCredentialsPath = c.String("google-application-credentials")
@@ -399,7 +399,25 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		}
 	}
 
+	if !c.IsSet("gcp-region") {
+		return fmt.Errorf("GCP provider option gcp-region required")
+	}
+
+	conf.GCPRegion = c.String("gcp-region")
 	conf.GCPConfigure = gcp
+
+	secrets, err := gcp.GetGCPSecrets(conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	for key, val := range secrets {
+		zap.S().Infof("download GCP secret %s to %s",
+			key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+		if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -439,7 +457,7 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 			}
 		case c.String("cluster-provider") == google_provider.GoogleClusterProvider:
 			if err := os.RemoveAll(util.GetHomePath(google_provider.GoogleHomeDir,
-				google_provider.GooglePrefix+conf.Name+".json")); err != nil {
+				google_provider.GoogleCredentialsPrefix+conf.Name+".json")); err != nil {
 				return err
 			}
 		}

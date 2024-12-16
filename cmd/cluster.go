@@ -341,12 +341,13 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 				return err
 			}
 		case google_provider.GoogleClusterProvider:
-			// Pre-provision hook for GCP
-			//if err := cc.createGCPNATGateway(); err != nil {
-			//	return err
-			//}
+			if err := cc.createGCPNATGateway(); err != nil {
+				return err
+			}
 
-			//return nil
+			if err := cc.createGCPSecrets(); err != nil {
+				return err
+			}
 		}
 
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "sync")
@@ -397,7 +398,9 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 		case azure_provider.AzureClusterProvider:
 			// Pre-destroy hook for Azure
 		case google_provider.GoogleClusterProvider:
-			// Pre-destroy hook for GCP
+			if err := cc.deleteGCPNATGateway(); err != nil {
+				return err
+			}
 		}
 
 		kubeConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(

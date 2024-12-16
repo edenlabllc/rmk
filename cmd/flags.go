@@ -111,6 +111,15 @@ func flagsConfig() []cli.Flag {
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
 		),
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Category: gcpFlagsCategory,
+				Name:     "gcp-region",
+				Usage:    "GCP region",
+				Aliases:  []string{"gr"},
+				EnvVars:  []string{"RMK_GCP_REGION", "GCP_REGION"},
+			},
+		),
 		&cli.StringFlag{
 			Category: gcpFlagsCategory,
 			Name:     "google-application-credentials",

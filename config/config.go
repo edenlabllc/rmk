@@ -37,6 +37,7 @@ type Config struct {
 	SopsAgeKeys                    string   `yaml:"sops-age-keys,omitempty"`
 	AWSMFAProfile                  string   `yaml:"aws-mfa-profile,omitempty"`
 	AWSMFATokenExpiration          string   `yaml:"aws-mfa-token-expiration,omitempty"`
+	GCPRegion                      string   `yaml:"gcp-region,omitempty"`
 	*aws_provider.AwsConfigure     `yaml:"aws,omitempty"`
 	*azure_provider.AzureConfigure `yaml:"azure,omitempty"`
 	*google_provider.GCPConfigure  `yaml:"gcp,omitempty"`

@@ -3,13 +3,23 @@ package google_provider
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"hash/crc32"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"cloud.google.com/go/auth"
 	"cloud.google.com/go/auth/credentials"
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
+	"github.com/googleapis/gax-go/v2/apierror"
+	"go.uber.org/zap"
+	"google.golang.org/api/compute/v1"
 	container "google.golang.org/api/container/v1beta1"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -18,9 +28,15 @@ import (
 )
 
 const (
-	GoogleClusterProvider = "gcp"
-	GoogleHomeDir         = ".config/gcloud"
-	GooglePrefix          = "gcp-credentials-"
+	GoogleClusterProvider   = "gcp"
+	GoogleCredentialsPrefix = "gcp-credentials-"
+	GoogleHomeDir           = ".config/gcloud"
+
+	// List of APIs errors
+	apiErrorAlreadyExists     = "alreadyExists"
+	apiErrorNotFound          = "notFound"
+	gRPCErrorAlreadyExists    = "AlreadyExists"
+	gRPCErrorPermissionDenied = "PermissionDenied"
 )
 
 type GCPConfigure struct {
@@ -35,6 +51,10 @@ func NewGCPConfigure(ctx context.Context, appCredentialsPath string) *GCPConfigu
 }
 
 func (gcp *GCPConfigure) ReadSACredentials() error {
+	if !util.IsExists(gcp.AppCredentialsPath, true) {
+		return fmt.Errorf("google application credentials JSON file for GCP not found")
+	}
+
 	data, err := os.ReadFile(gcp.AppCredentialsPath)
 	if err != nil {
 		return err
@@ -58,40 +78,195 @@ func (gcp *GCPConfigure) CopySACredentials(fileSuffix string) error {
 		return err
 	}
 
-	gcp.AppCredentialsPath = util.GetHomePath(GoogleHomeDir, GooglePrefix+fileSuffix+".json")
+	gcp.AppCredentialsPath = util.GetHomePath(GoogleHomeDir, GoogleCredentialsPrefix+fileSuffix+".json")
 
-	return os.WriteFile(util.GetHomePath(GoogleHomeDir, GooglePrefix+fileSuffix+".json"),
+	return os.WriteFile(util.GetHomePath(GoogleHomeDir, GoogleCredentialsPrefix+fileSuffix+".json"),
 		gcp.AppCredentials.JSON(), 0644)
 }
 
-//func (gcp *GCPConfigure) CreateGateway() error {
-//	if err := gcp.ReadSACredentials(); err != nil {
-//		return err
-//	}
-//
-//	client, err := compute.NewService(gcp.Ctx, option.WithAuthCredentials(gcp.AppCredentials))
-//	if err != nil {
-//		return err
-//	}
-//
-//	client.BasePath = compute.CloudPlatformScope + "/v1"
-//
-//	fmt.Printf("%#v\n", *client)
-//
-//	req := client.Routers.List(gcp.ProjectID, "europe-central2")
-//	if err := req.Pages(gcp.Ctx, func(page *compute.RouterList) error {
-//		for _, router := range page.Items {
-//			// process each `router` resource:
-//			fmt.Printf("%#v\n", router)
-//			// NAT Gateways are found in router.nats
-//		}
-//		return nil
-//	}); err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	return nil
-//}
+func (gcp *GCPConfigure) GetGCPSecrets(tenant string) (map[string][]byte, error) {
+	var secrets = make(map[string][]byte)
+
+	if err := gcp.ReadSACredentials(); err != nil {
+		return nil, err
+	}
+
+	client, err := secretmanager.NewClient(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	if err != nil {
+		return nil, err
+	}
+
+	defer client.Close()
+
+	listReq := &secretmanagerpb.ListSecretsRequest{
+		Parent: fmt.Sprintf("projects/%s", gcp.ProjectID),
+		Filter: "labels.resource-group=" + tenant + "-" + util.SopsRootName,
+	}
+
+	it := client.ListSecrets(gcp.Ctx, listReq)
+	for {
+		resp, err := it.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+
+		if err != nil {
+			var respError *apierror.APIError
+			if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
+				zap.S().Warnf("permission denied to list GCP secrets")
+				return nil, nil
+			} else {
+				return nil, err
+			}
+		}
+
+		accReq := &secretmanagerpb.AccessSecretVersionRequest{Name: resp.Name + "/versions/latest"}
+		result, err := client.AccessSecretVersion(gcp.Ctx, accReq)
+		if err != nil {
+			var respError *apierror.APIError
+			if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
+				zap.S().Warnf("permission denied to get access for GCP secrets values")
+				return nil, nil
+			} else {
+				return nil, err
+			}
+		}
+
+		crc32c := crc32.MakeTable(crc32.Castagnoli)
+		checksum := int64(crc32.Checksum(result.Payload.Data, crc32c))
+		if checksum != *result.Payload.DataCrc32C {
+			return nil, fmt.Errorf("data corruption detected for GCP secrets value: %s", resp.Name)
+		}
+
+		secrets[filepath.Base(resp.Name)] = result.Payload.Data
+	}
+
+	return secrets, nil
+}
+
+func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []byte) error {
+	if err := gcp.ReadSACredentials(); err != nil {
+		return err
+	}
+
+	client, err := secretmanager.NewClient(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	if err != nil {
+		return err
+	}
+
+	defer client.Close()
+
+	secretReq := &secretmanagerpb.CreateSecretRequest{
+		Parent:   fmt.Sprintf("projects/%s", gcp.ProjectID),
+		SecretId: keyName,
+		Secret: &secretmanagerpb.Secret{
+			Replication: &secretmanagerpb.Replication{
+				Replication: &secretmanagerpb.Replication_UserManaged_{
+					UserManaged: &secretmanagerpb.Replication_UserManaged{
+						Replicas: []*secretmanagerpb.Replication_UserManaged_Replica{{Location: region}},
+					},
+				},
+			},
+			Labels: map[string]string{"resource-group": tenant + "-" + util.SopsRootName},
+		},
+	}
+
+	_, err = client.CreateSecret(gcp.Ctx, secretReq)
+	if err != nil {
+		var respError *apierror.APIError
+		if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
+			zap.S().Warnf("permission denied to create GCP secret: %s", keyName)
+		} else if respError.GRPCStatus().Code().String() != gRPCErrorAlreadyExists {
+			return err
+		}
+	}
+
+	secretVersionReq := &secretmanagerpb.AddSecretVersionRequest{
+		Parent:  fmt.Sprintf("projects/%s/secrets/%s", gcp.ProjectID, keyName),
+		Payload: &secretmanagerpb.SecretPayload{Data: value},
+	}
+
+	version, err := client.AddSecretVersion(gcp.Ctx, secretVersionReq)
+	if err != nil {
+		var respError *apierror.APIError
+		if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
+			zap.S().Warnf("permission denied to add to secret %s value", keyName)
+		} else {
+			return err
+		}
+	}
+
+	zap.S().Infof("created Azure key vault secret: %s, %s", keyName, version.Name)
+
+	return nil
+}
+
+func (gcp *GCPConfigure) CreateGCPCloudNATGateway(region string) error {
+	if err := gcp.ReadSACredentials(); err != nil {
+		return err
+	}
+
+	client, err := compute.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	if err != nil {
+		return err
+	}
+
+	routerNat := &compute.RouterNat{
+		AutoNetworkTier:               "STANDARD",
+		EndpointTypes:                 []string{"ENDPOINT_TYPE_VM"},
+		Name:                          "default-nat-" + region,
+		NatIpAllocateOption:           "AUTO_ONLY",
+		SourceSubnetworkIpRangesToNat: "ALL_SUBNETWORKS_ALL_IP_RANGES",
+		Type:                          "PUBLIC",
+	}
+
+	router := &compute.Router{
+		Name:    "default-router-" + region,
+		Nats:    []*compute.RouterNat{routerNat},
+		Network: "projects/" + gcp.ProjectID + "/global/networks/default",
+	}
+
+	_, err = client.Routers.Insert(gcp.ProjectID, region, router).Context(gcp.Ctx).Do()
+	if err != nil {
+		var respError *googleapi.Error
+		if errors.As(err, &respError) && respError.Code == 409 && respError.Errors[0].Reason == apiErrorAlreadyExists {
+			zap.S().Infof("GCP router %s with router NAT %s already exists for region %s",
+				router.Name, routerNat.Name, region)
+			return nil
+		}
+
+		return err
+	}
+
+	zap.S().Infof("created GCP router %s with router NAT %s", router.Name, routerNat.Name)
+
+	return nil
+}
+
+func (gcp *GCPConfigure) DeleteGCPCloudNATGateway(region string) error {
+	if err := gcp.ReadSACredentials(); err != nil {
+		return err
+	}
+
+	client, err := compute.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Routers.Delete(gcp.ProjectID, region, "default-router-"+region).Context(gcp.Ctx).Do()
+	if err != nil {
+		var respError *googleapi.Error
+		if errors.As(err, &respError) && respError.Code == 404 && respError.Errors[0].Reason == apiErrorNotFound {
+			return nil
+		}
+
+		return err
+	}
+
+	zap.S().Infof("deleted GCP router %s for region %s", "default-router-"+region, region)
+
+	return nil
+}
 
 func (gcp *GCPConfigure) GetGCPClusterContext(clusterName string) ([]byte, error) {
 	var cluster *container.Cluster
@@ -100,7 +275,7 @@ func (gcp *GCPConfigure) GetGCPClusterContext(clusterName string) ([]byte, error
 		return nil, err
 	}
 
-	client, err := container.NewService(gcp.Ctx, option.WithAuthCredentials(gcp.AppCredentials))
+	client, err := container.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
 	if err != nil {
 		return nil, err
 	}
