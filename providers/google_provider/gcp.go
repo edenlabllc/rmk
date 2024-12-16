@@ -125,7 +125,7 @@ func (gcp *GCPConfigure) GetGCPSecrets(tenant string) (map[string][]byte, error)
 		if err != nil {
 			var respError *apierror.APIError
 			if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-				zap.S().Warnf("permission denied to get access for GCP secrets values")
+				zap.S().Warnf("permission denied to get access to GCP secrets values")
 				return nil, nil
 			} else {
 				return nil, err
@@ -190,7 +190,7 @@ func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []by
 	if err != nil {
 		var respError *apierror.APIError
 		if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-			zap.S().Warnf("permission denied to add to secret %s value", keyName)
+			zap.S().Warnf("permission denied to add GCP secret %s value", keyName)
 		} else {
 			return err
 		}
