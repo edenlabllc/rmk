@@ -162,12 +162,12 @@ func (sc *SecretCommands) DownloadKeys() error {
 		}
 
 		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
-				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in AWS Secrets Manager secrets",
+				sc.Conf.Tenant)
 		}
 
 		for key, val := range secrets {
-			zap.S().Infof("download AWS secret %s to %s",
+			zap.S().Infof("download AWS Secrets Manager secret %s to %s",
 				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
 			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
 				return err
@@ -186,12 +186,12 @@ func (sc *SecretCommands) DownloadKeys() error {
 		}
 
 		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
-				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in Azure Key Vault secrets",
+				sc.Conf.Tenant)
 		}
 
 		for key, val := range secrets {
-			zap.S().Infof("download Azure key vault secret %s to %s",
+			zap.S().Infof("download Azure Key Vault secret %s to %s",
 				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
 			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
 				return err
@@ -208,12 +208,12 @@ func (sc *SecretCommands) DownloadKeys() error {
 		}
 
 		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
-				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in GCP Secrets Manager secrets",
+				sc.Conf.Tenant)
 		}
 
 		for key, val := range secrets {
-			zap.S().Infof("download GCP secret %s to %s",
+			zap.S().Infof("download GCP Secrets Manager secret %s to %s",
 				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
 			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
 				return err

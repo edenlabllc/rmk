@@ -113,7 +113,7 @@ func (gcp *GCPConfigure) GetGCPSecrets(tenant string) (map[string][]byte, error)
 		if err != nil {
 			var respError *apierror.APIError
 			if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-				zap.S().Warnf("permission denied to list GCP secrets")
+				zap.S().Warnf("permission denied to list GCP Secrets Manager secrets")
 				return nil, nil
 			} else {
 				return nil, err
@@ -125,7 +125,7 @@ func (gcp *GCPConfigure) GetGCPSecrets(tenant string) (map[string][]byte, error)
 		if err != nil {
 			var respError *apierror.APIError
 			if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-				zap.S().Warnf("permission denied to get access to GCP secrets values")
+				zap.S().Warnf("permission denied to get access to GCP Secrets Manager secrets values")
 				return nil, nil
 			} else {
 				return nil, err
@@ -135,7 +135,7 @@ func (gcp *GCPConfigure) GetGCPSecrets(tenant string) (map[string][]byte, error)
 		crc32c := crc32.MakeTable(crc32.Castagnoli)
 		checksum := int64(crc32.Checksum(result.Payload.Data, crc32c))
 		if checksum != *result.Payload.DataCrc32C {
-			return nil, fmt.Errorf("data corruption detected for GCP secrets value: %s", resp.Name)
+			return nil, fmt.Errorf("data corruption detected for GCP Secrets Manager secrets value: %s", resp.Name)
 		}
 
 		secrets[filepath.Base(resp.Name)] = result.Payload.Data
@@ -175,7 +175,7 @@ func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []by
 	if err != nil {
 		var respError *apierror.APIError
 		if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-			zap.S().Warnf("permission denied to create GCP secret: %s", keyName)
+			zap.S().Warnf("permission denied to create GCP Secrets Manager secret: %s", keyName)
 		} else if respError.GRPCStatus().Code().String() != gRPCErrorAlreadyExists {
 			return err
 		}
@@ -190,13 +190,13 @@ func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []by
 	if err != nil {
 		var respError *apierror.APIError
 		if errors.As(err, &respError) && respError.GRPCStatus().Code().String() == gRPCErrorPermissionDenied {
-			zap.S().Warnf("permission denied to add GCP secret %s value", keyName)
+			zap.S().Warnf("permission denied to add GCP Secrets Manager secret %s value", keyName)
 		} else {
 			return err
 		}
 	}
 
-	zap.S().Infof("created GCP secret: %s, %s", keyName, version.Name)
+	zap.S().Infof("created GCP Secrets Manager secret: %s, %s", keyName, version.Name)
 
 	return nil
 }

@@ -464,7 +464,7 @@ func (a *AwsConfigure) CreateAWSEC2SSHKey(clusterName string) error {
 	}
 
 	if sshKey != nil {
-		zap.S().Infof("created SSHKey %s with id %s", aws.ToString(sshKey.KeyName), aws.ToString(sshKey.KeyPairId))
+		zap.S().Infof("created AWS EC2 SSHKey %s with id %s", aws.ToString(sshKey.KeyName), aws.ToString(sshKey.KeyPairId))
 	}
 
 	return nil
@@ -488,7 +488,7 @@ func (a *AwsConfigure) DeleteAWSEC2SSHKey(clusterName string) error {
 	}
 
 	if sshKey.KeyPairId != nil {
-		zap.S().Infof("deleted SSHKey %s with id %s", clusterName, aws.ToString(sshKey.KeyPairId))
+		zap.S().Infof("deleted AWS EC2 SSHKey %s with id %s", clusterName, aws.ToString(sshKey.KeyPairId))
 	}
 
 	return nil
@@ -523,7 +523,7 @@ func (a *AwsConfigure) GetAWSSecrets(tenant string) (map[string][]byte, error) {
 	results, err := client.BatchGetSecretValue(a.Ctx, params)
 	if err != nil {
 		if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
-			zap.S().Warnf("permission denied to get AWS batch secret values")
+			zap.S().Warnf("permission denied to get AWS Secrets Manager batch secret values")
 
 			return nil, nil
 		}
@@ -553,7 +553,7 @@ func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error 
 
 	createParams := &secretsmanager.CreateSecretInput{
 		Name:                        aws.String(keyName),
-		Description:                 aws.String("SOPS Age privet key for Tenant: " + tenant),
+		Description:                 aws.String("SOPS Age private key for Tenant: " + tenant),
 		ForceOverwriteReplicaSecret: true,
 		SecretString:                aws.String(string(value)),
 		Tags: []smType.Tag{
@@ -572,7 +572,7 @@ func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error 
 			updateSecret, err := client.UpdateSecret(a.Ctx, updateParams)
 			if err != nil {
 				if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
-					zap.S().Warnf("permission denied to create AWS secret: %s", keyName)
+					zap.S().Warnf("permission denied to create AWS Secrets Manager secret: %s", keyName)
 
 					return nil
 				}
@@ -584,7 +584,7 @@ func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error 
 
 			return nil
 		} else if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
-			zap.S().Warnf("permission denied to create AWS secret: %s", keyName)
+			zap.S().Warnf("permission denied to create AWS Secrets Manager secret: %s", keyName)
 
 			return nil
 		} else {
@@ -592,7 +592,7 @@ func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error 
 		}
 	}
 
-	zap.S().Infof("created AWS secret: %s, %s", keyName, aws.ToString(createSecret.ARN))
+	zap.S().Infof("created AWS Secrets Manager secret: %s, %s", keyName, aws.ToString(createSecret.ARN))
 
 	return nil
 }

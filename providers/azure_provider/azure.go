@@ -195,7 +195,7 @@ func (ac *AzureConfigure) createKeyVaultResourceGroup(tenant string) error {
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to create Azure resource group: %s", tenant+"-"+util.SopsRootName)
+			zap.S().Warnf("permission denied to create Azure Resource Group: %s", tenant+"-"+util.SopsRootName)
 			return nil
 		}
 
@@ -204,7 +204,7 @@ func (ac *AzureConfigure) createKeyVaultResourceGroup(tenant string) error {
 
 	ac.ResourceGroupName = *update.Name
 
-	zap.S().Infof("created Azure resource group: %s", ac.ResourceGroupName)
+	zap.S().Infof("created Azure Resource Group: %s", ac.ResourceGroupName)
 
 	return nil
 }
@@ -214,7 +214,7 @@ func (ac *AzureConfigure) existsKeyVaultResourceGroup(tenant string) (bool, erro
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to check existence of Azure resource group: %s",
+			zap.S().Warnf("permission denied to check existence of Azure Resource Group: %s",
 				tenant+"-"+util.SopsRootName)
 			return false, nil
 		}
@@ -252,7 +252,7 @@ func (ac *AzureConfigure) CreateAzureKeyVault(tenant string) error {
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to create Azure key vault: %s",
+			zap.S().Warnf("permission denied to create Azure Key Vault: %s",
 				ac.KeyVaultName)
 			return nil
 		}
@@ -267,7 +267,7 @@ func (ac *AzureConfigure) CreateAzureKeyVault(tenant string) error {
 
 	ac.KeyVaultURI = *result.Properties.VaultURI
 
-	zap.S().Infof("created Azure key vault: %s, %s", ac.KeyVaultName, ac.KeyVaultURI)
+	zap.S().Infof("created Azure Key Vault: %s, %s", ac.KeyVaultName, ac.KeyVaultURI)
 
 	return nil
 }
@@ -290,7 +290,7 @@ func (ac *AzureConfigure) GetAzureKeyVault(tenant string) (bool, error) {
 		}
 
 		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to get Azure key vault: %s", ac.KeyVaultName)
+			zap.S().Warnf("permission denied to get Azure Key Vault: %s", ac.KeyVaultName)
 			return false, nil
 		}
 
@@ -320,7 +320,7 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 		if err != nil {
 			var respErr *azcore.ResponseError
 			if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-				zap.S().Warnf("permission denied to list Azure key vault secrets")
+				zap.S().Warnf("permission denied to list Azure Key Vault secrets")
 				return nil, nil
 			}
 
@@ -335,7 +335,7 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 			if err != nil {
 				var respErr *azcore.ResponseError
 				if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-					zap.S().Warnf("permission denied to get of Azure key vault secret: %s", name)
+					zap.S().Warnf("permission denied to get of Azure Key Vault secret: %s", name)
 					return nil, nil
 				}
 
@@ -363,14 +363,14 @@ func (ac *AzureConfigure) SetAzureSecret(keyName, value string) error {
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
-			zap.S().Warnf("permission denied to create Azure key vault secret: %s", keyName)
+			zap.S().Warnf("permission denied to create Azure Key Vault secret: %s", keyName)
 			return nil
 		}
 
 		return err
 	}
 
-	zap.S().Infof("created Azure key vault secret: %s, %s", keyName, *secret.ID)
+	zap.S().Infof("created Azure Key Vault secret: %s, %s", keyName, *secret.ID)
 
 	return nil
 }
