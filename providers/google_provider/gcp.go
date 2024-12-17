@@ -196,7 +196,7 @@ func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []by
 		}
 	}
 
-	zap.S().Infof("created Azure key vault secret: %s, %s", keyName, version.Name)
+	zap.S().Infof("created GCP secret: %s, %s", keyName, version.Name)
 
 	return nil
 }

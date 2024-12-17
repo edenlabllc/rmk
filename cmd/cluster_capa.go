@@ -3,12 +3,14 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/client-go/applyconfigurations/core/v1"
 
 	"rmk/providers/aws_provider"
+	"rmk/util"
 )
 
 const (
@@ -167,9 +169,42 @@ func (cc *ClusterCommands) getAWSClusterContext() ([]byte, error) {
 }
 
 func (cc *ClusterCommands) createAWSClusterSSHKey() error {
-	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).CreateEC2SSHKey(cc.Conf.Name)
+	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).CreateAWSEC2SSHKey(cc.Conf.Name)
 }
 
 func (cc *ClusterCommands) deleteAWSClusterSSHKey() error {
-	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).DeleteEC2SSHKey(cc.Conf.Name)
+	return aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile).DeleteAWSEC2SSHKey(cc.Conf.Name)
+}
+
+func (cc *ClusterCommands) createAWSSecrets() error {
+	a := aws_provider.NewAwsConfigure(cc.Ctx.Context, cc.Conf.Profile)
+
+	secrets, err := a.GetAWSSecrets(cc.Conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	if len(secrets) > 0 {
+		return nil
+	}
+
+	walkMatch, err := util.WalkMatch(cc.Conf.SopsAgeKeys, cc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+	if err != nil {
+		return err
+	}
+
+	for _, val := range walkMatch {
+		file, err := os.ReadFile(val)
+		if err != nil {
+			return err
+		}
+
+		keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+		if err := a.SetAWSSecret(cc.Conf.Tenant, keyName, file); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

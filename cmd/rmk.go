@@ -65,7 +65,7 @@ func docGenerateAction() cli.ActionFunc {
 func getRMKArtifactMetadata(keyPath string) (*RMKArtifactMetadata, error) {
 	rmkArtifactMetadata := &RMKArtifactMetadata{}
 	aws := &aws_provider.AwsConfigure{Region: util.RMKBucketRegion}
-	data, err := aws.GetFileData(util.RMKBucketName, util.RMKBin+"/"+keyPath+"/metadata.json")
+	data, err := aws.GetAWSBucketFileData(util.RMKBucketName, util.RMKBin+"/"+keyPath+"/metadata.json")
 	if err != nil {
 		return nil, err
 	}

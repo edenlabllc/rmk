@@ -336,6 +336,10 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			if err := cc.createAWSClusterSSHKey(); err != nil {
 				return err
 			}
+
+			if err := cc.createAWSSecrets(); err != nil {
+				return err
+			}
 		case azure_provider.AzureClusterProvider:
 			if err := cc.createAzureSecrets(cc.Conf.AzureConfigure); err != nil {
 				return err

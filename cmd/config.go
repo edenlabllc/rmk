@@ -46,6 +46,18 @@ func (c *ConfigCommands) configAws(profile string) error {
 	ac.ConfigSource = strings.Join(ac.AWSSharedConfigFile(profile), "")
 	ac.CredentialsSource = strings.Join(ac.AWSSharedCredentialsFile(profile), "")
 
+	if !util.IsExists(c.Ctx.String("config"), true) &&
+		util.IsExists(ac.ConfigSource, true) &&
+		util.IsExists(ac.CredentialsSource, true) {
+		if err := os.RemoveAll(ac.ConfigSource); err != nil {
+			return err
+		}
+
+		if err := os.RemoveAll(ac.CredentialsSource); err != nil {
+			return err
+		}
+	}
+
 	if util.IsExists(ac.ConfigSource, true) {
 		if err := ac.ReadAWSConfigProfile(); err != nil {
 			return err
@@ -104,7 +116,7 @@ func (c *ConfigCommands) configAwsMFA() error {
 		c.Conf.AwsConfigure.Profile = c.Conf.AWSMFAProfile
 	}
 
-	if err := c.Conf.GetMFADevicesSerialNumbers(); err != nil {
+	if err := c.Conf.GetAWSMFADevicesSerialNumbers(); err != nil {
 		return err
 	}
 
@@ -154,7 +166,7 @@ func (c *ConfigCommands) configAwsMFA() error {
 	}
 
 	if len(c.Conf.MFADeviceSerialNumber) > 0 && currentTime.After(tokenExpiration) {
-		if err := c.Conf.GetMFASessionToken(); err != nil {
+		if err := c.Conf.GetAWSMFASessionToken(); err != nil {
 			return err
 		}
 
@@ -296,6 +308,24 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		return err
 	}
 
+	secrets, err := aws_provider.NewAwsConfigure(c.Context, conf.Profile).GetAWSSecrets(conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	if len(secrets) == 0 {
+		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+			conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+	}
+
+	for key, val := range secrets {
+		zap.S().Infof("download AWS secret %s to %s",
+			key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+		if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -368,6 +398,11 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 			return err
 		}
 
+		if len(secrets) == 0 {
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s key vault secrets",
+				conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+		}
+
 		for key, val := range secrets {
 			zap.S().Infof("download Azure key vault secret %s to %s",
 				key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
@@ -409,6 +444,11 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 	secrets, err := gcp.GetGCPSecrets(conf.Tenant)
 	if err != nil {
 		return err
+	}
+
+	if len(secrets) == 0 {
+		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+			conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
 	}
 
 	for key, val := range secrets {

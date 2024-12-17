@@ -26,7 +26,9 @@ import (
 	eksType "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	s3type "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	s3Type "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	smType "github.com/aws/aws-sdk-go-v2/service/secretsmanager/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"go.uber.org/zap"
@@ -51,6 +53,8 @@ aws_secret_access_key = {{ .AwsCredentialsProfile.SecretAccessKey }}
 aws_session_token = {{ .AwsCredentialsProfile.SessionToken }}
 {{- end }}
 `
+
+	apiErrorAccessDeniedException = "AccessDeniedException"
 )
 
 type AwsConfigure struct {
@@ -214,7 +218,7 @@ func (a *AwsConfigure) WriteAWSConfigProfile() error {
 	return nil
 }
 
-func (a *AwsConfigure) GetUserName() error {
+func (a *AwsConfigure) GetAWSUserName() error {
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
@@ -230,7 +234,7 @@ func (a *AwsConfigure) GetUserName() error {
 	return nil
 }
 
-func (a *AwsConfigure) GetMFACredentials() error {
+func (a *AwsConfigure) GetAWSMFACredentials() error {
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
@@ -243,14 +247,14 @@ func (a *AwsConfigure) GetMFACredentials() error {
 	return nil
 }
 
-func (a *AwsConfigure) GetMFADevicesSerialNumbers() error {
+func (a *AwsConfigure) GetAWSMFADevicesSerialNumbers() error {
 	var serialNumbers = make(map[string]string)
 
-	if err := a.GetUserName(); err != nil {
+	if err := a.GetAWSUserName(); err != nil {
 		return err
 	}
 
-	if err := a.GetMFACredentials(); err != nil {
+	if err := a.GetAWSMFACredentials(); err != nil {
 		return err
 	}
 
@@ -283,13 +287,13 @@ func (a *AwsConfigure) GetMFADevicesSerialNumbers() error {
 	return nil
 }
 
-func (a *AwsConfigure) GetMFASessionToken() error {
+func (a *AwsConfigure) GetAWSMFASessionToken() error {
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
 	}
 
-	if err := a.GetMFADevicesSerialNumbers(); err != nil {
+	if err := a.GetAWSMFADevicesSerialNumbers(); err != nil {
 		return err
 	}
 
@@ -430,7 +434,7 @@ func (a *AwsConfigure) getKubeConfigUserName(clusterName string) string {
 	return fmt.Sprintf("%s-capi-admin", clusterName)
 }
 
-func (a *AwsConfigure) CreateEC2SSHKey(clusterName string) error {
+func (a *AwsConfigure) CreateAWSEC2SSHKey(clusterName string) error {
 	var respError smithy.APIError
 
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
@@ -466,7 +470,7 @@ func (a *AwsConfigure) CreateEC2SSHKey(clusterName string) error {
 	return nil
 }
 
-func (a *AwsConfigure) DeleteEC2SSHKey(clusterName string) error {
+func (a *AwsConfigure) DeleteAWSEC2SSHKey(clusterName string) error {
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
 	if err != nil {
 		return err
@@ -490,13 +494,116 @@ func (a *AwsConfigure) DeleteEC2SSHKey(clusterName string) error {
 	return nil
 }
 
-func (a *AwsConfigure) CreateBucket(bucketName string) error {
+func (a *AwsConfigure) GetAWSSecrets(tenant string) (map[string][]byte, error) {
+	var (
+		secrets   = make(map[string][]byte)
+		respError smithy.APIError
+	)
+
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return nil, err
+	}
+
+	client := secretsmanager.NewFromConfig(cfg)
+
+	params := &secretsmanager.BatchGetSecretValueInput{
+		Filters: []smType.Filter{
+			{
+				Key:    smType.FilterNameStringTypeTagKey,
+				Values: []string{"resource-group"},
+			},
+			{
+				Key:    smType.FilterNameStringTypeTagValue,
+				Values: []string{tenant + "-" + util.SopsRootName},
+			},
+		},
+	}
+
+	results, err := client.BatchGetSecretValue(a.Ctx, params)
+	if err != nil {
+		if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
+			zap.S().Warnf("permission denied to get AWS batch secret values")
+
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	for _, val := range results.SecretValues {
+		secrets[aws.ToString(val.Name)] = []byte(aws.ToString(val.SecretString))
+	}
+
+	return secrets, nil
+}
+
+func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error {
+	var (
+		resourceExistsException *smType.ResourceExistsException
+		respError               smithy.APIError
+	)
+
+	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx, a.configOptions()...))
+	if err != nil {
+		return err
+	}
+
+	client := secretsmanager.NewFromConfig(cfg)
+
+	createParams := &secretsmanager.CreateSecretInput{
+		Name:                        aws.String(keyName),
+		Description:                 aws.String("SOPS Age privet key for Tenant: " + tenant),
+		ForceOverwriteReplicaSecret: true,
+		SecretString:                aws.String(string(value)),
+		Tags: []smType.Tag{
+			{Key: aws.String("resource-group"), Value: aws.String(tenant + "-" + util.SopsRootName)},
+		},
+	}
+
+	createSecret, err := client.CreateSecret(a.Ctx, createParams)
+	if err != nil {
+		if errors.As(err, &resourceExistsException) {
+			updateParams := &secretsmanager.UpdateSecretInput{
+				SecretId:     aws.String(keyName),
+				SecretString: aws.String(string(value)),
+			}
+
+			updateSecret, err := client.UpdateSecret(a.Ctx, updateParams)
+			if err != nil {
+				if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
+					zap.S().Warnf("permission denied to create AWS secret: %s", keyName)
+
+					return nil
+				}
+
+				return err
+			}
+
+			zap.S().Infof("created AWS secret: %s, %s", keyName, aws.ToString(updateSecret.ARN))
+
+			return nil
+		} else if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
+			zap.S().Warnf("permission denied to create AWS secret: %s", keyName)
+
+			return nil
+		} else {
+			return err
+		}
+	}
+
+	zap.S().Infof("created AWS secret: %s, %s", keyName, aws.ToString(createSecret.ARN))
+
+	return nil
+}
+
+func (a *AwsConfigure) CreateAWSBucket(bucketName string) error {
 	var (
 		respError      s3.ResponseError
-		bucketExist    *s3type.BucketAlreadyExists
-		bucketOwner    *s3type.BucketAlreadyOwnedByYou
+		bucketExist    *s3Type.BucketAlreadyExists
+		bucketOwner    *s3Type.BucketAlreadyOwnedByYou
 		bucketParams   s3.CreateBucketInput
-		bucketNotFound *s3type.NotFound
+		bucketNotFound *s3Type.NotFound
 	)
 
 	ctx := context.TODO()
@@ -522,8 +629,8 @@ func (a *AwsConfigure) CreateBucket(bucketName string) error {
 	} else {
 		bucketParams = s3.CreateBucketInput{
 			Bucket: aws.String(bucketName),
-			CreateBucketConfiguration: &s3type.CreateBucketConfiguration{
-				LocationConstraint: s3type.BucketLocationConstraint(a.Region),
+			CreateBucketConfiguration: &s3Type.CreateBucketConfiguration{
+				LocationConstraint: s3Type.BucketLocationConstraint(a.Region),
 			},
 		}
 	}
@@ -550,7 +657,7 @@ func (a *AwsConfigure) CreateBucket(bucketName string) error {
 
 	putParams := s3.PutPublicAccessBlockInput{
 		Bucket: aws.String(bucketName),
-		PublicAccessBlockConfiguration: &s3type.PublicAccessBlockConfiguration{
+		PublicAccessBlockConfiguration: &s3Type.PublicAccessBlockConfiguration{
 			BlockPublicAcls:       aws.Bool(true),
 			BlockPublicPolicy:     aws.Bool(true),
 			IgnorePublicAcls:      aws.Bool(true),
@@ -572,7 +679,7 @@ func (a *AwsConfigure) CreateBucket(bucketName string) error {
 	return nil
 }
 
-func (a *AwsConfigure) BucketKeyExists(region, bucketName, key string) (bool, error) {
+func (a *AwsConfigure) AWSBucketKeyExists(region, bucketName, key string) (bool, error) {
 	if len(bucketName) == 0 {
 		return false, nil
 	}
@@ -628,8 +735,8 @@ func GetObjects(c context.Context, api S3ListObjectsAPI, input *s3.ListObjectsV2
 	return api.ListObjectsV2(c, input)
 }
 
-func (a *AwsConfigure) DownloadFromBucket(region, bucketName, localDir, filePrefix string) error {
-	var noSuchBucket *s3type.NoSuchBucket
+func (a *AwsConfigure) DownloadFromAWSBucket(region, bucketName, localDir, filePrefix string) error {
+	var noSuchBucket *s3Type.NoSuchBucket
 
 	downloadToFile := func(downloader *manager.Downloader, targetDirectory, bucket, key string) error {
 		// Create the directories in the path
@@ -707,7 +814,7 @@ func (a *AwsConfigure) DownloadFromBucket(region, bucketName, localDir, filePref
 	return nil
 }
 
-func (a *AwsConfigure) GetFileData(bucketName, key string) ([]byte, error) {
+func (a *AwsConfigure) GetAWSBucketFileData(bucketName, key string) ([]byte, error) {
 	var client *s3.Client
 	ctx := context.TODO()
 	if len(a.Profile) > 0 {
@@ -734,7 +841,7 @@ func (a *AwsConfigure) GetFileData(bucketName, key string) ([]byte, error) {
 	return io.ReadAll(resp.Body)
 }
 
-func (a *AwsConfigure) UploadToBucket(bucketName, localDir, pattern string) error {
+func (a *AwsConfigure) UploadToAWSBucket(bucketName, localDir, pattern string) error {
 	ctx := context.TODO()
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(ctx, a.configOptions()...))
 	if err != nil {

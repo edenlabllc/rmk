@@ -156,6 +156,24 @@ func (sc *SecretCommands) CreateKeys() error {
 func (sc *SecretCommands) DownloadKeys() error {
 	switch sc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
+		secrets, err := aws_provider.NewAwsConfigure(sc.Ctx.Context, sc.Conf.Profile).GetAWSSecrets(sc.Conf.Tenant)
+		if err != nil {
+			return err
+		}
+
+		if len(secrets) == 0 {
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+		}
+
+		for key, val := range secrets {
+			zap.S().Infof("download AWS secret %s to %s",
+				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	case azure_provider.AzureClusterProvider:
 		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
@@ -165,6 +183,11 @@ func (sc *SecretCommands) DownloadKeys() error {
 		secrets, err := sc.Conf.GetAzureSecrets()
 		if err != nil {
 			return err
+		}
+
+		if len(secrets) == 0 {
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
 		}
 
 		for key, val := range secrets {
@@ -184,6 +207,11 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
+		if len(secrets) == 0 {
+			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+				sc.Conf.Tenant, strings.ToUpper(aws_provider.AWSClusterProvider))
+		}
+
 		for key, val := range secrets {
 			zap.S().Infof("download GCP secret %s to %s",
 				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
@@ -201,6 +229,26 @@ func (sc *SecretCommands) DownloadKeys() error {
 func (sc *SecretCommands) UploadKeys() error {
 	switch sc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
+		a := aws_provider.NewAwsConfigure(sc.Ctx.Context, sc.Conf.Profile)
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+			if err := a.SetAWSSecret(sc.Conf.Tenant, keyName, file); err != nil {
+				return err
+			}
+		}
+
 		return nil
 	case azure_provider.AzureClusterProvider:
 		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
