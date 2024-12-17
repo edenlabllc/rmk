@@ -1,2 +1,19 @@
-- #33 - Added a new GitHub action for RMK commands documentation generation.
-- #34 - Added support for Terraform outputs of a boolean type.
+- #29 - Added support for AWS Secrets Manager to store SOPS Age keys.
+- #29 - Added support for GCP Secrets Manager to store SOPS Age keys.
+- #29 - Added support for Azure Key Vault to store SOPS Age keys.
+- #29 - Added the ability to create an SSH key pair for the AWS provider.
+- #29 - Added support for the AWS provider in Cluster API.
+- #29 - Added GCP NAT route creation for the GCP provider.
+- #29 - Added support for the GCP provider in Cluster API.
+- #29 - Added support for the Azure provider in Cluster API.
+- #29 - Added commands for managing CAPI clusters to the cluster category commands.
+- #29 - Added configuration arguments for project generation.
+- #29 - Fixed the output of the config list command for adjacent tenant names.
+- #29 - Removed the artifact-mode functionality.
+- #29 - Reworked the behavior of the config init command to align with each cluster provider.
+- #29 - Reworked the approach to obtaining the KubeContext for all cluster providers.
+- #29 - Refactored the environment variables provisioning for all cluster providers in release-category commands.
+- #29 - Deprecated Terraform commands under the cluster category.
+- #29 - Refactored the k3d list command.
+- #29 - Changed root-domain configuration to be managed via the project.yaml file.
+- #29 - Restructured code files for improved organization.
