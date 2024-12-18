@@ -11,6 +11,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
@@ -55,7 +56,15 @@ type projectSpec struct {
 	owners string
 }
 
-func newProjectCommand(conf *config.Config, ctx *cli.Context, workDir string) *ProjectCommands {
+func newProjectCommand(conf *config.Config, ctx *cli.Context, workDir string, gitSpec *git_handler.GitSpec) *ProjectCommands {
+	emptyConfig := &config.Config{}
+	if cmp.Equal(conf, emptyConfig) {
+		conf.Name = gitSpec.ID
+		conf.Tenant = gitSpec.RepoPrefixName
+		conf.Environment = gitSpec.DefaultBranch
+		conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant)
+	}
+
 	return &ProjectCommands{
 		&parseContent{
 			TenantName:         conf.Tenant,
@@ -450,7 +459,7 @@ func projectGenerateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cl
 			return err
 		}
 
-		return newProjectCommand(conf, c, util.GetPwdPath()).generateProject(gitSpec)
+		return newProjectCommand(conf, c, util.GetPwdPath(), gitSpec).generateProject(gitSpec)
 	}
 }
 
@@ -460,6 +469,6 @@ func projectUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.
 			return err
 		}
 
-		return newProjectCommand(conf, c, util.GetPwdPath()).updateProjectFile(gitSpec)
+		return newProjectCommand(conf, c, util.GetPwdPath(), gitSpec).updateProjectFile(gitSpec)
 	}
 }

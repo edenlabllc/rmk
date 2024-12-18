@@ -28,6 +28,7 @@ require (
 	github.com/cheggaaa/pb v1.0.29
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.11.0
+	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/googleapis/gax-go/v2 v2.12.3
 	github.com/hashicorp/go-getter v1.7.5

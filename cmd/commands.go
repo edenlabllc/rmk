@@ -517,6 +517,10 @@ func readInputSourceWithContext(gitSpec *git_handler.GitSpec, conf *config.Confi
 			return err
 		}
 
+		if ctx.Command.Name == "generate" && !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
+			return nil
+		}
+
 		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
 		if err := conf.ReadConfigFile(configPath); err != nil {
 			zap.S().Errorf(util.ConfigNotInitializedErrorText)

@@ -102,20 +102,10 @@ helmfiles: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameE
 `
 
 	helmfileReleases = `releases:
-  # TODO: Releases from group 1 are needed to deploy Cluster API or K3D clusters. 
+  # TODO: Releases from group 1 are needed to deploy K3D clusters. 
   # TODO: If you do not inherit upstream repositories, you can leave these releases as is, 
   # TODO: or make sure that upstream repositories do not have the same releases to avoid conflicts.
   # Group 1
-  - name: capi-cluster
-    namespace: kube-system
-    chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/k3d-cluster"
-    version: 0.1.0
-    labels:
-      cluster: capi
-    installed: ` + escapeOpen + `{{ eq (env "CAPI_CLUSTER" | default "false") "true" }}` + escapeClose + `
-    inherit:
-      - template: release
-
   - name: k3d-cluster
     namespace: kube-system
     chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/k3d-cluster"
@@ -159,14 +149,9 @@ Detailed information about requirements and installation instructions can be fou
 
 ### Requirements
 
-- AWS CLI >= 2.9
-- AWS IAM user security credentials (access key pair)
 - Git 
-- GitHub PAT to access the following repositories to list in the sections ` + "`project.yaml`" + `:
-  * clusters
-  * hooks
+- GitHub PAT to access the following repositories to list in the section ` + "`project.yaml dependencies`" + `
 - Note: K3D v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
-- Python >= 3.9
 - [RMK CLI](https://edenlabllc.github.io/rmk/latest)
 
 ### GitLab flow strategy
@@ -214,9 +199,9 @@ This example shows how the following options are configured and interact with ea
 
 ` + "```" + `shell
 rmk project generate \
-    --environment=develop \
+    --environment=develop.root-domain=localhost \
     --owners=user \
-    --scopes=rmt-test
+    --scopes={{ .TenantName }}
 ` + "```" + `
 
 #### Initialization configuration
