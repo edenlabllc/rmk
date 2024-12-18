@@ -150,7 +150,7 @@ Detailed information about requirements and installation instructions can be fou
 ### Requirements
 
 - Git 
-- GitHub PAT to access the following repositories to list in the section ` + "`project.yaml dependencies`" + `
+- GitHub PAT to access the repositories listed in the ` + "`dependencies`" + ` section of ` + "`project.yaml`" + `
 - Note: K3D v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
 - [RMK CLI](https://edenlabllc.github.io/rmk/latest)
 
