@@ -1,25 +1,19 @@
-package commands
+package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
-	"syscall"
-	"time"
 
 	"github.com/Masterminds/semver"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"rmk/aws_provider"
 	"rmk/config"
-	"rmk/go_getter"
-	"rmk/system"
+	"rmk/util"
 )
 
 const (
@@ -28,9 +22,8 @@ const (
 )
 
 var (
-	TenantPrDependenciesDir = filepath.Join(system.TenantProjectDIR, "dependencies")
-	TenantPrInventoryDir    = filepath.Join(system.TenantProjectDIR, "inventory")
-	TenantPrInvClustersDir  = filepath.Join(TenantPrInventoryDir, "clusters")
+	TenantPrDependenciesDir = filepath.Join(util.TenantProjectDIR, "dependencies")
+	TenantPrInventoryDir    = filepath.Join(util.TenantProjectDIR, "inventory")
 	TenantPrInvHooksDir     = filepath.Join(TenantPrInventoryDir, "hooks")
 )
 
@@ -43,29 +36,7 @@ type SpecDownload struct {
 	PkgName  string
 	Header   *http.Header
 	Type     string
-	Artifact *ArtifactSpec
 	rmOldDir bool
-}
-
-type ArtifactSpec struct {
-	BucketName string
-	Key        string
-	Region     string
-	Version    string
-	Url        string
-}
-
-type RMKArtifactMetadata struct {
-	ProjectName string    `json:"project_name"`
-	Tag         string    `json:"tag"`
-	PreviousTag string    `json:"previous_tag"`
-	Version     string    `json:"version"`
-	Commit      string    `json:"commit"`
-	Date        time.Time `json:"date"`
-	Runtime     struct {
-		Goos   string `json:"goos"`
-		Goarch string `json:"goarch"`
-	} `json:"runtime"`
 }
 
 type InventoryState struct {
@@ -124,150 +95,17 @@ func (s *SpecDownload) download(silent bool) error {
 	}
 
 	return s.downloadErrorHandler(
-		go_getter.DownloadArtifact(s.PkgUrl, s.PkgDst, s.PkgName, s.Header, silent, s.Conf.ProgressBar, s.Ctx.Context),
+		util.DownloadArtifact(s.PkgUrl, s.PkgDst, s.PkgName, s.Header, silent, s.Conf.ProgressBar, s.Ctx.Context),
 	)
-}
-
-func (s *SpecDownload) parseArtifactUrl() error {
-	u, err := url.Parse(s.Artifact.Url)
-	if err != nil {
-		return err
-	}
-
-	// This just check whether we are dealing with S3 or
-	// any other S3 compliant service. S3 has a predictable
-	// url as others do not
-	if strings.Contains(u.Host, "amazonaws.com") {
-		// Amazon S3 supports both virtual-hosted–style and path-style URLs to access a bucket, although path-style is deprecated
-		// In both cases few older regions supports dash-style region indication (s3-Region) even if AWS discourages their use.
-		// The same bucket could be reached with:
-		// bucket.s3.region.amazonaws.com/path
-		// bucket.s3-region.amazonaws.com/path
-		// s3.amazonaws.com/bucket/path
-		// s3-region.amazonaws.com/bucket/path
-
-		hostParts := strings.Split(u.Host, ".")
-		switch len(hostParts) {
-		// path-style
-		case 3:
-			// Parse the region out of the first part of the host
-			s.Artifact.Region = strings.TrimPrefix(strings.TrimPrefix(hostParts[0], "s3-"), "s3")
-			if s.Artifact.Region == "" {
-				s.Artifact.Region = "us-east-1"
-			}
-
-			pathParts := strings.SplitN(u.Path, "/", 3)
-			s.Artifact.BucketName = pathParts[1]
-			s.Artifact.Key = pathParts[2]
-		// vhost-style, dash region indication
-		case 4:
-			// Parse the region out of the first part of the host
-			s.Artifact.Region = strings.TrimPrefix(strings.TrimPrefix(hostParts[1], "s3-"), "s3")
-			if s.Artifact.Region == "" {
-				return fmt.Errorf("artifact URL is not valid S3 URL for dependency name: %s", s.PkgName)
-			}
-
-			pathParts := strings.SplitN(u.Path, "/", 2)
-			s.Artifact.BucketName = hostParts[0]
-			s.Artifact.Key = pathParts[1]
-		//vhost-style, dot region indication
-		case 5:
-			s.Artifact.Region = hostParts[2]
-			pathParts := strings.SplitN(u.Path, "/", 2)
-			s.Artifact.BucketName = hostParts[0]
-			s.Artifact.Key = pathParts[1]
-
-		}
-
-		if len(hostParts) < 3 && len(hostParts) > 5 {
-			return fmt.Errorf("artifact URL is not valid S3 URL for dependency name: %s", s.PkgName)
-		}
-
-		if len(strings.SplitN(s.Artifact.Key, "/", 2)) < 1 {
-			return fmt.Errorf("artifact URL is not valid S3 URL for dependency name %s, path does not contain SemVer2", s.PkgName)
-		}
-
-		s.Artifact.Version = strings.SplitN(s.Artifact.Key, "/", 2)[0]
-
-		_, err := semver.NewVersion(s.Artifact.Version)
-		if err != nil {
-			return fmt.Errorf("%s for dependency name: %s", err.Error(), s.PkgName)
-		}
-
-		return nil
-	} else {
-		return fmt.Errorf("artifact URL is not valid S3 compliant URL for dependency name: %s", s.PkgName)
-	}
-}
-
-func (s *SpecDownload) updateArtifact() error {
-	currentProfile := s.Conf.Profile
-	licenseProfile := s.Conf.Profile + "-license"
-
-	s.Conf.AwsConfigure.Profile = licenseProfile
-	if ok, err := s.Conf.GetAwsConfigure(licenseProfile); err != nil && ok {
-		zap.S().Warnf("%s", err.Error())
-		if err := newConfigCommands(s.Conf, s.Ctx, system.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-
-		if _, err := s.Conf.GetAwsConfigure(licenseProfile); err != nil {
-			return err
-		}
-	} else if s.Ctx.Bool("aws-reconfigure-artifact-license") {
-		if err := newConfigCommands(s.Conf, s.Ctx, system.GetPwdPath("")).configAws(); err != nil {
-			return err
-		}
-	}
-
-	if err := s.parseArtifactUrl(); err != nil {
-		return err
-	}
-
-	if artVerExist, err := s.Conf.BucketKeyExists(s.Artifact.Region, s.Artifact.BucketName, s.Artifact.Key); err != nil || !artVerExist {
-		return err
-	}
-
-	if err := s.Conf.DownloadFromBucket(s.Artifact.Region, s.Artifact.BucketName, system.GetPwdPath(system.ArtifactDownloadDir), s.Artifact.Key); err != nil {
-		return err
-	}
-
-	s.Conf.AwsConfigure.Profile = currentProfile
-	if system.IsExists(s.PkgDst, false) {
-		if err := os.MkdirAll(s.PkgDst, 0777); err != nil {
-			return err
-		}
-	}
-
-	r, err := os.Open(filepath.Join(system.GetPwdPath(system.ArtifactDownloadDir), s.Artifact.Key))
-	if err != nil {
-		return err
-	}
-
-	if err := system.UnTar(s.PkgDst, "", r); err != nil {
-		return err
-	}
-
-	if system.IsExists(filepath.Join(s.PkgDst, system.TenantProjectDIR, "inventory"), false) {
-		if err := system.CopyDir(filepath.Join(s.PkgDst, system.TenantProjectDIR, "inventory"), system.GetPwdPath(system.TenantProjectDIR)); err != nil {
-			return err
-		}
-	}
-
-	if err := os.RemoveAll(system.GetPwdPath(system.ArtifactDownloadDir)); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // depsGC - deleting old deps dirs with not actual versions
 func hooksGC(hooks []config.HookMapping) error {
-	if !system.IsExists(system.GetPwdPath(TenantPrInvHooksDir), false) {
+	if !util.IsExists(util.GetPwdPath(TenantPrInvHooksDir), false) {
 		return nil
 	}
 
-	allDirs, _, err := system.ListDir(system.GetPwdPath(TenantPrInvHooksDir), true)
+	allDirs, _, err := util.ListDir(util.GetPwdPath(TenantPrInvHooksDir), true)
 	if err != nil {
 		return err
 	}
@@ -367,11 +205,6 @@ func uniqueHooksMapping(hooks []config.HookMapping) []config.HookMapping {
 }
 
 func (is *InventoryState) saveState(inv config.Inventory) {
-	is.clustersState = make(map[string]struct{})
-	for key := range inv.Clusters {
-		is.clustersState[key] = struct{}{}
-	}
-
 	is.helmPluginsState = make(map[string]struct{})
 	for key := range inv.HelmPlugins {
 		is.helmPluginsState[key] = struct{}{}
@@ -381,26 +214,6 @@ func (is *InventoryState) saveState(inv config.Inventory) {
 	for key := range inv.Tools {
 		is.toolsState[key] = struct{}{}
 	}
-}
-
-func (is *InventoryState) resolveClusters(invPkg map[string]*config.Package, conf *config.Config) (map[string]*config.Package, error) {
-	if len(conf.Clusters) == 0 {
-		conf.Clusters = make(map[string]*config.Package)
-	}
-
-	for key, pkg := range invPkg {
-		vPkg, _ := semver.NewVersion(pkg.Version)
-		if _, ok := conf.Clusters[key]; !ok {
-			conf.Clusters[key] = pkg
-		} else if _, found := is.clustersState[key]; !found {
-			vP, _ := semver.NewVersion(conf.Clusters[key].Version)
-			if vPkg.GreaterThan(vP) {
-				conf.Clusters[key] = pkg
-			}
-		}
-	}
-
-	return conf.Clusters, nil
 }
 
 func (is *InventoryState) resolveHelmPlugins(invPkg map[string]*config.Package, conf *config.Config) (map[string]*config.Package, error) {
@@ -464,14 +277,9 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		for _, val := range conf.Dependencies {
 			projectFile := &config.ProjectFile{}
 
-			depsDir := system.FindDir(system.GetPwdPath(TenantPrDependenciesDir), val.Name)
-			if err := projectFile.ReadProjectFile(system.GetPwdPath(TenantPrDependenciesDir, depsDir, system.TenantProjectFile)); err != nil {
+			depsDir := util.FindDir(util.GetPwdPath(TenantPrDependenciesDir), val.Name)
+			if err := projectFile.ReadProjectFile(util.GetPwdPath(TenantPrDependenciesDir, depsDir, util.TenantProjectFile)); err != nil {
 				return err
-			}
-
-			// Resolve and recursively download repositories containing clusters
-			if conf.Clusters, invErr = invState.resolveClusters(projectFile.Clusters, conf); invErr != nil {
-				return invErr
 			}
 
 			// Resolve and recursively download repositories containing helm plugins
@@ -527,10 +335,6 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		return err
 	}
 
-	if err := updateClusters(conf, ctx, silent); err != nil {
-		return err
-	}
-
 	// Finding unique versions of hooks in HooksMapping
 	conf.HooksMapping = uniqueHooksMapping(conf.HooksMapping)
 
@@ -547,7 +351,7 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		return err
 	}
 
-	if err := newConfigCommands(conf, ctx, system.GetPwdPath("")).configHelmPlugins(); err != nil {
+	if err := newConfigCommands(conf, ctx, util.GetPwdPath("")).configHelmPlugins(); err != nil {
 		return err
 	}
 
@@ -559,11 +363,11 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 }
 
 func removeOldDir(pwd string, pkg config.Package) error {
-	if !system.IsExists(pwd, false) {
+	if !util.IsExists(pwd, false) {
 		return nil
 	}
 
-	oldDir := system.FindDir(pwd, pkg.Name)
+	oldDir := util.FindDir(pwd, pkg.Name)
 	if len(strings.Split(oldDir, "-")) > 1 {
 		oldVer := strings.SplitN(oldDir, "-", 2)[1]
 		if oldVer != pkg.Version {
@@ -580,28 +384,16 @@ func (s *SpecDownload) batchUpdate(pwd string, pkg config.Package, silent bool) 
 	s.PkgUrl = pkg.Url
 	s.PkgName = pkg.Name + "-" + strings.ReplaceAll(pkg.Version, "/", "_")
 	s.PkgDst = filepath.Join(s.PkgDst, s.PkgName)
-	pkgExists := system.IsExists(s.PkgDst, false)
+	pkgExists := util.IsExists(s.PkgDst, false)
 	if !pkgExists {
-		if s.rmOldDir && s.Ctx.String("artifact-mode") != system.ArtifactModeOnline {
+		if s.rmOldDir {
 			if err := removeOldDir(pwd, pkg); err != nil {
 				return err
 			}
 		}
 
-		switch {
-		case s.Ctx.String("artifact-mode") == system.ArtifactModeOnline && len(pkg.ArtifactUrl) > 0:
-			if err := s.updateArtifact(); err != nil {
-				return err
-			}
-		case s.Ctx.String("artifact-mode") == system.ArtifactModeOnline && len(pkg.ArtifactUrl) == 0:
-			zap.S().Warnf("overriding %s component in inventory section "+
-				"%s file is not allowed when using %s artifact mode",
-				s.PkgName, system.TenantProjectFile, system.ArtifactModeOnline)
-			return nil
-		default:
-			if err := s.download(silent); err != nil {
-				return err
-			}
+		if err := s.download(silent); err != nil {
+			return err
 		}
 	}
 
@@ -609,11 +401,10 @@ func (s *SpecDownload) batchUpdate(pwd string, pkg config.Package, silent bool) 
 }
 
 func updateDependencies(conf *config.Config, ctx *cli.Context, silent bool) error {
-	pwd := system.GetPwdPath(TenantPrDependenciesDir)
+	pwd := util.GetPwdPath(TenantPrDependenciesDir)
 
 	for key, val := range conf.Dependencies {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd,
-			Artifact: &ArtifactSpec{Url: val.ArtifactUrl}, rmOldDir: true}
+		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, rmOldDir: true}
 		if err := spec.batchUpdate(pwd, val, silent); err != nil {
 			return err
 		}
@@ -625,39 +416,24 @@ func updateDependencies(conf *config.Config, ctx *cli.Context, silent bool) erro
 		}
 
 		switch {
-		case system.IsExists(filepath.Join(spec.PkgDst, system.HelmfileFileName), true):
-			conf.Dependencies[key].DstPath = filepath.Join(spec.PkgDst, system.HelmfileFileName)
-		case system.IsExists(filepath.Join(spec.PkgDst, system.HelmfileGoTmplName), true):
-			conf.Dependencies[key].DstPath = filepath.Join(spec.PkgDst, system.HelmfileGoTmplName)
+		case util.IsExists(filepath.Join(spec.PkgDst, util.HelmfileFileName), true):
+			conf.Dependencies[key].DstPath = filepath.Join(spec.PkgDst, util.HelmfileFileName)
+		case util.IsExists(filepath.Join(spec.PkgDst, util.HelmfileGoTmplName), true):
+			conf.Dependencies[key].DstPath = filepath.Join(spec.PkgDst, util.HelmfileGoTmplName)
 		default:
 			return fmt.Errorf("%s or %s not found in dependent project %s",
-				system.HelmfileFileName, system.HelmfileGoTmplName, spec.PkgName)
+				util.HelmfileFileName, util.HelmfileGoTmplName, spec.PkgName)
 		}
-	}
-
-	return nil
-}
-
-func updateClusters(conf *config.Config, ctx *cli.Context, silent bool) error {
-	pwd := system.GetPwdPath(TenantPrInvClustersDir)
-
-	for key, val := range conf.Clusters {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, Artifact: &ArtifactSpec{}, rmOldDir: true}
-		if err := spec.batchUpdate(pwd, *val, silent); err != nil {
-			return err
-		}
-
-		conf.Clusters[key].DstPath = spec.PkgDst
 	}
 
 	return nil
 }
 
 func updateHooks(conf *config.Config, ctx *cli.Context, silent bool) error {
-	pwd := system.GetPwdPath(TenantPrInvHooksDir)
+	pwd := util.GetPwdPath(TenantPrInvHooksDir)
 
 	for key, val := range conf.HooksMapping {
-		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd, Artifact: &ArtifactSpec{}}
+		spec := &SpecDownload{Conf: conf, Ctx: ctx, PkgDst: pwd}
 		if err := spec.batchUpdate(pwd, *val.Package, silent); err != nil {
 			return err
 		}
@@ -675,7 +451,7 @@ func match(dir string, patterns []string) ([]string, error) {
 	)
 
 	for _, val := range patterns {
-		match, err := system.WalkMatch(dir, val)
+		match, err := util.WalkMatch(dir, val)
 		if err != nil {
 			return nil, err
 		}
@@ -703,7 +479,7 @@ func match(dir string, patterns []string) ([]string, error) {
 func overwriteFiles(path, pattern, name string) error {
 	var data []byte
 
-	oldFilePath, err := system.WalkMatch(path, pattern)
+	oldFilePath, err := util.WalkMatch(path, pattern)
 	if err != nil {
 		return err
 	}
@@ -719,13 +495,13 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 	spec := &SpecDownload{
 		Conf:   conf,
 		Ctx:    ctx,
-		PkgDst: system.GetHomePath(system.RMKDir, system.RMKToolsDir, system.ToolsTmpDir),
+		PkgDst: util.GetHomePath(util.RMKDir, util.RMKToolsDir, util.ToolsTmpDir),
 		Type:   httpProvider,
 	}
 
-	toolsVersionPath := system.GetHomePath(system.RMKDir, system.RMKToolsDir, system.ToolsVersionDir)
-	toolsTmpPath := system.GetHomePath(system.RMKDir, system.RMKToolsDir, system.ToolsTmpDir)
-	toolsBinPath := system.GetHomePath(".local", system.ToolsBinDir)
+	toolsVersionPath := util.GetHomePath(util.RMKDir, util.RMKToolsDir, util.ToolsVersionDir)
+	toolsTmpPath := util.GetHomePath(util.RMKDir, util.RMKToolsDir, util.ToolsTmpDir)
+	toolsBinPath := util.GetHomePath(".local", util.ToolsBinDir)
 
 	if err := os.MkdirAll(toolsVersionPath, 0755); err != nil {
 		return err
@@ -740,7 +516,7 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 		version, _ := semver.NewVersion(val.Version)
 		spec.PkgUrl = val.Url
 		spec.PkgName = val.Name + "-" + version.String()
-		if !system.IsExists(filepath.Join(toolsVersionPath, spec.PkgName), true) {
+		if !util.IsExists(filepath.Join(toolsVersionPath, spec.PkgName), true) {
 			err := spec.download(silent)
 			if err != nil {
 				return err
@@ -775,11 +551,11 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 	for _, pkg := range conf.Tools {
 		for _, pathArt := range pkg.Artifacts {
 			if pkg.Rename {
-				if err := system.CopyFile(pathArt, filepath.Join(toolsBinPath, pkg.Name)); err != nil {
+				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, pkg.Name)); err != nil {
 					return err
 				}
 			} else {
-				if err := system.CopyFile(pathArt, filepath.Join(toolsBinPath, filepath.Base(pathArt))); err != nil {
+				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, filepath.Base(pathArt))); err != nil {
 					return err
 				}
 			}
@@ -787,67 +563,4 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 	}
 
 	return os.RemoveAll(toolsTmpPath)
-}
-
-func getRMKArtifactMetadata(keyPath string) (*RMKArtifactMetadata, error) {
-	rmkArtifactMetadata := &RMKArtifactMetadata{}
-	aws := &aws_provider.AwsConfigure{Region: system.RMKBucketRegion}
-	data, err := aws.GetFileData(system.RMKBucketName, system.RMKBin+"/"+keyPath+"/metadata.json")
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(data, &rmkArtifactMetadata); err != nil {
-		return nil, err
-	}
-
-	return rmkArtifactMetadata, nil
-}
-
-func rmkURLFormation(paths ...string) string {
-	u, err := url.Parse("https://" + system.RMKBucketName + ".s3." + system.RMKBucketRegion + ".amazonaws.com")
-	if err != nil {
-		zap.S().Fatal(err)
-	}
-
-	p := append([]string{u.Path}, paths...)
-	u.Path = path.Join(p...)
-	return u.String()
-}
-
-func updateRMK(pkgName, version string, silent, progressBar bool, ctx *cli.Context) error {
-	zap.S().Infof("starting package download: %s", pkgName)
-	pkgDst := system.GetHomePath(filepath.Join(".local", system.ToolsBinDir))
-	if err := go_getter.DownloadArtifact(
-		rmkURLFormation(system.RMKBin, version, pkgName),
-		pkgDst,
-		pkgName,
-		&http.Header{},
-		silent,
-		progressBar,
-		ctx.Context,
-	); err != nil {
-		return err
-	}
-
-	if err := os.Rename(filepath.Join(pkgDst, pkgName), filepath.Join(pkgDst, system.RMKBin)); err != nil {
-		return err
-	}
-
-	if err := os.Chmod(filepath.Join(pkgDst, system.RMKBin), 0755); err != nil {
-		return err
-	}
-
-	relPath := strings.ReplaceAll(system.RMKSymLinkPath, filepath.Base(system.RMKSymLinkPath), "")
-	if syscall.Access(relPath, uint32(2)) == nil {
-		if !system.IsExists(system.RMKSymLinkPath, true) {
-			return os.Symlink(filepath.Join(pkgDst, system.RMKBin), system.RMKSymLinkPath)
-		}
-	} else {
-		zap.S().Warnf("symlink was not created automatically due to permissions, "+
-			"please complete installation by running command: \n"+
-			"sudo ln -s %s %s", filepath.Join(pkgDst, system.RMKBin), system.RMKSymLinkPath)
-	}
-
-	return nil
 }

@@ -1,51 +1,42 @@
-package commands
+package cmd
 
 import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"rmk/git_handler"
-	"rmk/system"
+	"rmk/util"
 )
 
 func flagsConfig() []cli.Flag {
 	return []cli.Flag{
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "artifact-mode",
-				Usage:   "choice of artifact usage model, available: none, online",
-				Aliases: []string{"am"},
-				EnvVars: []string{"RMK_ARTIFACT_MODE"},
-				Value:   system.ArtifactModeDefault,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-host",
-				Usage:   "AWS ECR host",
-				Aliases: []string{"aeh"},
-				EnvVars: []string{"RMK_AWS_ECR_HOST"},
-				Value:   system.AWSECRHost,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-region",
-				Usage:   "AWS region for specific ECR host",
-				Aliases: []string{"aer"},
-				EnvVars: []string{"RMK_AWS_ECR_REGION"},
-				Value:   system.AWSECRRegion,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "aws-ecr-user-name",
-				Usage:   "AWS ECR user name",
-				Aliases: []string{"aeun"},
-				EnvVars: []string{"RMK_AWS_ECR_USER_NAME"},
-				Value:   system.AWSECRUserName,
-			},
-		),
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-access-key-id",
+			Usage:    "AWS access key ID for IAM user",
+			Aliases:  []string{"awid"},
+			EnvVars:  []string{"RMK_AWS_ACCESS_KEY_ID", "AWS_ACCESS_KEY_ID"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-region",
+			Usage:    "AWS region for current AWS account",
+			Aliases:  []string{"awr"},
+			EnvVars:  []string{"RMK_AWS_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-secret-access-key",
+			Usage:    "AWS secret access key for IAM user",
+			Aliases:  []string{"awsk"},
+			EnvVars:  []string{"RMK_AWS_SECRET_ACCESS_KEY", "AWS_SECRET_ACCESS_KEY"},
+		},
+		&cli.StringFlag{
+			Category: awsFlagsCategory,
+			Name:     "aws-session-token",
+			Usage:    "AWS session token for IAM user",
+			Aliases:  []string{"awst"},
+			EnvVars:  []string{"RMK_AWS_SESSION_TOKEN", "AWS_SESSION_TOKEN"},
+		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
 				Name:   "aws-mfa-profile",
@@ -58,22 +49,54 @@ func flagsConfig() []cli.Flag {
 				Hidden: true,
 			},
 		),
-		&cli.BoolFlag{
-			Name:    "aws-reconfigure",
-			Usage:   "force AWS profile creation",
-			Aliases: []string{"r"},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-client-id",
+			Usage:    "Azure client ID for Service Principal",
+			Aliases:  []string{"azid"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_ID", "AZURE_CLIENT_ID"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-client-secret",
+			Usage:    "Azure client secret for Service Principal",
+			Aliases:  []string{"azp"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", "AZURE_CLIENT_SECRET"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-location",
+			Usage:    "Azure location",
+			Aliases:  []string{"azl"},
+			EnvVars:  []string{"RMK_AZURE_LOCATION", "AZURE_LOCATION"},
 		},
 		&cli.BoolFlag{
-			Name:    "aws-reconfigure-artifact-license",
-			Usage:   "force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline",
-			Aliases: []string{"l"},
+			Category: azureFlagsCategory,
+			Name:     "azure-service-principle",
+			Usage:    "Azure service principal STDIN content",
+			Aliases:  []string{"azsp"},
 		},
-		altsrc.NewBoolFlag(
-			&cli.BoolFlag{
-				Name:    "cluster-provisioner-state-locking",
-				Usage:   "disable or enable cluster provisioner state locking",
-				Aliases: []string{"c"},
-				Value:   true,
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-subscription-id",
+			Usage:    "Azure subscription ID for current platform domain",
+			Aliases:  []string{"azs"},
+			EnvVars:  []string{"RMK_AZURE_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID"},
+		},
+		&cli.StringFlag{
+			Category: azureFlagsCategory,
+			Name:     "azure-tenant-id",
+			Usage:    "Azure tenant ID for Service Principal",
+			Aliases:  []string{"azt"},
+			EnvVars:  []string{"RMK_AZURE_TENANT_ID", "AZURE_TENANT_ID"},
+		},
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Name:    "cluster-provider",
+				Usage:   "cluster provider for provisioning",
+				Aliases: []string{"cp"},
+				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
+				Value:   util.LocalClusterProvider,
 			},
 		),
 		&cli.StringFlag{
@@ -82,41 +105,28 @@ func flagsConfig() []cli.Flag {
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:   "config-from",
-				Hidden: true,
-			},
-		),
-		&cli.StringFlag{
-			Name: "config-from-environment",
-			Usage: "inheritance of RMK config credentials from environments: " +
-				git_handler.DefaultDevelop + ", " + git_handler.DefaultStaging + ", " + git_handler.DefaultProduction,
-			Aliases: []string{"cfe"},
-			EnvVars: []string{"RMK_CONFIG_FROM_ENVIRONMENT"},
-		},
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
 				Name:    "github-token",
-				Usage:   "personal access token for download GitHub artifacts",
+				Usage:   "GitHub personal access token, required when using private repositories",
 				Aliases: []string{"ght"},
 				EnvVars: []string{"RMK_GITHUB_TOKEN"},
 			},
 		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:    "cloudflare-token",
-				Usage:   "Cloudflare API token for provision NS records",
-				Aliases: []string{"cft"},
-				EnvVars: []string{"RMK_CLOUDFLARE_TOKEN"},
+				Category: gcpFlagsCategory,
+				Name:     "gcp-region",
+				Usage:    "GCP region",
+				Aliases:  []string{"gr"},
+				EnvVars:  []string{"RMK_GCP_REGION", "GCP_REGION"},
 			},
 		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "root-domain",
-				Usage:   "domain name for external access to app services via ingress controller",
-				Aliases: []string{"rd"},
-				EnvVars: []string{"RMK_ROOT_DOMAIN"},
-			},
-		),
+		&cli.StringFlag{
+			Category: gcpFlagsCategory,
+			Name:     "google-application-credentials",
+			Usage:    "path to GCP service account credentials JSON file",
+			Aliases:  []string{"gac"},
+			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
+		},
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "progress-bar",
@@ -125,53 +135,39 @@ func flagsConfig() []cli.Flag {
 				Value:   true,
 			},
 		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "s3-charts-repo-region",
-				Usage:   "location constraint region of S3 charts repo",
-				Aliases: []string{"scrr"},
-				EnvVars: []string{"RMK_S3_CHARTS_REPO_REGION"},
-				Value:   system.S3ChartsRepoRegion,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:    "cluster-provider",
-				Usage:   "select cluster provider to provision clusters",
-				Aliases: []string{"cp"},
-				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   system.AWSClusterProvider,
-			},
-		),
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
-				Name:    "slack-notifications",
-				Usage:   "enable Slack notifications",
-				Aliases: []string{"n"},
+				Category: "Slack notifications",
+				Name:     "slack-notifications",
+				Usage:    "enable Slack notifications",
+				Aliases:  []string{"n"},
 			},
 		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:    "slack-webhook",
-				Usage:   "URL for Slack webhook",
-				Aliases: []string{"sw"},
-				EnvVars: []string{"RMK_SLACK_WEBHOOK"},
+				Category: "Slack notifications",
+				Name:     "slack-webhook",
+				Usage:    "URL for Slack webhook",
+				Aliases:  []string{"sw"},
+				EnvVars:  []string{"RMK_SLACK_WEBHOOK"},
 			},
 		),
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:    "slack-channel",
-				Usage:   "channel name for Slack notification",
-				Aliases: []string{"sc"},
-				EnvVars: []string{"RMK_SLACK_CHANNEL"},
+				Category: "Slack notifications",
+				Name:     "slack-channel",
+				Usage:    "channel name for Slack notifications",
+				Aliases:  []string{"sc"},
+				EnvVars:  []string{"RMK_SLACK_CHANNEL"},
 			},
 		),
 		altsrc.NewStringSliceFlag(
 			&cli.StringSliceFlag{
-				Name:    "slack-message-details",
-				Usage:   "additional information for body of Slack message",
-				Aliases: []string{"smd"},
-				EnvVars: []string{"RMK_SLACK_MESSAGE_DETAILS"},
+				Category: "Slack notifications",
+				Name:     "slack-message-details",
+				Usage:    "additional information for body of Slack messages",
+				Aliases:  []string{"smd"},
+				EnvVars:  []string{"RMK_SLACK_MESSAGE_DETAILS"},
 			},
 		),
 	}
@@ -211,37 +207,6 @@ func flagsClusterK3DImport() []cli.Flag {
 	)
 }
 
-func flagsClusterCRLogin() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.BoolFlag{
-			Name:    "get-token",
-			Usage:   "get ECR token for authentication",
-			Aliases: []string{"g"},
-		},
-	)
-}
-
-func flagsClusterPlan() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.BoolFlag{
-			Name:    "plan",
-			Usage:   "creates an execution Terraform plan",
-			Aliases: []string{"p"},
-		},
-	)
-}
-
-func flagsClusterStateDelete() []cli.Flag {
-	return append(flagsHidden(),
-		&cli.StringFlag{
-			Name:    "resource-address",
-			Usage:   "resource address for delete from Terraform state",
-			Aliases: []string{"ra"},
-			EnvVars: []string{"RMK_CLUSTER_STATE_RESOURCE_ADDRESS"},
-		},
-	)
-}
-
 func flagsClusterSwitch() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.BoolFlag{
@@ -258,6 +223,21 @@ func flagsProjectGenerate() []cli.Flag {
 			Name:    "create-sops-age-keys",
 			Usage:   "create SOPS age keys for generated project structure",
 			Aliases: []string{"c"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "environments",
+			Usage:   "list project environments. Root domain can take form of <environment>.root-domain=<domain-name>",
+			Aliases: []string{"e"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "owners",
+			Usage:   "list project owners",
+			Aliases: []string{"o"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "scopes",
+			Usage:   "list project scopes",
+			Aliases: []string{"s"},
 		},
 	)
 }
@@ -443,19 +423,7 @@ func flagsHidden() []cli.Flag {
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
-				Name:   "artifact-mode",
-				Hidden: true,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
 				Name:   "github-token",
-				Hidden: true,
-			},
-		),
-		altsrc.NewStringFlag(
-			&cli.StringFlag{
-				Name:   "cloudflare-token",
 				Hidden: true,
 			},
 		),

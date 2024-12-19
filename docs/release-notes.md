@@ -1,1 +1,19 @@
-- #27 - Fixed development-and-release.md guides, links to them from README.md and index.md.
+- #29 - Added support for AWS Secrets Manager to store SOPS Age keys.
+- #29 - Added support for GCP Secrets Manager to store SOPS Age keys.
+- #29 - Added support for Azure Key Vault to store SOPS Age keys.
+- #29 - Added support for the AWS provider in Cluster API.
+- #29 - Added support for the GCP provider in Cluster API.
+- #29 - Added support for the Azure provider in Cluster API.
+- #29 - Added the ability to create an SSH key pair for the AWS provider.
+- #29 - Added GCP NAT router creation for the GCP provider.
+- #29 - Added commands for managing Cluster API clusters to the cluster category commands.
+- #29 - Added new configuration arguments for project generation.
+- #29 - Fixed the output of the config list command for adjacent tenant names.
+- #29 - Removed the artifact-mode flag and the functionality.
+- #29 - Reworked the behaviour of the config init command to align with each cluster provider.
+- #29 - Reworked the approach to obtaining the Kubernetes context for all cluster providers.
+- #29 - Refactored the environment variables provisioning for all cluster providers in release category commands.
+- #29 - Refactored the k3d list command.
+- #29 - Restructured code files for improved organization.
+- #29 - Changed root-domain configuration to be managed via the project.yaml file.
+- #29 - Deprecated Terraform commands under the cluster category.

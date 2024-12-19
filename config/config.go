@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
+	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -17,43 +16,33 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
-	"rmk/aws_provider"
-	"rmk/system"
+	"rmk/git_handler"
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
+	"rmk/util"
 )
 
 type Config struct {
-	Name                       string   `yaml:"name,omitempty"`
-	Tenant                     string   `yaml:"tenant,omitempty"`
-	Environment                string   `yaml:"environment,omitempty"`
-	ConfigFrom                 string   `yaml:"config-from,omitempty"`
-	ArtifactMode               string   `yaml:"artifact-mode,omitempty"`
-	RootDomain                 string   `yaml:"root-domain,omitempty"`
-	CloudflareToken            string   `yaml:"cloudflare-token,omitempty"`
-	GitHubToken                string   `yaml:"github-token,omitempty"`
-	S3ChartsRepoRegion         string   `yaml:"s3-charts-repo-region"`
-	ClusterProvider            string   `yaml:"cluster-provider"`
-	SlackNotifications         bool     `yaml:"slack-notifications"`
-	SlackWebHook               string   `yaml:"slack-webhook,omitempty"`
-	SlackChannel               string   `yaml:"slack-channel,omitempty"`
-	SlackMsgDetails            []string `yaml:"slack-message-details,omitempty"`
-	SopsAgeKeys                string   `yaml:"sops-age-keys,omitempty"`
-	SopsBucketName             string   `yaml:"sops-bucket-name,omitempty"`
-	AWSECRHost                 string   `yaml:"aws-ecr-host,omitempty"`
-	AWSECRRegion               string   `yaml:"aws-ecr-region,omitempty"`
-	AWSECRUserName             string   `yaml:"aws-ecr-user-name,omitempty"`
-	AWSMFAProfile              string   `yaml:"aws-mfa-profile,omitempty"`
-	AWSMFATokenExpiration      string   `yaml:"aws-mfa-token-expiration,omitempty"`
-	*aws_provider.AwsConfigure `yaml:"aws,omitempty"`
-	Terraform                  `yaml:"terraform,omitempty"`
-	ClusterProvisionerSL       bool `yaml:"cluster-provisioner-state-locking"`
-	ExportedVars               `yaml:"exported-vars,omitempty"`
-	ProgressBar                bool `yaml:"progress-bar"`
-	ProjectFile                `yaml:"project-file"`
-}
-
-type ExportedVars struct {
-	TerraformOutput map[string]interface{} `yaml:"terraform-output,omitempty"`
-	Env             map[string]string      `yaml:"env,omitempty"`
+	Name                           string   `yaml:"name,omitempty"`
+	Tenant                         string   `yaml:"tenant,omitempty"`
+	Environment                    string   `yaml:"environment,omitempty"`
+	RootDomain                     string   `yaml:"root-domain,omitempty"`
+	GitHubToken                    string   `yaml:"github-token,omitempty"`
+	ClusterProvider                string   `yaml:"cluster-provider"`
+	SlackNotifications             bool     `yaml:"slack-notifications"`
+	SlackWebHook                   string   `yaml:"slack-webhook,omitempty"`
+	SlackChannel                   string   `yaml:"slack-channel,omitempty"`
+	SlackMsgDetails                []string `yaml:"slack-message-details,omitempty"`
+	SopsAgeKeys                    string   `yaml:"sops-age-keys,omitempty"`
+	AWSMFAProfile                  string   `yaml:"aws-mfa-profile,omitempty"`
+	AWSMFATokenExpiration          string   `yaml:"aws-mfa-token-expiration,omitempty"`
+	GCPRegion                      string   `yaml:"gcp-region,omitempty"`
+	*aws_provider.AwsConfigure     `yaml:"aws,omitempty"`
+	*azure_provider.AzureConfigure `yaml:"azure,omitempty"`
+	*google_provider.GCPConfigure  `yaml:"gcp,omitempty"`
+	ProgressBar                    bool `yaml:"progress-bar"`
+	ProjectFile                    `yaml:"project-file"`
 }
 
 type HookMapping struct {
@@ -69,7 +58,6 @@ type Package struct {
 	Url            string   `yaml:"url,omitempty"`
 	Checksum       string   `yaml:"checksum,omitempty"`
 	Artifacts      []string `yaml:"-"`
-	ArtifactUrl    string   `yaml:"artifact-url,omitempty"`
 	HelmfileTenant string   `yaml:"-"`
 	OsLinux        string   `yaml:"os-linux,omitempty"`
 	OsMac          string   `yaml:"os-mac,omitempty"`
@@ -80,7 +68,6 @@ type Package struct {
 }
 
 type Inventory struct {
-	Clusters    map[string]*Package `yaml:"clusters,omitempty"`
 	HelmPlugins map[string]*Package `yaml:"helm-plugins,omitempty"`
 	Hooks       map[string]*Package `yaml:"hooks,omitempty"`
 	Tools       map[string]*Package `yaml:"tools,omitempty"`
@@ -90,9 +77,9 @@ type Project struct {
 	Dependencies []Package     `yaml:"dependencies,omitempty"`
 	HooksMapping []HookMapping `yaml:"hooks-mapping,omitempty"`
 	Spec         struct {
-		Environments []string `yaml:"environments,omitempty"`
-		Owners       []string `yaml:"owners,omitempty"`
-		Scopes       []string `yaml:"scopes,omitempty"`
+		Environments map[string]*ProjectRootDomain `yaml:"environments,omitempty"`
+		Owners       []string                      `yaml:"owners,omitempty"`
+		Scopes       []string                      `yaml:"scopes,omitempty"`
 	} `yaml:"spec,omitempty"`
 }
 
@@ -101,28 +88,13 @@ type ProjectFile struct {
 	Inventory `yaml:"inventory,omitempty"`
 }
 
-type Terraform struct {
-	BucketName   string `yaml:"bucket-name,omitempty"`
-	BucketKey    string `yaml:"bucket-key,omitempty"`
-	DDBTableName string `yaml:"dynamodb-table-name,omitempty"`
+type ProjectRootDomain struct {
+	RootDomain string `yaml:"root-domain,omitempty"`
 }
 
-func (conf *Config) InitConfig(terraformOutput bool) *Config {
+func (conf *Config) InitConfig() *Config {
 	conf.ProjectFile = ProjectFile{}
-	if err := conf.ReadProjectFile(system.GetPwdPath(system.TenantProjectFile)); err != nil {
-		zap.S().Fatal(err)
-	}
-
-	if !terraformOutput {
-		return conf
-	}
-
-	conf.ExportedVars = ExportedVars{
-		TerraformOutput: make(map[string]interface{}),
-		Env:             make(map[string]string),
-	}
-
-	if err := conf.GetTerraformOutputs(); err != nil {
+	if err := conf.ReadProjectFile(util.GetPwdPath(util.TenantProjectFile)); err != nil {
 		zap.S().Fatal(err)
 	}
 
@@ -142,102 +114,67 @@ func (conf *Config) SerializeJsonConfig() ([]byte, error) {
 }
 
 func (conf *Config) GetConfigs(all bool) error {
-	var tenantPattern string
-	configsPath := system.GetHomePath(system.RMKDir, system.RMKConfig)
+	var (
+		patternTenant  string
+		patternTaskNum *regexp.Regexp
+		patternSemVer  *regexp.Regexp
+		patternBranch  *regexp.Regexp
+	)
+
+	configsPath := util.GetHomePath(util.RMKDir, util.RMKConfig)
 
 	if all {
-		tenantPattern = ""
+		patternTenant = ""
 	} else {
-		tenantPattern = conf.Tenant
+		patternTenant = conf.Tenant
+
+		patternBranch = regexp.MustCompile(`^` + patternTenant +
+			`-(` + git_handler.DefaultDevelop + `|` + git_handler.DefaultStaging + `|` + git_handler.DefaultProduction + `)$`)
+		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(-[a-z]+)?$`)
+		patternTaskNum = regexp.MustCompile(`^` + patternTenant + `-[a-z]+-\d+$`)
 	}
 
-	match, err := system.WalkMatch(configsPath, tenantPattern+"*.yaml")
+	match, err := util.WalkMatch(configsPath, patternTenant+"*.yaml")
 	if err != nil {
 		return err
 	}
 
 	for _, val := range match {
-		fmt.Printf("- %s\n", strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val))))
+		rmkConfig := strings.TrimSuffix(filepath.Base(val), filepath.Ext(filepath.Base(val)))
+
+		if all {
+			fmt.Printf("- %s\n", rmkConfig)
+		} else {
+			switch {
+			case patternBranch.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternSemVer.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			case patternTaskNum.MatchString(rmkConfig):
+				fmt.Printf("- %s\n", rmkConfig)
+			}
+		}
 	}
 
 	return nil
 }
 
 func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
-	hostedZoneVar := system.TerraformVarsPrefix + system.TerraformVarHostedZoneName
-	if !c.IsSet("root-domain") {
-		if hostedZoneName, ok := conf.TerraformOutput[hostedZoneVar]; ok && len(hostedZoneName.(string)) > 0 {
-			if err := c.Set("root-domain", hostedZoneName.(string)); err != nil {
-				return err
-			}
-		} else {
-			if err := c.Set("root-domain", gitSpecID+system.TenantDomainSuffix); err != nil {
-				return err
-			}
+	for env, val := range conf.Spec.Environments {
+		check := strings.Split(val.RootDomain, "*.")
+		if len(check) > 2 {
+			return fmt.Errorf("root-domain not set correctly for environment %s", env)
 		}
 	}
 
-	conf.RootDomain = c.String("root-domain")
-
-	return nil
-}
-
-func (conf *Config) GetTerraformOutputs() error {
-	type GetVar struct {
-		Type  interface{}
-		Value interface{}
-	}
-
-	var (
-		raw     map[string]*json.RawMessage
-		outputs map[string]*json.RawMessage
-		getVar  *GetVar
-	)
-
-	checkWorkspace, err := conf.BucketKeyExists("", conf.Terraform.BucketName, "env:/"+conf.Name+"/tf.tfstate")
-	if err != nil {
-		return err
-	}
-
-	if !checkWorkspace {
-		return nil
-	}
-
-	data, err := conf.GetFileData(conf.Terraform.BucketName, "env:/"+conf.Name+"/tf.tfstate")
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(*raw["outputs"], &outputs); err != nil {
-		return err
-	}
-
-	if len(outputs) == 0 {
-		return nil
-	}
-
-	for key := range outputs {
-		if strings.Contains(key, system.TerraformVarsPrefix) {
-			if err := json.Unmarshal(*outputs[key], &getVar); err != nil {
-				return err
-			}
-
-			envKey := strings.ToUpper(strings.ReplaceAll(key, system.TerraformVarsPrefix, ""))
-
-			switch {
-			case reflect.TypeOf(getVar.Value).Kind() == reflect.String && getVar.Type == reflect.String.String():
-				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[envKey] = getVar.Value.(string)
-			case reflect.TypeOf(getVar.Value).Kind() == reflect.Bool && getVar.Type == reflect.Bool.String():
-				conf.TerraformOutput[key] = getVar.Value
-				conf.Env[envKey] = strconv.FormatBool(getVar.Value.(bool))
-			default:
-				zap.S().Warnf("Terraform output variable %s will not be exported as environment variable, "+
-					"does not match string or boolean types, current type: %s", key, getVar.Type)
+	for env, val := range conf.Spec.Environments {
+		if env == conf.Environment {
+			if regexp.MustCompile(`^\*\.`).MatchString(val.RootDomain) {
+				conf.RootDomain = strings.ReplaceAll(val.RootDomain, "*", gitSpecID)
+			} else if len(val.RootDomain) > 0 {
+				conf.RootDomain = val.RootDomain
+			} else {
+				conf.RootDomain = "localhost"
 			}
 		}
 	}
@@ -279,27 +216,6 @@ func (pf *ProjectFile) parseProjectFileData() error {
 
 	for key, dep := range pf.Dependencies {
 		pf.Dependencies[key].Url, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.Url)
-		if err != nil {
-			return err
-		}
-
-		if len(strings.Split(pf.Dependencies[key].Name, ".")) > 0 {
-			pf.Dependencies[key].HelmfileTenant = strings.Split(pf.Dependencies[key].Name, ".")[0]
-		}
-
-		pf.Dependencies[key].ArtifactUrl, err = pf.ParseTemplate(template.New("Dependencies"), pf.Dependencies[key], dep.ArtifactUrl)
-		if err != nil {
-			return err
-		}
-	}
-
-	for key, provider := range pf.Clusters {
-		if _, err := semver.NewVersion(provider.Version); err != nil {
-			return fmt.Errorf("%s %s for section inventory.clusters", strings.ToLower(err.Error()), provider.Version)
-		}
-
-		pf.Clusters[key].Name = key
-		pf.Clusters[key].Url, err = pf.ParseTemplate(template.New("Clusters"), pf.Clusters[key], provider.Url)
 		if err != nil {
 			return err
 		}
@@ -370,7 +286,7 @@ func (conf *Config) ReadConfigFile(path string) error {
 }
 
 func (conf *Config) CreateConfigFile() error {
-	if err := os.MkdirAll(system.GetHomePath(system.RMKDir, system.RMKConfig), 0755); err != nil {
+	if err := os.MkdirAll(util.GetHomePath(util.RMKDir, util.RMKConfig), 0755); err != nil {
 		return err
 	}
 
@@ -379,5 +295,5 @@ func (conf *Config) CreateConfigFile() error {
 		return err
 	}
 
-	return os.WriteFile(system.GetHomePath(system.RMKDir, system.RMKConfig, conf.Name+".yaml"), data, 0644)
+	return os.WriteFile(util.GetHomePath(util.RMKDir, util.RMKConfig, conf.Name+".yaml"), data, 0644)
 }

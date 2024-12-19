@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"bytes"
@@ -20,21 +20,25 @@ import (
 	"rmk/config"
 	"rmk/git_handler"
 	"rmk/notification"
-	"rmk/system"
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
+	"rmk/util"
 )
 
-type runner interface {
+type releaseRunner interface {
 	runCMD() error
 }
 
 type ReleaseCommands struct {
 	Conf          *config.Config
 	Ctx           *cli.Context
-	SpecCMD       *system.SpecCMD
+	SpecCMD       *util.SpecCMD
 	Scope         string
 	WorkDir       string
 	ValuesPath    string
 	UpdateContext bool
+	APICluster    bool
 	K3DCluster    bool
 }
 
@@ -85,69 +89,34 @@ type HelmStatus struct {
 	Namespace string `json:"namespace"`
 }
 
-type KubeConfig struct {
-	Kind        string `json:"kind"`
-	ApiVersion  string `json:"apiVersion"`
-	Preferences struct {
-	} `json:"preferences"`
-	Clusters []struct {
-		Name    string `json:"name"`
-		Cluster struct {
-			Server                   string `json:"server"`
-			CertificateAuthorityData string `json:"certificate-authority-data"`
-		} `json:"cluster"`
-	} `json:"clusters"`
-	Users []struct {
-		Name string `json:"name"`
-		User struct {
-			Exec struct {
-				Command string   `json:"command"`
-				Args    []string `json:"args"`
-				Env     []struct {
-					Name  string `json:"name"`
-					Value string `json:"value"`
-				} `json:"env"`
-				ApiVersion         string `json:"apiVersion"`
-				ProvideClusterInfo bool   `json:"provideClusterInfo"`
-			} `json:"exec"`
-		} `json:"user"`
-	} `json:"users"`
-	Contexts []struct {
-		Name    string `json:"name"`
-		Context struct {
-			Cluster string `json:"cluster"`
-			User    string `json:"user"`
-		} `json:"context"`
-	} `json:"contexts"`
-	CurrentContext string `json:"current-context"`
-}
-
 func (rc *ReleaseCommands) runCMD() error {
-	if err := rc.SpecCMD.AddEnv(); err != nil {
+	if err := rc.SpecCMD.AddOSEnv(); err != nil {
 		return err
 	}
 
 	if err := rc.SpecCMD.ExecCMD(); err != nil {
-		if rc.SpecCMD.Debug {
-			zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
-			zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
-			for _, val := range rc.SpecCMD.Envs {
-				zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
-			}
-		}
+		rc.debugLevel()
 
 		return err
 	}
 
+	rc.debugLevel()
+
+	return nil
+}
+
+func (rc *ReleaseCommands) debugLevel() {
 	if rc.SpecCMD.Debug {
 		zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
 		zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
 		for _, val := range rc.SpecCMD.Envs {
-			zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
+			if len(rc.Conf.GitHubToken) > 0 {
+				zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
+			} else {
+				zap.S().Debugf("env: %s", val)
+			}
 		}
 	}
-
-	return nil
 }
 
 func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
@@ -164,25 +133,47 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 	return append(envs, hfVersion...)
 }
 
-func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
+func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
+	var sensKeyWords []string
+
+	defaultArgs := []string{"--environment", rc.Conf.Environment}
+
+	// generating common environment variables
 	envs := append([]string{},
 		"NAME="+rc.Conf.Name,
+		"ROOT_DOMAIN="+rc.Conf.RootDomain,
+		"SOPS_AGE_KEY_FILE="+filepath.Join(rc.Conf.SopsAgeKeys, util.SopsAgeKeyFile),
 		"TENANT="+rc.Conf.Tenant,
-		"SOPS_AGE_KEY_FILE="+filepath.Join(rc.Conf.SopsAgeKeys, system.SopsAgeKeyFile),
-		"GITHUB_TOKEN="+rc.Conf.GitHubToken,
-		"AWS_PROFILE="+rc.Conf.Profile,
-		"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
-		"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
-		// Needed to set the AWS region to force the connection session region for the helm S3 plugin,
-		// if AWS_DEFAULT_REGION and AWS_REGION cannot be trusted.
-		"HELM_S3_REGION="+rc.Conf.S3ChartsRepoRegion,
 	)
 
-	if _, ok := rc.Conf.Env["ROOT_DOMAIN"]; ok {
-		envs = append(envs, "ROOT_DOMAIN="+rc.Conf.Env["ROOT_DOMAIN"])
-		delete(rc.Conf.Env, "ROOT_DOMAIN")
+	if len(rc.Conf.GitHubToken) > 0 {
+		sensKeyWords = []string{rc.Conf.GitHubToken}
+		envs = append(envs, "GITHUB_TOKEN="+rc.Conf.GitHubToken)
 	} else {
-		envs = append(envs, "ROOT_DOMAIN="+rc.Conf.RootDomain)
+		sensKeyWords = []string{}
+	}
+
+	// generating additional environment variables to specific cluster provider
+	switch rc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		envs = append(envs,
+			"AWS_ACCOUNT_ID="+rc.Conf.AccountID,
+			"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
+			"AWS_PROFILE="+rc.Conf.Profile,
+			"AWS_REGION="+rc.Conf.Region,
+			"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
+		)
+	case azure_provider.AzureClusterProvider:
+		envs = append(envs,
+			"AZURE_LOCATION="+rc.Conf.AzureConfigure.Location,
+			"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
+		)
+	case google_provider.GoogleClusterProvider:
+		envs = append(envs,
+			"GCP_PROJECT_ID="+rc.Conf.GCPConfigure.ProjectID,
+			"GCP_REGION="+rc.Conf.GCPRegion,
+			"GOOGLE_APPLICATION_CREDENTIALS="+rc.Conf.GCPConfigure.AppCredentialsPath,
+		)
 	}
 
 	for _, val := range rc.Conf.HooksMapping {
@@ -190,26 +181,22 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
 		envs = append(envs, "HELMFILE_"+strings.ToUpper(keyTenantEnv)+"_HOOKS_DIR="+val.DstPath)
 	}
 
-	for key, val := range rc.Conf.Env {
-		envs = append(envs, key+"="+val)
-	}
-
 	// generating additional environment variables to nested helmfiles
 	envs = rc.nestedHelmfiles(envs...)
 
-	if rc.K3DCluster {
+	switch {
+	case rc.APICluster:
+		envs = append(envs, "CAPI_CLUSTER="+strconv.FormatBool(rc.APICluster))
+	case rc.K3DCluster:
 		envs = append(envs, "K3D_CLUSTER="+strconv.FormatBool(rc.K3DCluster))
 	}
 
-	// needed if not used artifact mode
-	var sensKeyWords []string
-	if rc.Ctx.String("artifact-mode") == system.ArtifactModeDefault {
-		sensKeyWords = []string{rc.Conf.GitHubToken}
+	if len(rc.Ctx.String("helmfile-log-level")) > 0 {
+		defaultArgs = append(defaultArgs, "--log-level", rc.Ctx.String("helmfile-log-level"))
 	}
 
-	return &system.SpecCMD{
-		Args: append([]string{"--environment", rc.Conf.Environment, "--log-level",
-			rc.Ctx.String("helmfile-log-level")}, args...),
+	return &util.SpecCMD{
+		Args:         append(defaultArgs, args...),
 		Command:      "helmfile",
 		Ctx:          rc.Ctx.Context,
 		Dir:          rc.WorkDir,
@@ -219,33 +206,25 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *system.SpecCMD {
 	}
 }
 
-func (rc *ReleaseCommands) kubeConfig() *system.SpecCMD {
-	return &system.SpecCMD{
-		Args:          []string{"config"},
-		Command:       "kubectl",
-		Ctx:           rc.Ctx.Context,
-		Dir:           rc.WorkDir,
-		DisableStdOut: true,
-		Debug:         false,
-	}
-}
-
 func (rc *ReleaseCommands) releaseMiddleware() error {
-	if len(rc.Conf.Dependencies) == 0 && rc.Ctx.String("artifact-mode") == system.ArtifactModeDefault {
+	if len(rc.Conf.Dependencies) == 0 {
 		if err := os.RemoveAll(filepath.Join(rc.WorkDir, TenantPrDependenciesDir)); err != nil {
 			return err
 		}
 	}
 
-	if err := system.MergeAgeKeys(rc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(rc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
-	if _, currentContext, err := rc.getKubeContext(); err != nil {
+	if _, currentContext, err := clusterRunner(&ClusterCommands{rc}).getKubeContext(); err != nil {
 		return err
 	} else {
-		if strings.Contains(currentContext, system.K3DConfigPrefix) {
+		switch {
+		case strings.Contains(currentContext, util.K3DPrefix) && !strings.Contains(currentContext, util.CAPI):
 			rc.K3DCluster = true
+		case currentContext == util.K3DPrefix+"-"+util.CAPI:
+			rc.APICluster = true
 		}
 	}
 
@@ -262,102 +241,8 @@ func (rc *ReleaseCommands) releaseHelmfile(args ...string) error {
 	return rc.runCMD()
 }
 
-func (rc *ReleaseCommands) getKubeContext() (string, string, error) {
-	var (
-		contextNames []string
-		contextName  string
-	)
-
-	kubeConfig := &KubeConfig{}
-
-	rc.SpecCMD = rc.kubeConfig()
-	rc.SpecCMD.Args = append(rc.SpecCMD.Args, "view", "--output", "json")
-	if err := rc.runCMD(); err != nil {
-		return "", "", fmt.Errorf("Kubectl config failed to view\n%s", rc.SpecCMD.StderrBuf.String())
-	}
-
-	if err := json.Unmarshal(rc.SpecCMD.StdoutBuf.Bytes(), &kubeConfig); err != nil {
-		return "", "", err
-	}
-
-	re, err := regexp.Compile(`(?i)\b` + rc.Conf.Name + `\b`)
-	if err != nil {
-		return "", "", err
-	}
-
-	for _, val := range kubeConfig.Contexts {
-		if re.MatchString(val.Name) {
-			contextNames = append(contextNames, val.Name)
-		}
-	}
-
-	switch {
-	case len(contextNames) > 1:
-		return "", "",
-			fmt.Errorf("detected more than one Kubernetes context with names %s leading to conflict, "+
-				"please delete or rename all contexts except one", strings.Join(contextNames, ", "))
-	case len(contextNames) > 0:
-		contextName = contextNames[0]
-	default:
-		contextName = ""
-	}
-
-	if rc.K3DCluster && len(contextName) > 0 && !strings.Contains(contextName, system.K3DConfigPrefix) {
-		return "", "", fmt.Errorf("remote Kubernetes context already exists %s for this branch", contextName)
-	}
-
-	return contextName, kubeConfig.CurrentContext, nil
-}
-
-func (rc *ReleaseCommands) releaseKubeContext() error {
-	contextName, currentContextName, err := rc.getKubeContext()
-	if err != nil {
-		return err
-	}
-
-	if len(contextName) > 0 && !rc.UpdateContext {
-		if contextName != currentContextName {
-			rc.SpecCMD = rc.kubeConfig()
-			rc.SpecCMD.Args = append(rc.SpecCMD.Args, "use", contextName)
-			rc.SpecCMD.DisableStdOut = false
-			return rc.runCMD()
-		}
-
-		return nil
-	}
-
-	if strings.Contains(contextName, system.K3DConfigPrefix) && rc.UpdateContext {
-		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
-	}
-
-	cc := &ClusterCommands{
-		Conf:    rc.Conf,
-		Ctx:     rc.Ctx,
-		WorkDir: system.GetPwdPath(""),
-	}
-
-	if err := cc.clusterContext(); err != nil {
-		return err
-	}
-
-	_, currentContext, err := rc.getKubeContext()
-	if err != nil {
-		return err
-	}
-
-	rc.SpecCMD = rc.kubeConfig()
-	rc.SpecCMD.Args = append(rc.SpecCMD.Args,
-		"set-credentials", currentContext,
-		"--exec-env", "AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(cc.Conf.Profile), ""),
-		"--exec-env", "AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(cc.Conf.Profile), ""),
-	)
-	rc.SpecCMD.DisableStdOut = true
-	rc.SpecCMD.Debug = true
-	return rc.runCMD()
-}
-
 func (sr *SpecRelease) searchReleasesPath() error {
-	paths, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR), sr.Conf.Environment, system.ReleasesFileName)
+	paths, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR), sr.Conf.Environment, util.ReleasesFileName)
 	if err != nil {
 		return err
 	}
@@ -419,7 +304,7 @@ func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
 	}
 
 	if len(sr.ReleasesPaths) == 0 {
-		return fmt.Errorf("no files %s found", system.ReleasesFileName)
+		return fmt.Errorf("no files %s found", util.ReleasesFileName)
 	}
 
 	sr.Changes.List = make(map[string][]string)
@@ -519,8 +404,8 @@ func (sr *SpecRelease) deployUpdatedReleases() error {
 	return sr.runCMD()
 }
 
-func (rc *ReleaseCommands) helmCommands(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (rc *ReleaseCommands) helmCommands(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          args,
 		Command:       "helm",
 		Ctx:           rc.Ctx.Context,
@@ -650,26 +535,22 @@ func (sr *SpecRelease) checkStatusRelease() error {
 
 func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
-			return err
-		}
-
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
 		rc := &ReleaseCommands{
 			Conf:    conf,
 			Ctx:     c,
-			WorkDir: system.GetPwdPath(""),
+			WorkDir: util.GetPwdPath(""),
 		}
 
 		if !c.Bool("skip-context-switch") {
-			if err := rc.releaseKubeContext(); err != nil {
+			if err := clusterRunner(&ClusterCommands{rc}).switchKubeContext(); err != nil {
 				return err
 			}
 		}
@@ -703,15 +584,11 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 
 func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
-			return err
-		}
-
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
@@ -721,10 +598,10 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 		}{List: make(map[string][]string)}}}
 		sr.Conf = conf
 		sr.Ctx = c
-		sr.WorkDir = system.GetPwdPath("")
+		sr.WorkDir = util.GetPwdPath("")
 
 		if !c.Bool("skip-context-switch") {
-			if err := sr.releaseKubeContext(); err != nil {
+			if err := clusterRunner(&ClusterCommands{&sr.ReleaseCommands}).switchKubeContext(); err != nil {
 				return err
 			}
 		}
@@ -740,25 +617,21 @@ func releaseRollbackAction(conf *config.Config) cli.ActionFunc {
 
 func releaseUpdateAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
-			return err
-		}
-
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
 		sr := &SpecRelease{}
 		sr.Conf = conf
 		sr.Ctx = c
-		sr.WorkDir = system.GetPwdPath("")
+		sr.WorkDir = util.GetPwdPath("")
 
 		if !c.Bool("skip-context-switch") {
-			if err := sr.releaseKubeContext(); err != nil {
+			if err := clusterRunner(&ClusterCommands{&sr.ReleaseCommands}).switchKubeContext(); err != nil {
 				return err
 			}
 		}
