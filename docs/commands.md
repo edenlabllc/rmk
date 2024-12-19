@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 6e50d9f <br />
-**Date:** 2024-09-04T08:25:29Z <br />
+**Commit:** 6e0a217 <br />
+**Date:** 2024-12-19T09:18:59Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -45,27 +45,35 @@ rmk [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 
 Cluster management
 
-#### container-registry, c
+#### capi, c
 
-Container registry management
+CAPI cluster management
 
-##### login
+##### create, c
 
-Log in to container registry
+Create CAPI management cluster
 
-**--get-token, -g**: get ECR token for authentication
+**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: present working directory)
 
-##### logout
+##### delete, d
 
-Log out from container registry
+Delete CAPI management cluster
 
-#### destroy, d
+##### destroy
 
-Destroy AWS cluster using Terraform
+Destroy K8S target (workload) cluster
 
-#### list, l
+##### list, l
 
-List all Terraform available workspaces
+List CAPI management clusters
+
+##### provision, p
+
+Provision K8S target (workload) cluster
+
+##### update, u
+
+Update CAPI management cluster
 
 #### k3d, k
 
@@ -99,30 +107,6 @@ Start K3D cluster
 
 Stop K3D cluster
 
-#### provision, p
-
-Provision AWS cluster using Terraform
-
-**--plan, -p**: creates an execution Terraform plan
-
-#### state, t
-
-State cluster management using Terraform
-
-##### delete, d
-
-Delete resource from Terraform state
-
-**--resource-address, --ra**="": resource address for delete from Terraform state
-
-##### list, l
-
-List resources from Terraform state
-
-##### refresh, r
-
-Update state file for AWS cluster using Terraform
-
 #### switch, s
 
 Switch Kubernetes context for tenant cluster
@@ -145,37 +129,39 @@ Configuration management
 
 Initialize configuration for current tenant and selected environment
 
-**--artifact-mode, --am**="": choice of artifact usage model, available: none, online (default: "none")
+**--aws-access-key-id, --awid**="": AWS access key ID for IAM user
 
-**--aws-ecr-host, --aeh**="": AWS ECR host (default: "288509344804.dkr.ecr.eu-north-1.amazonaws.com")
+**--aws-region, --awr**="": AWS region for current AWS account
 
-**--aws-ecr-region, --aer**="": AWS region for specific ECR host (default: "eu-north-1")
+**--aws-secret-access-key, --awsk**="": AWS secret access key for IAM user
 
-**--aws-ecr-user-name, --aeun**="": AWS ECR user name (default: "AWS")
+**--aws-session-token, --awst**="": AWS session token for IAM user
 
-**--aws-reconfigure, -r**: force AWS profile creation
+**--azure-client-id, --azid**="": Azure client ID for Service Principal
 
-**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline
+**--azure-client-secret, --azp**="": Azure client secret for Service Principal
 
-**--cloudflare-token, --cft**="": Cloudflare API token for provision NS records
+**--azure-location, --azl**="": Azure location
 
-**--cluster-provider, --cp**="": select cluster provider to provision clusters (default: "aws")
+**--azure-service-principle, --azsp**: Azure service principal STDIN content
 
-**--cluster-provisioner-state-locking, -c**: disable or enable cluster provisioner state locking
+**--azure-subscription-id, --azs**="": Azure subscription ID for current platform domain
 
-**--config-from-environment, --cfe**="": inheritance of RMK config credentials from environments: develop, staging, production
+**--azure-tenant-id, --azt**="": Azure tenant ID for Service Principal
 
-**--github-token, --ght**="": personal access token for download GitHub artifacts
+**--cluster-provider, --cp**="": cluster provider for provisioning (default: "k3d")
+
+**--gcp-region, --gr**="": GCP region
+
+**--github-token, --ght**="": GitHub personal access token, required when using private repositories
+
+**--google-application-credentials, --gac**="": path to GCP service account credentials JSON file
 
 **--progress-bar, -p**: globally disable or enable progress bar for download process
 
-**--root-domain, --rd**="": domain name for external access to app services via ingress controller
+**--slack-channel, --sc**="": channel name for Slack notifications
 
-**--s3-charts-repo-region, --scrr**="": location constraint region of S3 charts repo (default: "eu-north-1")
-
-**--slack-channel, --sc**="": channel name for Slack notification
-
-**--slack-message-details, --smd**="": additional information for body of Slack message
+**--slack-message-details, --smd**="": additional information for body of Slack messages
 
 **--slack-notifications, -n**: enable Slack notifications
 
@@ -225,6 +211,12 @@ Generate project directories and files structure
 
 **--create-sops-age-keys, -c**: create SOPS age keys for generated project structure
 
+**--environments, -e**="": list project environments. Root domain can take form of <environment>.root-domain=<domain-name>
+
+**--owners, -o**="": list project owners
+
+**--scopes, -s**="": list project scopes
+
 #### update, u
 
 Update project file with specific dependencies version
@@ -260,8 +252,6 @@ Destroy releases
 **--helmfile-args, --ha**="": Helmfile additional arguments
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
-
-**--output, -o**="": output format, available: short, yaml (default: "short")
 
 **--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
 
