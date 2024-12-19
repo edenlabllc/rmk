@@ -1,4 +1,4 @@
-# RMK configuration management
+# Configuration management
 
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
 At the time of configuration initialization launch, RMK prepares
@@ -28,8 +28,9 @@ aws:
 ## Initialization of RMK configuration
 
 > Prerequisites:
+> 
 > - The `GITHUB_TOKEN` variable or `--github-token` flag are required: [GitHub Personal Access Tokens (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic).
->   The token should have the `repo: full control` permissions.
+>   > The token should have the `repo: full control` permissions.
 > - [Project repository](project-management/requirement-for-project-repository.md) has already been created and initialized.
 > - At least one Git branch for the environment exists already.
 

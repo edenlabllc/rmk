@@ -1,11 +1,12 @@
 # Preparation of the project repository
 
-> Prerequisite:
+> Prerequisites:
+> 
 > - Create a remote repository in your Version Control System (GitHub) according to the following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
 > - Clone the project repository. For example: **project.bootstrap.infra** OR `git init && git remote add && git commit -m "init commit"`
 > - Checkout the needed branch. For example: `develop|staging|production`.
 > - Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project configuration.
-> - [Initialize the configuration](../rmk-configuration-management.md#initialization-of-rmk-configuration).
+> - [Initialize the configuration](../configuration-management.md#initialization-of-rmk-configuration).
 
 ## Automatic generation of the project structure from scratch
 
@@ -210,5 +211,6 @@ The project file supports placeholders, they are required for correct URL format
 > The field `rename` of the boolean type is required to correct the name of the binary file of the downloaded tool
 > according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the archive.
 > For example:
+> 
 > - The initial file name after the download: `helmfile_darwin_amd64`.
 > - After applying the `rename` instruction it gets a value of the `name` field: `helmfile`.

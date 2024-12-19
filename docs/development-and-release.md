@@ -1,11 +1,13 @@
-# Development and release flow
+# Development and release
 
-## Requirements for the availability of tools during development
+## Development
+
+### Requirements for the availability of tools during development
 
 - **[Golang](https://tip.golang.org/doc/install)** = v1.21.X
 - **[GoReleaser](https://goreleaser.com/install)** = v1.23.0
 
-## Building from source
+### Building from source
 
 To build RMK from source, run the following [GoReleaser](https://goreleaser.com/) command from the root of the repository:
 
@@ -15,12 +17,12 @@ goreleaser build --snapshot --clean
 
 > You can also use this command for recompilation of RMK during development.
 
-## Git workflow
+### Git workflow
 
 In RMK development, we use the classic [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) workflow, 
 embracing all its advantages and disadvantages.
 
-### Git branch naming conventions
+#### Git branch naming conventions
 
 - `feature/RMK-<issue_number>-<issue_description>`
 - `release/<SemVer2>`
@@ -32,7 +34,7 @@ For example:
 - `release/v0.42.0`
 - `hotfix/v0.42.1`
 
-## Release flow
+## Release
 
 After accumulating a certain set of features in the develop branch, 
 a `release/<SemVer2>` branch is created for the next release version. 

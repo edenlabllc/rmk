@@ -1,8 +1,8 @@
 # NAME
 
-rmk - Reduced management for Kubernetes
+RMK CLI - Reduced management for Kubernetes
 
-# SYNOPSIS
+## SYNOPSIS
 
 rmk
 
@@ -13,13 +13,14 @@ rmk
 [--version|-v]
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
-BuiltBy: goreleaser
-Commit: 9d85b2c
-Date: 2024-07-25T14:59:40Z
-Target: linux_amd64
+
+**BuiltBy:** goreleaser <br />
+**Commit:** 6e50d9f <br />
+**Date:** 2024-09-04T08:25:29Z <br />
+**Target:** linux_amd64
 
 **Usage**:
 
@@ -27,7 +28,7 @@ Target: linux_amd64
 rmk [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 ```
 
-# GLOBAL OPTIONS
+## GLOBAL OPTIONS
 
 **--help, -h**: show help
 
@@ -38,113 +39,113 @@ rmk [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 **--version, -v**: print the version
 
 
-# COMMANDS
+## COMMANDS
 
-## cluster
+### cluster
 
 Cluster management
 
-### container-registry, c
+#### container-registry, c
 
 Container registry management
 
-#### login
+##### login
 
 Log in to container registry
 
 **--get-token, -g**: get ECR token for authentication
 
-#### logout
+##### logout
 
 Log out from container registry
 
-### destroy, d
+#### destroy, d
 
 Destroy AWS cluster using Terraform
 
-### list, l
+#### list, l
 
 List all Terraform available workspaces
 
-### k3d, k
+#### k3d, k
 
 K3D cluster management
 
-#### create, c
+##### create, c
 
 Create K3D cluster
 
 **--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: present working directory)
 
-#### delete, d
+##### delete, d
 
 Delete K3D cluster
 
-#### import, i
+##### import, i
 
 Import images from docker to K3D cluster
 
 **--k3d-import-image, --ki**="": list images for import into K3D cluster
 
-#### list, l
+##### list, l
 
 List K3D clusters
 
-#### start, s
+##### start, s
 
 Start K3D cluster
 
-#### stop
+##### stop
 
 Stop K3D cluster
 
-### provision, p
+#### provision, p
 
 Provision AWS cluster using Terraform
 
 **--plan, -p**: creates an execution Terraform plan
 
-### state, t
+#### state, t
 
 State cluster management using Terraform
 
-#### delete, d
+##### delete, d
 
 Delete resource from Terraform state
 
 **--resource-address, --ra**="": resource address for delete from Terraform state
 
-#### list, l
+##### list, l
 
 List resources from Terraform state
 
-#### refresh, r
+##### refresh, r
 
 Update state file for AWS cluster using Terraform
 
-### switch, s
+#### switch, s
 
 Switch Kubernetes context for tenant cluster
 
 **--force, -f**: force update Kubernetes context from remote cluster
 
-## completion
+### completion
 
 Completion management
 
-### zsh, z
+#### zsh, z
 
 View Zsh completion scripts
 
-## config
+### config
 
 Configuration management
 
-### init, i
+#### init, i
 
 Initialize configuration for current tenant and selected environment
 
-**--artifact-mode, --am**="": choice of artifact usage model, available: none, online, offline (default: "none")
+**--artifact-mode, --am**="": choice of artifact usage model, available: none, online (default: "none")
 
 **--aws-ecr-host, --aeh**="": AWS ECR host (default: "288509344804.dkr.ecr.eu-north-1.amazonaws.com")
 
@@ -180,51 +181,51 @@ Initialize configuration for current tenant and selected environment
 
 **--slack-webhook, --sw**="": URL for Slack webhook
 
-### delete, d
+#### delete, d
 
 Delete configuration for selected environment
 
-### list, l
+#### list, l
 
 List available configurations for current tenant
 
 **--all, -a**: list all tenant configurations
 
-### view, v
+#### view, v
 
 View configuration for selected environment
 
-## doc
+### doc
 
 Documentation management
 
 **--help, -h**: show help
 
-### generate, g
+#### generate, g
 
 Generate documentation by commands and flags in Markdown format
 
 **--help, -h**: show help
 
+##### help, h
+
+Shows a list of commands or help for one command
+
 #### help, h
 
 Shows a list of commands or help for one command
 
-### help, h
-
-Shows a list of commands or help for one command
-
-## project
+### project
 
 Project management
 
-### generate, g
+#### generate, g
 
 Generate project directories and files structure
 
 **--create-sops-age-keys, -c**: create SOPS age keys for generated project structure
 
-### update, u
+#### update, u
 
 Update project file with specific dependencies version
 
@@ -236,11 +237,11 @@ Update project file with specific dependencies version
 
 **--version, -v**="": specific dependency version for updating project file
 
-## release
+### release
 
 Release components list from state file (Helmfile)
 
-### build, b
+#### build, b
 
 Build releases
 
@@ -252,7 +253,7 @@ Build releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### destroy, d
+#### destroy, d
 
 Destroy releases
 
@@ -266,7 +267,7 @@ Destroy releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### list, l
+#### list, l
 
 List releases
 
@@ -280,7 +281,7 @@ List releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### rollback, r
+#### rollback, r
 
 Rollback specific releases to latest stable state
 
@@ -288,7 +289,7 @@ Rollback specific releases to latest stable state
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### sync, s
+#### sync, s
 
 Sync releases
 
@@ -300,7 +301,7 @@ Sync releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### template, t
+#### template, t
 
 Template releases
 
@@ -312,7 +313,7 @@ Template releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
-### update, u
+#### update, u
 
 Update releases file with specific environment values
 
@@ -328,15 +329,15 @@ Update releases file with specific environment values
 
 **--tag, -t**="": specific tag for updating releases file
 
-## secret
+### secret
 
 secrets management
 
-### manager, m
+#### manager, m
 
 batch secrets management
 
-#### decrypt, d
+##### decrypt, d
 
 Decrypt secrets batch for selected scope and environment
 
@@ -344,7 +345,7 @@ Decrypt secrets batch for selected scope and environment
 
 **--scope, -s**="": specific scopes for selected secrets
 
-#### encrypt, e
+##### encrypt, e
 
 Encrypt secrets batch for selected scope and environment
 
@@ -352,7 +353,7 @@ Encrypt secrets batch for selected scope and environment
 
 **--scope, -s**="": specific scopes for selected secrets
 
-#### generate, g
+##### generate, g
 
 Generate secrets batch for selected scope and environment
 
@@ -362,39 +363,39 @@ Generate secrets batch for selected scope and environment
 
 **--scope, -s**="": specific scopes for selected secrets
 
-### keys, k
+#### keys, k
 
 SOPS age keys management
 
-#### create, c
+##### create, c
 
 Create SOPS age keys
 
-#### download, d
+##### download, d
 
 Download SOPS age keys from S3 bucket
 
-#### upload, u
+##### upload, u
 
 Upload SOPS age keys to S3 bucket
 
-### encrypt, e
+#### encrypt, e
 
 Encrypt secret file
 
-### decrypt, d
+#### decrypt, d
 
 Decrypt secret file
 
-### view, v
+#### view, v
 
 View secret file
 
-### edit
+#### edit
 
 Edit secret file
 
-## update
+### update
 
 Update RMK CLI to a new version
 
@@ -402,7 +403,7 @@ Update RMK CLI to a new version
 
 **--version, -v**="": RMK special version. (default: empty value corresponds latest version)
 
-## help, h
+### help, h
 
 Shows a list of commands or help for one command
 

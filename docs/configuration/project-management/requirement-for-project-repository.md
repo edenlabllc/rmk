@@ -4,11 +4,14 @@
    For example: `kodjin.bootstrap.infra` or `kodjin.infra`.
 2. The project's repository exists within [GitLabFlow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
    and therefor supports the following set of static branches:
+
    - `develop`
    - `staging`
    - `production`
+   
    Each branch corresponds to its own environment with a separately deployed K8S cluster. RMK supports these branches 
    as well as the feature or release branches:
+
    - A feature branch should have the following naming: `feature/<issue_key>-<issue_number>-<issue_description>`.
      For example: `feature/FFS-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
    - A release branch should have the following naming: `release/<SemVer2>-rc` or `release/<SemVer2>`
@@ -91,7 +94,8 @@ hooks:
   # ...
 ```
 
-> globals.yaml.gotmpl is used in two cases: 
+> globals.yaml.gotmpl is used in two cases:
+> 
 > 1. When values, configurations or environment variables need to be declared globally for multiple releases. 
 > 2. When the current project is planned to be inherited by a downstream project and the overrides should be supported.
 

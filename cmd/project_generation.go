@@ -166,7 +166,7 @@ develop ------> staging ------> production
   release/vN.N.N-rc  release/vN.N.N
 ` + "```" + `
 
-### Generating the Project Structure
+### Generating project structure
 
 > Note: The generated project structure using the RMK tools is mandatory and is required for the interaction of the RMK with the code base. 
 > All generated files have example content and can be supplemented according to project requirements.

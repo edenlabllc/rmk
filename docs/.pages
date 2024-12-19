@@ -1,0 +1,7 @@
+nav:
+  - Overview: index.md
+  - quickstart.md
+  - Configuration and management: configuration
+  - Commands: commands.md
+  - development-and-release.md
+collapse: false

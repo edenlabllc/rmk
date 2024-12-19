@@ -3,11 +3,12 @@
 This guide demonstrates how to use `RMK` to prepare the structure of a new project in five steps,
 create a local cluster based on `K3D`, deploy your first application ([Nginx](https://nginx.org/)) using `Helmfile` releases.
 
-> Prerequisite:
+> Prerequisites:
+> 
 > - An active AWS user with access keys and the `AdministratorAccess` permissions.
 > - A prepared [project repository](configuration/project-management/preparation-of-project-repository.md#preparation-of-the-project-repository)
-> - Installed [RMK](../README.md#installation)
-> - The fulfilled [requirements](../README.md#requirements) for proper RMK operation.
+> - Installed [RMK](index.md#installation)
+> - The fulfilled [requirements](index.md#requirements) for proper RMK operation.
 
 0. Create a [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
    file in the root of the project repository with the following content:
@@ -84,7 +85,7 @@ inventory:
       rename: true
 ```
 
-1. Run the [RMK configuration initialization](configuration/rmk-configuration-management.md#initialization-of-rmk-configuration) command for the repository:
+1. Run the [RMK configuration initialization](configuration/configuration-management.md#initialization-of-rmk-configuration) command for the repository:
 
    ```shell
    rmk config init --root-domain=localhost --github-token=<github_personal_access_token>
@@ -103,7 +104,7 @@ inventory:
 
 3. Create a local K3D cluster:
 
-   > Before running this step, ensure that Docker is installed in the system according to the [requirements](../README.md#requirements).
+   > Before running this step, ensure that Docker is installed in the system according to the [requirements](index.md#requirements).
    
    ```shell
    rmk cluster k3d create
