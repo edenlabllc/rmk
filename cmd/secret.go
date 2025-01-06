@@ -153,6 +153,27 @@ func (sc *SecretCommands) CreateKeys() error {
 	return nil
 }
 
+func (sc *SecretCommands) WriteKeysInRootDir(secrets map[string][]byte, logOutput string) error {
+	if len(secrets) == 0 {
+		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+			sc.Conf.Tenant, logOutput)
+	} else {
+		if err := os.MkdirAll(sc.Conf.SopsAgeKeys, 0775); err != nil {
+			return err
+		}
+	}
+
+	for key, val := range secrets {
+		zap.S().Infof("download %s secret %s to %s",
+			logOutput, key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+		if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (sc *SecretCommands) DownloadKeys() error {
 	switch sc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
@@ -161,20 +182,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in AWS Secrets Manager secrets",
-				sc.Conf.Tenant)
-		}
-
-		for key, val := range secrets {
-			zap.S().Infof("download AWS Secrets Manager secret %s to %s",
-				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-				return err
-			}
-		}
-
-		return nil
+		return sc.WriteKeysInRootDir(secrets, "AWS Secrets Manager")
 	case azure_provider.AzureClusterProvider:
 		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
 			return err
@@ -185,20 +193,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in Azure Key Vault secrets",
-				sc.Conf.Tenant)
-		}
-
-		for key, val := range secrets {
-			zap.S().Infof("download Azure Key Vault secret %s to %s",
-				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-				return err
-			}
-		}
-
-		return nil
+		return sc.WriteKeysInRootDir(secrets, "Azure Key Vault")
 	case google_provider.GoogleClusterProvider:
 		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
 
@@ -207,20 +202,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in GCP Secrets Manager secrets",
-				sc.Conf.Tenant)
-		}
-
-		for key, val := range secrets {
-			zap.S().Infof("download GCP Secrets Manager secret %s to %s",
-				key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-			if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-				return err
-			}
-		}
-
-		return nil
+		return sc.WriteKeysInRootDir(secrets, "GCP Secrets Manager")
 	default:
 		return nil
 	}
