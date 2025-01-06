@@ -4,7 +4,7 @@
 - #29 - Added support for the AWS provider in Cluster API.
 - #29 - Added support for the GCP provider in Cluster API.
 - #29 - Added support for the Azure provider in Cluster API.
-- #29 - Added support downloading existing SOPS Age keys.
+- #29 - Added support for downloading existing SOPS Age keys.
 - #29 - Added the ability to create an SSH key pair for the AWS provider.
 - #29 - Added GCP NAT router creation for the GCP provider.
 - #29 - Added commands for managing Cluster API clusters to the cluster category commands.
