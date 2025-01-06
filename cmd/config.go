@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -313,20 +312,8 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		return err
 	}
 
-	if len(secrets) == 0 {
-		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in AWS Secrets Manager secrets",
-			conf.Tenant)
-	}
-
-	for key, val := range secrets {
-		zap.S().Infof("download AWS Secrets Manager secret %s to %s",
-			key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-		if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return newSecretCommands(conf, c, util.GetPwdPath("")).
+		WriteKeysInRootDir(secrets, "AWS Secrets Manager")
 }
 
 func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -398,17 +385,9 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 			return err
 		}
 
-		if len(secrets) == 0 {
-			zap.S().Warnf("SOPS Age keys contents for tenant %s not found in Azure Key Vault secrets",
-				conf.Tenant)
-		}
-
-		for key, val := range secrets {
-			zap.S().Infof("download Azure Key Vault secret %s to %s",
-				key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-			if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-				return err
-			}
+		if err := newSecretCommands(conf, c, util.GetPwdPath("")).
+			WriteKeysInRootDir(secrets, "Azure Key Vault"); err != nil {
+			return err
 		}
 	}
 
@@ -446,20 +425,8 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		return err
 	}
 
-	if len(secrets) == 0 {
-		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in GCP Secrets Manager secrets",
-			conf.Tenant)
-	}
-
-	for key, val := range secrets {
-		zap.S().Infof("download GCP Secrets Manager secret %s to %s",
-			key, filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
-		if err := os.WriteFile(filepath.Join(conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return newSecretCommands(conf, c, util.GetPwdPath("")).
+		WriteKeysInRootDir(secrets, "GCP Secrets Manager")
 }
 
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
