@@ -5,7 +5,6 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"regexp"
-	"rmk/git_handler"
 	"strings"
 
 	yaml2 "github.com/ghodss/yaml"
@@ -17,6 +16,7 @@ import (
 	clientcmdlatest "k8s.io/client-go/tools/clientcmd/api/latest"
 
 	"rmk/config"
+	"rmk/git_handler"
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
