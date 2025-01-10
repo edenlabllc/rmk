@@ -123,7 +123,7 @@ func Commands() []*cli.Command {
 							Category:     "capi",
 							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DCreateAction(conf),
-							After:        CAPIInitAction(conf),
+							After:        CAPIInitAction(conf, gitSpec),
 						},
 						{
 							Name:         "delete",

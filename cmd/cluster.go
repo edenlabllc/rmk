@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"regexp"
+	"rmk/git_handler"
 	"strings"
 
 	yaml2 "github.com/ghodss/yaml"
@@ -448,10 +449,16 @@ func clusterSwitchAction(conf *config.Config) cli.ActionFunc {
 	}
 }
 
-func CAPIInitAction(conf *config.Config) cli.AfterFunc {
+func CAPIInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.AfterFunc {
 	return func(c *cli.Context) error {
 		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
+		}
+
+		// Additional checking is needed because After() is run even if Action() panics
+		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
+		if !util.IsExists(configPath, true) {
+			return nil
 		}
 
 		cc := newClusterCommands(conf, c, util.GetPwdPath())
