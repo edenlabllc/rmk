@@ -12,6 +12,7 @@ import (
 
 	"cloud.google.com/go/auth"
 	"cloud.google.com/go/auth/credentials"
+	"cloud.google.com/go/compute/apiv1/computepb"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"github.com/googleapis/gax-go/v2/apierror"
@@ -212,12 +213,12 @@ func (gcp *GCPConfigure) CreateGCPCloudNATGateway(region string) error {
 	}
 
 	routerNat := &compute.RouterNat{
-		AutoNetworkTier:               "STANDARD",
-		EndpointTypes:                 []string{"ENDPOINT_TYPE_VM"},
+		AutoNetworkTier:               computepb.RouterNat_STANDARD.String(),
+		EndpointTypes:                 []string{computepb.RouterNat_ENDPOINT_TYPE_VM.String()},
 		Name:                          "default-nat-" + region,
-		NatIpAllocateOption:           "AUTO_ONLY",
-		SourceSubnetworkIpRangesToNat: "ALL_SUBNETWORKS_ALL_IP_RANGES",
-		Type:                          "PUBLIC",
+		NatIpAllocateOption:           computepb.RouterNat_AUTO_ONLY.String(),
+		SourceSubnetworkIpRangesToNat: computepb.RouterNat_ALL_SUBNETWORKS_ALL_IP_RANGES.String(),
+		Type:                          computepb.RouterNat_PUBLIC.String(),
 	}
 
 	router := &compute.Router{
@@ -248,12 +249,29 @@ func (gcp *GCPConfigure) DeleteGCPCloudNATGateway(region string) error {
 		return err
 	}
 
-	client, err := compute.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	containerClient, err := container.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Routers.Delete(gcp.ProjectID, region, "default-router-"+region).Context(gcp.Ctx).Do()
+	parent := fmt.Sprintf("projects/%s/locations/%s", gcp.ProjectID, region)
+	resp, err := containerClient.Projects.Locations.Clusters.List(parent).Context(gcp.Ctx).Do()
+	if err != nil {
+		return err
+	}
+
+	if len(resp.Clusters) > 0 {
+		zap.S().Infof("skipped delete GCP router %s because there are %d clusters in the region %s",
+			"default-router-"+region, len(resp.Clusters), region)
+		return nil
+	}
+
+	computeClient, err := compute.NewService(gcp.Ctx, option.WithCredentialsJSON(gcp.AppCredentials.JSON()))
+	if err != nil {
+		return err
+	}
+
+	_, err = computeClient.Routers.Delete(gcp.ProjectID, region, "default-router-"+region).Context(gcp.Ctx).Do()
 	if err != nil {
 		var respError *googleapi.Error
 		if errors.As(err, &respError) && respError.Code == 404 && respError.Errors[0].Reason == apiErrorNotFound {
