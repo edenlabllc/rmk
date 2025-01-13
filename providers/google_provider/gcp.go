@@ -261,7 +261,7 @@ func (gcp *GCPConfigure) DeleteGCPCloudNATGateway(region string) error {
 	}
 
 	if len(resp.Clusters) > 0 {
-		zap.S().Infof("skipped delete GCP router %s because there are %d clusters in the region %s",
+		zap.S().Infof("skipped deleting GCP router %s because there are %d clusters in %s region",
 			"default-router-"+region, len(resp.Clusters), region)
 		return nil
 	}
