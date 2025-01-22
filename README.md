@@ -46,7 +46,7 @@ Since 2021, RMK has been an integral part of the company’s Kubernetes infrastr
 provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and within
 CI/CD pipelines.
 
-#### :rocket: Proven at scale
+**:rocket: Proven at scale**:
 
 - **220+** clusters handled **monthly** (based on a 5-day workweek).
 - **2,600+** clusters handled **annually**.
