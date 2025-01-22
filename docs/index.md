@@ -28,14 +28,14 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
     * Project management
       * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
       * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
-      * [Dependencies management and Project inheritance](configuration/project-management/dependencies-management-and-project-inheritance.md)
+      * [Dependencies management and project inheritance](configuration/project-management/dependencies-management-and-project-inheritance.md)
     * [Cluster management](configuration/cluster-management/cluster-management.md)
       * [Exported environment variables](configuration/cluster-management/exported-environment-variables.md)
     * [Release management](configuration/release-management/release-management.md)
     * [Secrets management](configuration/secrets-management/secrets-management.md)
   * [Commands](commands.md)
   * [Features](#features)
-  * [Supported Kubernetes providers](#supported-kubernetes-providers)
+  * [Supported Kubernetes cluster providers](#supported-kubernetes-cluster-providers)
   * [Roadmap](#roadmap)
   * [Development and release](development-and-release.md)
   * [License](#license)
@@ -246,32 +246,32 @@ rmk update --version vX.X.X
 - **[Project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** Generate a complete Kubernetes-based project structure from scratch using RMK, following the best practices.
 - **[Documentation generation:](commands.md#doc)** Generate the full command documentation in the Markdown format with one click.
 
-## Supported Kubernetes providers
+## Supported Kubernetes cluster providers
 
-By design, RMK can work with any Kubernetes provider.
+### Provisioned by RMK
 
-Among the providers are:
+RMK currently supports the provisioning of the following Kubernetes clusters:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
-- [Red Hat OpenShift](https://redhat.com/en/technologies/cloud-computing/openshift)
-- [VMware Tanzu Kubernetes Grid](https://tanzu.vmware.com/kubernetes-grid)
-- [Rancher Kubernetes Platform](https://www.rancher.com/)
-- [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
-- [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
-- on-premise installations deployed using [Ansible Kubespray](https://github.com/kubernetes-sigs/kubespray)
-- single-machine [K3D](https://k3d.io/) clusters
+- Single-machine [K3D](https://k3d.io/) clusters
+
+> Check the [Roadmap](#roadmap) section for more information.
+
+### Provisioned using 3rd-party tools and services
+
+By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a 3rd party. 
+The CLI tool simply requires an existing Kubernetes context to connect to and manage the cluster.
 
 ## Roadmap
 
-- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating pull requests (PRs).
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with **vals** for advanced values and secrets management.
-- **Implementation of additional RMK cluster providers using [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/):** Implement support for additional cluster providers for popular Kubernetes services such as [GKE](https://cloud.google.com/kubernetes-engine), [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc.
-- **Web documentation generator:** Add an HTML documentation generator based on the **.md** files.
+- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement support for provisioning and destroy of on-premise Kubernetes clusters using Cluster API.
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
+- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating pull requests (PRs).
 
-Check the [issues](https://github.com/edenlabllc/rmk/issues) for more information.
+> Check the [issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
 ## Development and release
 
