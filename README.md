@@ -52,7 +52,8 @@ CI/CD pipelines.
 - **2,600+** clusters handled **annually**.
 - **10,000+** clusters orchestrated **since 2021**.
 
-Beyond internal use, RMK is also leveraged by various clients to streamline their CI/CD workflows, ensuring fast and
+Beyond internal use, RMK is also leveraged by various external clients to streamline their CI/CD workflows, ensuring
+fast and
 efficient Kubernetes environment management.
 
 ### Advantages
@@ -142,8 +143,8 @@ A standard Kodjin-based cluster follows a 4-level inheritance structure:
 
 ##### GitHub
 
-- **[cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra):
-  ** [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) and system components required for provisioning of
+- **[cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)**: 
+  [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) and system components required for provisioning of
   Kubernetes clusters for different providers.
 - **[helmfile.hooks.infra](https://github.com/edenlabllc/helmfile.hooks.infra)**:
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
