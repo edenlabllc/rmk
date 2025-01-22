@@ -275,7 +275,7 @@ The CLI tool simply requires an existing Kubernetes context to connect to and ma
 
 ## Development and release
 
-The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/
+The guidelines are available at the [link](development-and-release.md).
 
 ## License
 
