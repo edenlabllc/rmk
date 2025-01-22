@@ -14,7 +14,7 @@ Full documentation is available at https://edenlabllc.github.io/rmk/latest/
 ## Overview
 
 **RMK** stands for "**R**educed **M**anagement for **K**ubernetes".
-The main goal of this [CLI](https://en.wikipedia.org/wiki/Command-line_interface) tool is to simplify (**"reduce"**) the
+The main goal of the [CLI](https://en.wikipedia.org/wiki/Command-line_interface) tool is to simplify (**"reduce"**) the
 management of Kubernetes clusters and releases,
 serving as a "Swiss knife" for daily CI/CD and DevOps tasks while allowing efficient control
 with a minimal set of CLI commands.
@@ -151,9 +151,8 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ##### Helm charts
 
 - **[core-charts](https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/)**: A publicly
-  accessible, [S3](https://aws.amazon.com/s3/)
-  -based [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) used by Kodjin, or any other tenant,
-  e.g.,
+  accessible, [S3-based](https://aws.amazon.com/s3/) [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) 
+  used by Kodjin, or any other tenant, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
 
 ## Development and release
