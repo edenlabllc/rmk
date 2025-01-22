@@ -95,9 +95,6 @@ advantages:
 At [Edenlab LLC](https://edenlab.io/), RMK is utilized to deploy the [Kodjin FHIR Server](https://kodjin.com)
 across various cloud providers and on-premise environments.
 
-The clusters are provisioned either for the company's internal needs or for its customers.
-The total number of clusters are ...TODO
-
 Examples of Kubernetes providers where Kodjin has already been deployed include:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
