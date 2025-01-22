@@ -184,7 +184,7 @@ func (cc *ClusterCommands) createAWSSecrets() error {
 		return err
 	}
 
-	if len(secrets) > 0 {
+	if len(secrets) > 0 || !util.IsExists(cc.Conf.SopsAgeKeys, false) {
 		return nil
 	}
 

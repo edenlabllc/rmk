@@ -102,23 +102,9 @@ helmfiles: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameE
 `
 
 	helmfileReleases = `releases:
-  # TODO: Releases from group 1 are needed to deploy K3D clusters. 
-  # TODO: If you do not inherit upstream repositories, you can leave these releases as is, 
-  # TODO: or make sure that upstream repositories do not have the same releases to avoid conflicts.
-  # Group 1
-  - name: k3d-cluster
-    namespace: kube-system
-    chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/k3d-cluster"
-    version: 0.1.0
-    labels:
-      cluster: k3d
-    installed: ` + escapeOpen + `{{ eq (env "K3D_CLUSTER" | default "false") "true" }}` + escapeClose + `
-    inherit:
-      - template: release
-
   # TODO: It is recommended to adapt this example considering security, performance and configuration management 
   # TODO: requirements specific to your application or infrastructure.  
-  # Group 2
+  # Group 1
   - name: {{ .TenantName }}-app
     namespace: {{ .TenantName }}
     chart: "{{"{{` + escape + `{{ .Release.Labels.repo }}` + escape + `}}"}}/app"
@@ -171,12 +157,21 @@ develop ------> staging ------> production
 > Note: The generated project structure using the RMK tools is mandatory and is required for the interaction of the RMK with the code base. 
 > All generated files have example content and can be supplemented according to project requirements.
 
-After generating the project structure, a set of files is generated for the main project scope etc/{{ .TenantName }}
-to demonstrate an example of configuring the {{ .TenantName }}-app release.
-This example shows how the following options are configured and interact with each other:
+After generating the project structure, files are created in the deps scope 
+` + escape + `etc/deps` + escape + ` and the main project scope ` + escape + `etc/{{ .TenantName }}` + escape + ` to provide 
+an example of configuring cluster provisioning and the ` + escape + `{{ .TenantName }}-app` + escape + ` release. 
+This example demonstrates how the following options are configured and interact with each other:
 
+- etc/deps/\<environment>/secrets/.sops.yaml
+- etc/deps/\<environment>/secrets/.spec.yaml.gotmpl
+- etc/deps/\<environment>/values/aws-cluster.yaml.gotmpl
+- etc/deps/\<environment>/values/azure-cluster.yaml.gotmpl
+- etc/deps/\<environment>/values/gcp-cluster.yaml.gotmpl
+- etc/deps/\<environment>/globals.yaml.gotmpl
+- etc/deps/\<environment>/releases.yaml
+- etc/{{ .TenantName }}/\<environment>/secrets/.sops.yaml
 - etc/{{ .TenantName }}/\<environment>/secrets/.spec.yaml.gotmpl
-- etc/{{ .TenantName }}/\<environment>/values/rmk-test-app.yaml.gotmpl
+- etc/{{ .TenantName }}/\<environment>/values/{{ .TenantName }}-app.yaml.gotmpl
 - etc/{{ .TenantName }}/\<environment>/globals.yaml.gotmpl
 - etc/{{ .TenantName }}/\<environment>/releases.yaml
 - helmfile.yaml.gotmpl
@@ -295,6 +290,64 @@ generation-rules:
       envSecret:
         USERNAME: user
         PASSWORD: ` + escapeOpen + `{{ randAlphaNum 16 }}` + escapeClose + `
+`
+
+	tenantAWSClusterValuesExample = `# This value file is an introductory example configuration for provisioning AWS EKS via RMK.
+# The value file is intended to demonstrate the basic capabilities of RMK in provisioning Kubernetes clusters for specific provider 
+# and should not be used as is in a production environment.
+# A complete example of a set of options for configuring the provision of an AWS EKS 
+# cluster at the link: https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl 
+
+# TODO: It is recommended to adapt this example considering security, performance and configuration management 
+# TODO: requirements specific to your infrastructure.
+controlPlane:
+  spec:
+    iamAuthenticatorConfig:
+      # UserMappings is a list of user mappings
+      mapUsers: []
+` + escapeOpen + `{{/*# TODO: Add a list of users at the downstream tenant repository level*/}}` + escapeClose + `
+` + escapeOpen + `{{/*        - groups:*/}}` + escapeClose + `
+` + escapeOpen + `{{/*            - system:masters*/}}` + escapeClose + `
+` + escapeOpen + `{{/*          # UserARN is the AWS ARN for the user to map*/}}` + escapeClose + `
+` + escapeOpen + `{{/*          userarn: arn:aws:iam::{{ env "AWS_ACCOUNT_ID" }}:user/user1*/}}` + escapeClose + `
+` + escapeOpen + `{{/*          # UserName is a kubernetes RBAC user subject*/}}` + escapeClose + `
+` + escapeOpen + `{{/*          username: user1*/}}` + escapeClose + `
+
+## The machine pools configurations
+machinePools:
+  app:
+    enabled: true
+`
+
+	tenantAzureClusterValuesExample = `# This value file is an introductory example configuration for provisioning Azure AKS via RMK.
+# The value file is intended to demonstrate the basic capabilities of RMK in provisioning Kubernetes clusters for specific provider 
+# and should not be used as is in a production environment.
+# A complete example of a set of options for configuring the provision of an Azure AKS 
+# cluster at the link: https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/azure-cluster.yaml.gotmpl 
+
+# TODO: It is recommended to adapt this example considering security, performance and configuration management 
+# TODO: requirements specific to your infrastructure.
+## The machine pools configurations
+machinePools:
+  system:
+    enabled: true
+
+  app:
+    enabled: true
+`
+
+	tenantGCPClusterValuesExample = `# This value file is an introductory example configuration for provisioning GCP GKE via RMK.
+# The value file is intended to demonstrate the basic capabilities of RMK in provisioning Kubernetes clusters for specific provider 
+# and should not be used as is in a production environment.
+# A complete example of a set of options for configuring the provision of an GCP GKE
+# cluster at the link: https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl 
+
+# TODO: It is recommended to adapt this example considering security, performance and configuration management 
+# TODO: requirements specific to your infrastructure.
+## The machine pools configurations
+machinePools:
+  app:
+    enabled: true
 `
 
 	tenantValuesExample = `# This value file is an introductory example configuration for running Nginx in Kubernetes via RMK.

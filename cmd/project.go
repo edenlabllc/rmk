@@ -18,8 +18,15 @@ import (
 
 	"rmk/config"
 	"rmk/git_handler"
+	"rmk/github"
 	"rmk/notification"
 	"rmk/util"
+)
+
+const (
+	clusterDepsRepo      = "cluster-deps.bootstrap.infra"
+	clusterDepsRepoOwner = "edenlabllc"
+	clusterDepsRepoUrl   = "git::https://github.com/" + clusterDepsRepoOwner + "/{{.Name}}.git?ref={{.Version}}"
 )
 
 type ProjectCommands struct {
@@ -115,6 +122,21 @@ func (p *ProjectCommands) createProjectFile() error {
 
 	if p.Ctx.IsSet("scopes") {
 		p.projectFile.Spec.Scopes = p.Ctx.StringSlice("scopes")
+	}
+
+	client, err := github.NewClient(clusterDepsRepoOwner, clusterDepsRepo, "", github.APIBaseUrl)
+	if err != nil {
+		return err
+	}
+
+	if release, err := client.GetRelease(p.Ctx.Context, ""); err != nil {
+		zap.S().Warnf("skip add dependencies section into %s file, GitHub error: %v", util.TenantProjectFile, err)
+	} else {
+		p.projectFile.Dependencies = append(p.projectFile.Dependencies, config.Package{
+			Name:    clusterDepsRepo,
+			Version: release.GetTagName(),
+			Url:     clusterDepsRepoUrl,
+		})
 	}
 
 	encoder := yaml.NewEncoder(&buf)
@@ -313,6 +335,33 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 	for _, sc := range p.scopes {
 		for _, env := range sc.environments {
 			switch sc.name {
+			case "deps":
+				tAWSCluster, err := p.Conf.ParseTemplate(template.New("TenantAWSCluster"), &p.parseContent, tenantAWSClusterValuesExample)
+				if err != nil {
+					return err
+				}
+
+				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, "aws-cluster.yaml.gotmpl"), tAWSCluster); err != nil {
+					return err
+				}
+
+				tAzureCluster, err := p.Conf.ParseTemplate(template.New("TenantAzureCluster"), &p.parseContent, tenantAzureClusterValuesExample)
+				if err != nil {
+					return err
+				}
+
+				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, "azure-cluster.yaml.gotmpl"), tAzureCluster); err != nil {
+					return err
+				}
+
+				tGCPCluster, err := p.Conf.ParseTemplate(template.New("TenantGCPCluster"), &p.parseContent, tenantGCPClusterValuesExample)
+				if err != nil {
+					return err
+				}
+
+				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, "gcp-cluster.yaml.gotmpl"), tGCPCluster); err != nil {
+					return err
+				}
 			case p.TenantName:
 				tGlobals, err := p.Conf.ParseTemplate(template.New("TenantGlobals"), &p.parseContent, tenantGlobals)
 				if err != nil {
@@ -344,7 +393,9 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 				if err := p.writeProjectFiles(filepath.Join(env.valuesPath, p.TenantName+"-app.yaml.gotmpl"), tenantValuesExample); err != nil {
 					return err
 				}
-			default:
+			}
+
+			if sc.name != p.TenantName {
 				if err := p.writeProjectFiles(env.globalsPath, globals); err != nil {
 					return err
 				}
