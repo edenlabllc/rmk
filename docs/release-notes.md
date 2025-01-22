@@ -18,3 +18,4 @@
 - #29 - Restructured code files for improved organization.
 - #29 - Changed root-domain configuration to be managed via the project.yaml file.
 - #29 - Deprecated Terraform commands under the cluster category.
+- #29 - Improved documentation to describe the new Cluster API provisioning and management logic.

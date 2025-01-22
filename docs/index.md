@@ -154,7 +154,7 @@ A standard Kodjin-based cluster follows a 4-level inheritance structure:
   e.g., [Kodjin Demo FHIR Server](https://demo.kodjin.com/)
 
 Each project ("tenant") follows a
-standard [GitLa
+standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model.
 
 #### Related repositories
 
