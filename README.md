@@ -43,7 +43,7 @@ Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the ma
 [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
 
 Since 2021, RMK has been an integral part of the company’s Kubernetes infrastructure, used regularly for automated
-provisioning and destroy of temporary Kodjin clusters for development and testing purposes — both manually and within
+provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and within
 CI/CD pipelines.
 
 #### :rocket: Proven at scale
@@ -106,19 +106,6 @@ Examples of Kubernetes providers where Kodjin has already been deployed include:
 - [On-premise](https://en.wikipedia.org/wiki/On-premises_software) deployments
 - Single-machine [K3D](https://k3d.io/) clusters
 
-Each project ("tenant") follows a
-standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model, which
-includes:
-
-- `develop` – main development branch
-- `staging` – pre-production testing
-- `production` – live environment
-
-Additionally, ephemeral branches are used for temporary environments:
-
-- `feature/*` – based on `develop`, used for feature development
-- `release/*` – based on `staging`, used for release preparation
-
 A standard Kodjin-based cluster follows a 4-level inheritance structure:
 
 - **[cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) (upstream#1)**:
@@ -135,6 +122,9 @@ A standard Kodjin-based cluster follows a 4-level inheritance structure:
   Encompasses products built on top of Kodjin, including UI components, user portals, and middleware services, such as
   the
   e.g., [Kodjin Demo FHIR Server](https://demo.kodjin.com/)
+
+Each project ("tenant") follows a
+standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model.
 
 #### Related repositories
 
