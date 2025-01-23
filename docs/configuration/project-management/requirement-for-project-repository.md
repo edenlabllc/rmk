@@ -2,7 +2,7 @@
 
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
    For example: `kodjin.bootstrap.infra` or `kodjin.infra`.
-2. The project's repository exists within [GitLabFlow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
+2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
    and therefor supports the following set of static branches:
 
    - `develop`
@@ -19,10 +19,9 @@
 
 ## Expected repository structure:
 
+[//]: # (  TODO ACTUALIZE)
+
 ```yaml
-etc/clusters/<provider>/<environment>/values/
-  variables.auto.tfvars # Core variables for the AWS EKS cluster provider.
-  worker-groups.auto.tfvars # Variables describing the resources of the AWS EKS cluster.
 etc/<upstream_project_name>/<environment>/secrets/
   .sops.yaml # The public key for the current set of secrets.
   .spec.yaml.gotmpl # The secrets template for generating new or rotating current secrets.
@@ -68,6 +67,8 @@ project.yaml # Project specification for the dependencies and inventory installe
 
 ### Requirement for `globals.yaml.gotmpl`
 
+[//]: # (  TODO ACTUALIZE)
+
 ```yaml
 # configs - enumeration of configurations divided into sets related to the Kubernetes ConfigMaps.
 configs:
@@ -102,6 +103,8 @@ hooks:
 ### Requirement for `helmfile.yaml.gotmpl`
 
 The list of the `helmfile.yaml.gotmpl` sections that must be defined and remained unchanged for working with RMK correctly is:
+
+[//]: # (  TODO ACTUALIZE)
 
 ```gotemplate
 environments:

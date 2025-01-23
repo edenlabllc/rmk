@@ -13,6 +13,8 @@ create a local cluster based on `K3D`, deploy your first application ([Nginx](ht
 0. Create a [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
    file in the root of the project repository with the following content:
 
+[//]: # (  TODO ACTUALIZE)
+
 ```yaml
 project:
   spec:
@@ -23,10 +25,6 @@ project:
     scopes:
       - rmk-test
 inventory:
-  clusters:
-    k3d.provisioner.infra:
-      version: v0.2.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
   helm-plugins:
     diff:
       version: v3.8.1

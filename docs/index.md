@@ -236,15 +236,26 @@ rmk update --version vX.X.X
 
 ## Features
 
-- **[Reduced and simplified management of Kubernetes projects:](#overview)** Deploy to Kubernetes using Helmfile/Helm, use popular DevOps tools together in a single CI/CD pipeline.
-- **[Time-proven project structure:](configuration/project-management/preparation-of-project-repository.md)** Define the project structure using the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) methodology.
-- **[Hierarchies between different projects:](configuration/project-management/dependencies-management-and-project-inheritance.md)** Define upstream-downstream relationships between sibling projects to reuse releases and services across different installations.
-- **[Batch secret management:](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager)** Template, generate, and encode project secrets for all environments in a batch manner.
-- **[Automatic detection of Multi-Factor Authentication](configuration/configuration-management.md#support-for-multi-factor-authentication-mfa) ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)):** Automatically detect and use an MFA device if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
-- **[Push-based release and downstream project updates:](configuration/release-management/release-management.md#release-update-and-integration-into-the-cd-pipeline)** Easily integrate with CI/CD solutions via webhooks or workflow dispatch events 
+- **[Simplified management of Kubernetes clusters:](#overview)**
+  Provision Kubernetes clusters across various environments and providers, streamline release management 
+  with [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/) and other popular DevOps tools.
+- **[Time-proven project structure:](configuration/project-management/preparation-of-project-repository.md)** 
+  Define the project structure using the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) methodology.
+- **[Hierarchies between different projects:](configuration/project-management/dependencies-management-and-project-inheritance.md)** 
+  Define upstream-downstream relationships between sibling projects to reuse releases and services across different installations.
+- **[Initial project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** 
+  Generate a complete Kubernetes-based project structure from scratch using RMK, following industry best practices.
+- **[Batch secret management:](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager)**
+  Template, generate, and encode project secrets for all environments in a batch manner.
+- **[Self-documentation generation:](commands.md#doc)**
+  Generate the full command documentation in the [Markdown](https://en.wikipedia.org/wiki/Markdown) format with one click.
+- **[Push-based release and downstream project updates:](configuration/release-management/release-management.md#release-update-and-integration-into-the-cd-pipeline)**
+  Easily integrate with CI/CD solutions via [webhooks](https://www.redhat.com/en/topics/automation/what-is-a-webhook) 
+  or [workflow dispatch events](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_dispatch)
   to update release and service version declarations, automatically commit the changes to Git.
-- **[Project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** Generate a complete Kubernetes-based project structure from scratch using RMK, following the best practices.
-- **[Documentation generation:](commands.md#doc)** Generate the full command documentation in the Markdown format with one click.
+- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management.md#support-for-multi-factor-authentication-mfa):** 
+  Automatically detect and use an ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)) device 
+  if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
 
 ## Supported Kubernetes cluster providers
 
@@ -262,7 +273,8 @@ RMK currently supports the provisioning of the following Kubernetes clusters:
 ### Provisioned using 3rd-party tools and services
 
 By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a 3rd party. 
-The CLI tool simply requires an existing Kubernetes context to connect to and manage the cluster.
+The CLI tool simply requires an existing [Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) 
+to connect to and manage the cluster.
 
 ## Roadmap
 

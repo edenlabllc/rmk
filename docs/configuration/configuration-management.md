@@ -10,14 +10,15 @@ in the [project.yaml](project-management/preparation-of-project-repository.md#pr
 
 Example of the configuration:
 
+[//]: # (  TODO ACTUALIZE)
+
 ```yaml
 name: kodjin-develop # RMK config name, a unique identifier which consists of the tenant name and the abbreviated name of the Git branch.
 tenant: kodjin # Tenant name.
 environment: develop # Environment name.
-config-from: kodjin-develop # Configuration name from which the cluster configuration was inherited.
 root-domain: kodjin-develop.edenlab.dev # Root domain name used across the cluster.
 aws:
-  profile: kodjin-develop # AWS profile name for the AWS CLI.
+  profile: kodjin-develop # AWS profile name.
   region: eu-north-1 # AWS region of the current Kubernetes cluster.
   account_id: "123456789"
 # ...
@@ -78,17 +79,22 @@ You can also check the lifetime of the session token by running the command: `rm
 
 When initializing the RMK configuration for feature or release clusters, you can use inheritance 
 from a previously saved configuration that contains the necessary credentials to create a Kubernetes cluster.
-Let's say you want to create or connect to the feature cluster with the credentials of the `develop` cluster,
-in this case you must run the initialization command with the `--config-from-environment` flag. For example:
+Let's say you want to create or connect to the feature cluster with the credentials of the `develop` cluster.
+
+[//]: # (in this case you must run the initialization command with the `--config-from-environment` flag. For example:)
+
+[//]: # (  TODO ACTUALIZE)
 
 ```shell
-rmk config init --config-from-environment=<develop|staging|production|ffs-XXX|vX.X.X-rc|vX.X.X>
+#rmk config init>
 ```
 
 ### Reconfiguration of the AWS profile if wrong credentials has been input
 
+[//]: # (  TODO ACTUALIZE)
+
 ```shell
-rmk config init --aws-reconfigure
+rmk config init
 ```
 
 ### Initialization of RMK configuration with a custom root domain

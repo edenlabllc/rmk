@@ -150,7 +150,7 @@ according to the version changes of artifacts (container images) following the [
 Since RMK is a binary file that can be downloaded and installed on any Unix-based CI/CD system, 
 it can be integrated with almost any CI/CD system: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
 
-### Example of integration with GitHub Actions:
+### Example of integration with GitHub Actions
 
 > Prerequisites:
 > 
@@ -158,6 +158,8 @@ it can be integrated with almost any CI/CD system: GitHub Actions, GitLab, Drone
 
 Create the following workflow in your project repository at `.github/workflows/release-update.yaml`. 
 An example content of the GitHub Actions' workflow:
+
+[//]: # (  TODO ACTUALIZE)
 
 ```yaml
 name: Release update

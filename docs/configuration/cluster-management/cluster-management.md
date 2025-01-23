@@ -1,12 +1,12 @@
 # Cluster management
 
-RMK uses [Terraform](https://www.terraform.io/) and [K3D](https://k3d.io) for cluster management.
+RMK uses [Cluster API](https://cluster-api.sigs.k8s.io/introduction) and [K3D](https://k3d.io) for cluster management.
 
 RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through native Helmfile functionality.
 
 The 2 scenarios are:
 
-- **A cluster has already been provisioned via a 3rd-party tool/service:** An existing Kubernetes context will be used by RMK.
+- **A cluster has already been provisioned via 3rd-party tools/services:** An existing Kubernetes context will be used by RMK.
 - **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as AWS, K3D, etc. will be utilized.
 
 ## Switch the context to an existing Kubernetes cluster
@@ -15,36 +15,18 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
 
 * **Using a 3rd party tool:**
   
-  Create a context with the name matching the pattern:
+  Create a context with the name strictly matching the following:
   
   ```
-  \b<project_name>-<environment>\b
+  <project_name>-<environment>
   ```
   
-  > The matching is **case-insensitive**. \
-  > `\b` means the **ASCII word boundary** (`\w` on one side and `\W`, `\A`, or `\z` on the other).
-  
-  For example, if you are in the `project1` repository in the `develop` branch, any of the following Kubernetes contexts will be accepted:
+  For example, if you are in the `project1` repository in the `develop` branch, any of the following Kubernetes context will be accepted:
   
   ```
   project1-develop
-  Project1-Develop
-  PROJECT1-DEVELOP
-  project1-develop-cluster
-  Project1-Develop-Cluster
-  PROJECT1-DEVELOP-CLUSTER
-  k3d-project1-develop
-  arn:aws:eks:us-east-1:123456789000:cluster/PROJECT1-DEVELOP-CLUSTER
   ```
   
-  > If there are **more than one** Kubernetes context which match the regular expression **simultaneously**, 
-  > an **error** will be thrown indicating a conflict. For example, the following names will conflict:
-  > 
-  > ```shell
-  > project1-develop
-  > k3d-project1-develop
-  > ```
-
 * **Using RMK cluster provider**:
 
   Checkout to the branch from which the K8S cluster was previously created. 
@@ -80,15 +62,18 @@ rmk release list
 
 Currently, the following cluster providers are supported by RMK:
 
-- [aws.provisioner.infra](https://github.com/edenlabllc/aws.provisioner.infra): Configuration for managing AWS EKS
-  clusters using Terraform. Kubernetes clusters can be provisioned from scratch and destroyed 
+- AWS EKS: Configuration for managing AWS EKS
+  clusters using Cluster API. Kubernetes clusters can be provisioned from scratch and destroyed 
   via the `rmk cluster provision`, `rmk cluster destroy` commands.
-- [k3d.provisioner.infra](https://github.com/edenlabllc/k3d.provisioner.infra): Configuration for managing
+- Azure: ...
+- GCP: ...
+- K3D: Configuration for managing
   single-machine clusters using K3D (suitable for both local development and minimal cloud deployments). 
   Kubernetes clusters can be created from scratch and deleted via the `rmk cluster k3d create`, `rmk cluster k3d delete` commands.
 
-Support for other cloud providers such as GCP, Azure will be implemented in the future.
-This enhancement will include the introduction of new RMK commands and cluster providers, as well as the addition of _*.provisioner.infra_ repositories.
+Support for other cloud providers and on-premise will be implemented in the future.
+This enhancement might include the introduction of new RMK commands, Cluster API providers, K8S operators.
+The main infrastructure configuration can always be checked in the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository. 
 
 ### Provision or destroy AWS EKS Kubernetes clusters
 
@@ -99,7 +84,9 @@ The core configurations are divided into two types:
 
 - **variables** (common AWS cluster management):
 
-  _Path:_ `etc/clusters/aws/<environment>/values/variables.auto.tfvars`
+  _Path:_ `...`  
+
+[//]: # (  TODO ACTUALIZE)
 
   _Frequently changed values:_
 
@@ -110,11 +97,14 @@ The core configurations are divided into two types:
   # ...
   ```
 
-  > Full list of input Terraform variables: `.PROJECT/inventory/clusters/aws.provisioner.infra-<version>/terraform/variables.tf`
+  > Full list of input variables: `...`
+  [//]: # (  TODO ACTUALIZE)
 
 - **worker-groups** (resources for AWS worker nodes):
 
-  _Path:_ `etc/clusters/aws/<environment>/values/worker-groups.auto.tfvars`
+  _Path:_ `...`
+
+  [//]: # (  TODO ACTUALIZE)
 
   _Frequently changed values:_
 
@@ -172,7 +162,9 @@ rmk cluster destroy
 RMK supports managing single-node Kubernetes clusters using [K3D](https://k3d.io).
 
 The CLI will create a cluster according to the declarative instruction for K3D: 
-`.PROJECT/inventory/clusters/k3d.provisioner.infra-<version>/k3d.yaml`.
+`...`.
+
+[//]: # (  TODO ACTUALIZE)
 
 > Prerequisites:
 > 

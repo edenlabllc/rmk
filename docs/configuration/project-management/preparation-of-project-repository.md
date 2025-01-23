@@ -27,6 +27,8 @@ This will create a default project structure and prepare an example release base
 The `project.yaml` file is the main configuration file of the repository, the file is used by RMK
 and contains the following main sections:
 
+[//]: # (  TODO ACTUALIZE)
+
 * `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project specification.
 
   ```yaml
@@ -58,19 +60,12 @@ and contains the following main sections:
   # ... 
   ```
 
+[//]: # (  TODO ACTUALIZE)
+
 * `inventory`: Optional, contains a map of the extra configurations required to launch the project.
 
   ```yaml
   inventory:
-    # Optional, contains a map of the cluster provider repositories with Terraform manifests or other provisioning configurations.  
-    clusters:
-      # Optional, cluster provider repository name.
-      aws.provisioner.infra:
-        # Required, cluster provider repository version in the `SemVer2` format.
-        version: <SemVer2>
-        # Required, cluster provider repository URL.
-        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
-      # ...
     # Optional, contains a map of the Helm plugins repositories.
     helm-plugins:
       # Optional, Helm plugin name.
@@ -106,6 +101,8 @@ and contains the following main sections:
 <details>
   <summary>Example of the full <code>project.yaml</code> file.</summary>
 
+[//]: # (  TODO ACTUALIZE)
+
 ```yaml
 project:
   dependencies:
@@ -125,13 +122,6 @@ project:
       - deps
       - project1
 inventory:
-  clusters:
-    aws.provisioner.infra:
-      version: v1.5.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
-    k3d.provisioner.infra:
-      version: v0.2.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
   helm-plugins:
     diff:
       version: v3.8.1

@@ -4,7 +4,7 @@
 
 ### Requirements for the availability of tools during development
 
-- **[Golang](https://tip.golang.org/doc/install)** = v1.21.X
+- **[Golang](https://tip.golang.org/doc/install)** = v1.22.X
 - **[GoReleaser](https://goreleaser.com/install)** = v1.23.0
 
 ### Building from source
