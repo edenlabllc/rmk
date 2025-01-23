@@ -11,6 +11,10 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
 
 Full documentation is available at https://edenlabllc.github.io/rmk/latest/
 
+## Status
+
+[//]: # (TODO ACTUALIZE)
+
 ## Overview
 
 **RMK** stands for "**R**educed **M**anagement for **K**ubernetes".

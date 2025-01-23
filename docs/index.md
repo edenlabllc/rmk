@@ -10,6 +10,7 @@ environments,
 in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](https://www.atlassian.com/devops).
 
 * [RMK CLI - Reduced Management for Kubernetes](#rmk-cli---reduced-management-for-kubernetes)
+  * [Status](#status)
   * [Overview](#overview)
     * [Efficiency in numbers](#efficiency-in-numbers)
     * [Advantages](#advantages)
@@ -40,6 +41,10 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
   * [Development and release](development-and-release.md)
   * [License](#license)
   * [Code of Conduct](#code-of-conduct)
+
+## Status
+
+[//]: # (TODO ACTUALIZE)
 
 ## Overview
 
