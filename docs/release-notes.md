@@ -9,6 +9,8 @@
 - #29 - Added GCP NAT router creation for the GCP provider.
 - #29 - Added commands for managing Cluster API clusters to the cluster category commands.
 - #29 - Added new configuration arguments for project generation.
+- #29 - Added the generation of values for all cluster provider configurations in the project generate command.
+- #29 - Fixed the inheritance behavior of dependent repositories.
 - #29 - Fixed the output of the config list command for adjacent tenant names.
 - #29 - Removed the artifact-mode flag and the functionality.
 - #29 - Reworked the behaviour of the config init command to align with each cluster provider.

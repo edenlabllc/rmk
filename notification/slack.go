@@ -48,8 +48,8 @@ func (s *SlackConfig) slackPostMsg(status string) error {
 		return nil
 	} else {
 		if len(s.SlackWebHook) == 0 || len(s.SlackChannel) == 0 {
-			zap.S().Fatalf("parameters --slack-webhook, --slack-channel not set for command " +
-				"'rmk config init', required if Slack notifications are enabled")
+			zap.S().Fatalf("parameters --slack-webhook, --slack-channel not set for 'rmk config init' command," +
+				"required if Slack notifications are enabled")
 		}
 	}
 

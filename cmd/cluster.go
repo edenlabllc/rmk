@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os"
-	"regexp"
 	"strings"
 
 	yaml2 "github.com/ghodss/yaml"
@@ -226,13 +225,8 @@ func (cc *ClusterCommands) getKubeContext() (string, string, error) {
 		return "", "", err
 	}
 
-	re, err := regexp.Compile(`(?i)\b` + cc.Conf.Name + `\b`)
-	if err != nil {
-		return "", "", err
-	}
-
 	for key := range kubeConfig.Contexts {
-		if re.MatchString(key) {
+		if cc.Conf.Name == key {
 			contextNames = append(contextNames, key)
 		}
 	}

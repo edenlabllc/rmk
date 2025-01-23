@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/urfave/cli/v2"
@@ -519,6 +520,8 @@ func readInputSourceWithContext(gitSpec *git_handler.GitSpec, conf *config.Confi
 
 		if ctx.Command.Name == "generate" && !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
 			return nil
+		} else if ctx.Command.Name == "generate" && util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
+			return fmt.Errorf("%s file exists, please eather delete it or run 'rmk config init' command to regenerate project", util.TenantProjectFile)
 		}
 
 		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
