@@ -10,9 +10,9 @@ AWS_PROFILE=<project_name>-<project_branch>
 AWS_CONFIG_FILE=${HOME}/.aws/config_<project_name>-<project_branch>
 AWS_SHARED_CREDENTIALS_FILE=${HOME}/.aws/credentials_<project_name>-<project_branch>
 # For example:
-# AWS_PROFILE=kodjin-develop
-# AWS_CONFIG_FILE=${HOME}/.aws/config_kodjin-develop
-# AWS_SHARED_CREDENTIALS_FILE=${HOME}/.aws/credentials_kodjin-develop
+# AWS_PROFILE=rmk-test-develop
+# AWS_CONFIG_FILE=${HOME}/.aws/config_rmk-test-develop
+# AWS_SHARED_CREDENTIALS_FILE=${HOME}/.aws/credentials_rmk-test-develop
 
 # GitHub Personal Access Token
 GITHUB_TOKEN=<github_personal_access_token>
@@ -25,12 +25,12 @@ HELMFILE_<upstream_project_name>_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/<hook
 # The path to the directory of the specific version of hooks required for the downstream project
 HELMFILE_<downstream_project_name>_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/<hooks_repo_name>-<version>
 # For example:
-# HELMFILE_KODJIN_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/helmfile.hooks.infra-v1.18.0
+# HELMFILE_RMK_TEST_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/helmfile.hooks.infra-v1.18.0
 
 # The paths to the directories of the listed inherited upstream projects in the JSON format.
 HELMFILE_<project_name>_PATHS='[{"path":"${PWD}/.PROJECT/dependencies/<upstream_repo_name>-<upstream_repo_version>/helmfile.yaml.gotmpl"}]'
 # For example:
-# HELMFILE_KODJIN_PATHS=[{"path":"${PWD}/.PROJECT/dependencies/deps.bootstrap.infra-v2.18.0/helmfile.yaml.gotmpl"}]
+# HELMFILE_RMK_TEST_PATHS=[{"path":"${PWD}/.PROJECT/dependencies/deps.bootstrap.infra-v2.18.0/helmfile.yaml.gotmpl"}]
 
 # The version of the inherited upstream project
 HELMFILE_<project_repo_name>_VERSION=vN.N.N
@@ -40,22 +40,22 @@ HELMFILE_<project_repo_name>_VERSION=vN.N.N
 # The configuration RMK name for the current project and environment
 NAME=<project_name>-<project_branch>
 # For example:
-# NAME=kodjin-develop
+# NAME=rmk-test-develop
 
 # The root domain name for target applications in the cluster
 ROOT_DOMAIN=<project_name>-<project_branch>.example.com
 # For example:
-# ROOT_DOMAIN=kodjin-develop.example.com
+# ROOT_DOMAIN=rmk-test-develop.example.com
 
 # The path to the file with the merged private Age keys
 SOPS_AGE_KEY_FILE=${HOME}/.rmk/sops-age-keys/<project_name>-sops-age-keys-<short_AWS_account_id>/.keys.txt
 # For example:
-# SOPS_AGE_KEY_FILE=${HOME}/.rmk/sops-age-keys/kodjin-sops-age-keys-28804/.keys.txt
+# SOPS_AGE_KEY_FILE=${HOME}/.rmk/sops-age-keys/rmk-test-sops-age-keys-28804/.keys.txt
 
 # The tenant name, which is an equivalent to the project name
 TENANT=<project_name>
 # For example:
-# NAME=kodjin
+# NAME=rmk-test
 
 # The flag that indicates whether the cluster is currently based on K3D. The variable can be used for overriding values in the releases.
 K3D_CLUSTER=true

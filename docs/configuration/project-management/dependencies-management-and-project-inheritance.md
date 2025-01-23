@@ -54,7 +54,7 @@ For example:
 ```yaml
 commonLabels:
 # ...
-  bin: {{ env "HELMFILE_KODJIN_HOOKS_DIR" }}/bin
+  bin: {{ env "HELMFILE_RMK_TEST_HOOKS_DIR" }}/bin
 # ...
 ```
 
@@ -67,16 +67,16 @@ Let's look at the following examples of the inheritance:
    ```yaml
    project:
      dependencies:
-       - name: kodjin.bootstrap.infra
+       - name: rmk-test.bootstrap.infra
          version: v4.4.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
 
    In this case, a version of the Helmfile hooks in the `inventory.hooks` section is not specified, however,
-   it is indicated that the current project of the repository inherits `kodjin.bootstrap.infra` with the `v4.4.0` version.
-   In turn, `kodjin.bootstrap.infra` inherits the `deps.bootstrap.infra` repository.
-   The [project.yaml](preparation-of-project-repository.md#projectyaml) file for the `kodjin.bootstrap.infra` repository is also missing the version of the hooks:
+   it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with the `v4.4.0` version.
+   In turn, `rmk-test.bootstrap.infra` inherits the `deps.bootstrap.infra` repository.
+   The [project.yaml](preparation-of-project-repository.md#projectyaml) file for the `rmk-test.bootstrap.infra` repository is also missing the version of the hooks:
 
    ```yaml
    project:
@@ -106,12 +106,12 @@ Let's look at the following examples of the inheritance:
    This configuration scheme is **the most common** and has the following inheritance scheme for the `Helmfile` hooks:
 
    ```textmate
-   Project repo name:            deps.bootstrap.infra ---------> kodjin.bootstrap.infra -------> <downstream_project>.bootstrap.infra
+   Project repo name:            deps.bootstrap.infra ---------> rmk-test.bootstrap.infra -------> <downstream_project>.bootstrap.infra
    Project repo version:         v2.19.0                         v4.4.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.18.0 -> helmfile.hooks.infra-v1.18.0 -> helmfile.hooks.infra-v1.18.0
    ```
 
-2. **Hook version inheritance from the upstream project's repository in case the `Kodjin` project has a fixed version 
+2. **Hook version inheritance from the upstream project's repository in case the `rmk-test` project has a fixed version 
    of the `Helmfile` hooks specified in its [project.yaml](preparation-of-project-repository.md#projectyaml) file:**
    
    The [project.yaml](preparation-of-project-repository.md#projectyaml) file of the downstream project is the following:
@@ -119,15 +119,15 @@ Let's look at the following examples of the inheritance:
    ```yaml
    project:
      dependencies:
-       - name: kodjin.bootstrap.infra
+       - name: rmk-test.bootstrap.infra
          version: v4.4.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
 
    In this case, the version of the Helmfile hooks in the `inventory.hooks` section is not specified,
-   however, it is indicated that the current project of the repository inherits `kodjin.bootstrap.infra` with the `v4.4.0` version.
-   In turn, `kodjin.bootstrap.infra` inherits the `deps.bootstrap.infra` repository which already
+   however, it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with the `v4.4.0` version.
+   In turn, `rmk-test.bootstrap.infra` inherits the `deps.bootstrap.infra` repository which already
    has its own fixed version of `v1.17.0` of the `Helmfile` hooks in the `inventory.hooks` section:
 
    ```yaml
@@ -162,7 +162,7 @@ Let's look at the following examples of the inheritance:
    This configuration scheme will look like this:
 
    ```textmate
-   Project repo name:            deps.bootstrap.infra ---------> kodjin.bootstrap.infra -------> <downstream_project>.bootstrap.infra
+   Project repo name:            deps.bootstrap.infra ---------> rmk-test.bootstrap.infra -------> <downstream_project>.bootstrap.infra
    Project repo version:         v2.19.0                         v4.4.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.18.0 -> helmfile.hooks.infra-v1.17.0 -> helmfile.hooks.infra-v1.18.0
    ```
@@ -171,7 +171,7 @@ Let's look at the following examples of the inheritance:
    > As a result, in the downstream project's repository, we will have the two loaded versions of `Helmfile` hooks:
    > 
    > - One will be relevant for the `deps.bootstrap.infra` repository and the downstream project's repository.
-   > - Another will be relevant for the `kodjin.bootstrap.infra` repository.
+   > - Another will be relevant for the `rmk-test.bootstrap.infra` repository.
    > 
    > This mechanism allows for multi-versioning support of the `Helmfile` hooks at different levels of the inheritance.
 
@@ -186,19 +186,19 @@ Let's look at the following examples of the inheritance:
        - name: deps.bootstrap.infra
          version: v2.20.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}       
-       - name: kodjin.bootstrap.infra
+       - name: rmk-test.bootstrap.infra
          version: v4.4.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
 
    > The dependencies should be declared in the correct order of inheritance: the first one is `deps.bootstrap.infra`,
-   > then `kodjin.bootstrap.infra`, then other repositories (if needed).
+   > then `rmk-test.bootstrap.infra`, then other repositories (if needed).
 
    In this case, a version of the `Helmfile` hooks in the `inventory.hooks` section is not specified,
-   however, it is indicated that the current project of the repository inherits `kodjin.bootstrap.infra` with the `v4.4.0` version.
-   In turn, `kodjin.bootstrap.infra` inherits the `deps.bootstrap.infra` repository.
-   The [project.yaml](preparation-of-project-repository.md#projectyaml) file for the `kodjin.bootstrap.infra` repository is also missing the version of the hooks:
+   however, it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with the `v4.4.0` version.
+   In turn, `rmk-test.bootstrap.infra` inherits the `deps.bootstrap.infra` repository.
+   The [project.yaml](preparation-of-project-repository.md#projectyaml) file for the `rmk-test.bootstrap.infra` repository is also missing the version of the hooks:
 
    ```yaml
    project:
@@ -225,7 +225,7 @@ Let's look at the following examples of the inheritance:
    This configuration scheme will look like this:
 
    ```textmate
-   Project repo name:            deps.bootstrap.infra ---------> kodjin.bootstrap.infra -------> <downstream_project>.bootstrap.infra
+   Project repo name:            deps.bootstrap.infra ---------> rmk-test.bootstrap.infra -------> <downstream_project>.bootstrap.infra
    Project repo version:         v2.20.0                         v4.4.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.19.0 -> helmfile.hooks.infra-v1.19.0 -> helmfile.hooks.infra-v1.19.0
    ```

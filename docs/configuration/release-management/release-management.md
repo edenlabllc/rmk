@@ -24,7 +24,7 @@ For example:
 
 ```
 etc/deps/develop/values/
-etc/kodjin/staging/values/
+etc/rmk-test/staging/values/
 ```
 
 > The release values are inherited by the projects, e.g., the upstream project's values are included into the downstream project's values.

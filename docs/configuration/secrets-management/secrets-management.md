@@ -9,7 +9,7 @@ For example:
 
 ```
 etc/deps/develop/secrets/mongodb.yaml
-etc/kodjin/develop/secrets/kodjin-minio-config-buckets.yaml
+etc/rmk-test/develop/secrets/rmk-test-minio-config-buckets.yaml
 ```
 
 Normally, the files are committed to Git because they are encrypted using SOPS age keys and symmetric-key algorithms.
@@ -146,8 +146,8 @@ Then generate the new secret as the plain YAML and encrypt it using RMK for the 
 For example:
 
 ```shell
-rmk secret manager generate --scope kodjin --environment develop
-rmk secret manager encrypt --scope kodjin --environment develop
+rmk secret manager generate --scope rmk-test --environment develop
+rmk secret manager encrypt --scope rmk-test --environment develop
 ```
 
 > At this moment, the `.sops.yaml` files has already been populated and therefor need no manual changes.
@@ -194,10 +194,10 @@ rmk secret view etc/deps/develop/secrets/minio.yaml
 ## Rotate secrets for specific scope and environment
 
 To force a new generation of the secrets for a specific scope and environment according to the `.spec.yaml.gotmpl` file,
-run the following command (in this example, the scope is `kodjin`, the environment is `production`):
+run the following command (in this example, the scope is `rmk-test`, the environment is `production`):
 
 ```shell
-rmk secret manager generate --scope kodjin --environment production --force
+rmk secret manager generate --scope rmk-test --environment production --force
 ```
 
 > You might need to provide the required environment variables
@@ -205,5 +205,5 @@ rmk secret manager generate --scope kodjin --environment production --force
 To encode the generated secrets, run:
 
 ```shell
-rmk secret manager encrypt --scope kodjin --environment production
+rmk secret manager encrypt --scope rmk-test --environment production
 ```

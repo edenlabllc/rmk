@@ -13,12 +13,12 @@ Example of the configuration:
 [//]: # (  TODO ACTUALIZE)
 
 ```yaml
-name: kodjin-develop # RMK config name, a unique identifier which consists of the tenant name and the abbreviated name of the Git branch.
-tenant: kodjin # Tenant name.
+name: rmk-test-develop # RMK config name, a unique identifier which consists of the tenant name and the abbreviated name of the Git branch.
+tenant: rmk-test # Tenant name.
 environment: develop # Environment name.
-root-domain: kodjin-develop.edenlab.dev # Root domain name used across the cluster.
+root-domain: rmk-test-develop.edenlab.dev # Root domain name used across the cluster.
 aws:
-  profile: kodjin-develop # AWS profile name.
+  profile: rmk-test-develop # AWS profile name.
   region: eu-north-1 # AWS region of the current Kubernetes cluster.
   account_id: "123456789"
 # ...

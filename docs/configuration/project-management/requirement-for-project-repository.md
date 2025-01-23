@@ -1,7 +1,7 @@
 # Requirement for project repository
 
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
-   For example: `kodjin.bootstrap.infra` or `kodjin.infra`.
+   For example: `rmk-test.bootstrap.infra` or `rmk-test.infra`.
 2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
    and therefor supports the following set of static branches:
 
