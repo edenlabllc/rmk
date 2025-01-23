@@ -145,9 +145,8 @@ func resolveHooks(hooks map[string]*config.Package, tenant string, conf *config.
 	} else if len(conf.Dependencies) > 0 {
 		conf.HooksMapping = append(conf.HooksMapping,
 			config.HookMapping{
-				Tenant:  tenant,
-				Exists:  false,
-				Package: &config.Package{},
+				Tenant: tenant,
+				Exists: false,
 			},
 		)
 	}
@@ -185,7 +184,7 @@ func uniqueHooksMapping(hooks []config.HookMapping) []config.HookMapping {
 	for key, ver := range compareHooks {
 		if len(compareHooks) > 1 {
 			for _, v := range compareHooks {
-				if ver.GreaterThan(v) {
+				if ver.GreaterThan(v) || ver.Equal(v) {
 					numberHook = key
 				}
 			}
@@ -201,7 +200,19 @@ func uniqueHooksMapping(hooks []config.HookMapping) []config.HookMapping {
 		}
 	}
 
-	return uniqueHooksMapping
+	packageObject := false
+	for _, val := range uniqueHooksMapping {
+		if val.Package != nil {
+			packageObject = true
+			break
+		}
+	}
+
+	if packageObject {
+		return uniqueHooksMapping
+	}
+
+	return []config.HookMapping{}
 }
 
 func (is *InventoryState) saveState(inv config.Inventory) {
@@ -277,14 +288,10 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		for _, val := range conf.Dependencies {
 			projectFile := &config.ProjectFile{}
 
-			depsDir := util.FindDir(util.GetPwdPath(TenantPrDependenciesDir), val.Name)
+			nameDir := val.Name + "-" + strings.ReplaceAll(val.Version, "/", "_")
+			depsDir := util.FindDir(util.GetPwdPath(TenantPrDependenciesDir), nameDir, false, false)
 			if err := projectFile.ReadProjectFile(util.GetPwdPath(TenantPrDependenciesDir, depsDir, util.TenantProjectFile)); err != nil {
 				return err
-			}
-
-			// Resolve and recursively download repositories containing helm plugins
-			if conf.HelmPlugins, invErr = invState.resolveHelmPlugins(projectFile.HelmPlugins, conf); invErr != nil {
-				return invErr
 			}
 
 			// Resolve repositories containing hooks
@@ -292,6 +299,11 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 				if err := resolveHooks(projectFile.Hooks, strings.Split(depsDir, ".")[0], conf); err != nil {
 					return err
 				}
+			}
+
+			// Resolve and recursively download repositories containing helm plugins
+			if conf.HelmPlugins, invErr = invState.resolveHelmPlugins(projectFile.HelmPlugins, conf); invErr != nil {
+				return invErr
 			}
 
 			// Resolve and recursively download repositories containing tools
@@ -347,11 +359,11 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		return err
 	}
 
-	if err := updateTools(conf, ctx, silent); err != nil {
+	if err := newConfigCommands(conf, ctx, util.GetPwdPath("")).configHelmPlugins(); err != nil {
 		return err
 	}
 
-	if err := newConfigCommands(conf, ctx, util.GetPwdPath("")).configHelmPlugins(); err != nil {
+	if err := updateTools(conf, ctx, silent); err != nil {
 		return err
 	}
 
@@ -367,13 +379,11 @@ func removeOldDir(pwd string, pkg config.Package) error {
 		return nil
 	}
 
-	oldDir := util.FindDir(pwd, pkg.Name)
-	if len(strings.Split(oldDir, "-")) > 1 {
-		oldVer := strings.SplitN(oldDir, "-", 2)[1]
-		if oldVer != pkg.Version {
-			if err := os.RemoveAll(filepath.Join(pwd, pkg.Name+"-"+oldVer)); err != nil {
-				return err
-			}
+	oldDir := util.FindDir(pwd, pkg.Name, true, false)
+	oldVer := strings.TrimPrefix(oldDir, pkg.Name+"-")
+	if oldVer != strings.ReplaceAll(pkg.Version, "/", "_") {
+		if err := os.RemoveAll(filepath.Join(pwd, pkg.Name+"-"+oldVer)); err != nil {
+			return err
 		}
 	}
 

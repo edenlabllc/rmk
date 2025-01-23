@@ -159,7 +159,7 @@ func (cc *ClusterCommands) createAzureSecrets(ac *azure_provider.AzureConfigure)
 		return err
 	}
 
-	if len(secrets) > 0 {
+	if len(secrets) > 0 || !util.IsExists(cc.Conf.SopsAgeKeys, false) {
 		return nil
 	}
 
