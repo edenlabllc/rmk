@@ -190,7 +190,7 @@ This example demonstrates how the following options are configured and interact 
 {{- end }}
 ### Basic RMK commands for project management
 
-#### Project generate
+#### Generate project structure
 
 ` + "```" + `shell
 rmk project generate \
@@ -200,7 +200,7 @@ rmk project generate \
     --scopes={{ .TenantName }}
 ` + "```" + `
 
-#### Initialization configuration
+#### Initialize configuration
 
 ` + "```" + `shell
 rmk config init
@@ -212,13 +212,13 @@ rmk config init
 rmk cluster k3d create
 ` + "```" + `
 
-#### Release sync
+#### Synchronize releases defined in Helmfile
 
 ` + "```" + `shell
 rmk release sync
 ` + "```" + `
 
-> A complete list of RMK commands and capabilities can be found at the [link](https://edenlabllc.github.io/rmk/latest)
+A complete list of RMK commands and capabilities can be found at the [link](https://edenlabllc.github.io/rmk/latest)
 `
 
 	releasesFile = `# This file defines the release list, is located in the environment directory
