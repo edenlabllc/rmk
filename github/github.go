@@ -10,6 +10,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const APIBaseURL = "https://api.github.com/"
+
 // GitHub contains the functions necessary for interacting with GitHub release
 // objects
 type GitHub interface {
@@ -24,6 +26,8 @@ type Client struct {
 
 // NewClient creates and initializes a new GitHubClient
 func NewClient(owner, repo, token, urlStr string) (GitHub, error) {
+	var client *github.Client
+
 	if len(owner) == 0 {
 		return nil, fmt.Errorf("missing GitHub repository owner")
 	}
@@ -37,10 +41,14 @@ func NewClient(owner, repo, token, urlStr string) (GitHub, error) {
 		return nil, fmt.Errorf("failed to parse Github API URL: %v", err)
 	}
 
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(context.TODO(), ts)
+	if len(token) > 0 {
+		ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+		tc := oauth2.NewClient(context.TODO(), ts)
+		client = github.NewClient(tc)
+	} else {
+		client = github.NewClient(&http.Client{})
+	}
 
-	client := github.NewClient(tc)
 	client.BaseURL = baseURL
 
 	return &Client{Owner: owner, Repo: repo, Client: client}, nil
@@ -52,17 +60,17 @@ func (c *Client) GetRelease(ctx context.Context, tag string) (*github.Repository
 	errHandler := func(release *github.RepositoryRelease, res *github.Response, err error) (*github.RepositoryRelease, error) {
 		if err != nil {
 			if res == nil {
-				return nil, fmt.Errorf("failed to get RMK release version: %s", tag)
+				return nil, fmt.Errorf("failed to get release version for repository: %s", c.Repo)
 			}
 
 			switch {
 			case res.StatusCode == http.StatusUnauthorized:
 				return nil, fmt.Errorf("wrong token is specified or there is no permission, invalid status: %s", res.Status)
 			case res.StatusCode != http.StatusNotFound:
-				return nil, fmt.Errorf("get RMK update release, invalid status: %s", res.Status)
+				return nil, fmt.Errorf("repository %s not found, invalid status: %s", c.Repo, res.Status)
 			}
 
-			return nil, fmt.Errorf("RMK release version %s not found", tag)
+			return nil, fmt.Errorf("release version %s not found for repository: %s", tag, c.Repo)
 		}
 
 		return release, nil

@@ -179,15 +179,22 @@ func IsExists(path string, file bool) bool {
 	}
 }
 
-func FindDir(path, name string) string {
+func FindDir(path, pattern string, byPrefix, bySuffix bool) string {
 	fileInfo, err := os.ReadDir(path)
 	if err != nil {
 		zap.S().Fatal(err)
 	}
 
 	for _, dir := range fileInfo {
-		if dir.IsDir() && strings.Contains(dir.Name(), name) {
-			return dir.Name()
+		if dir.IsDir() {
+			switch {
+			case byPrefix && strings.HasPrefix(dir.Name(), pattern):
+				return dir.Name()
+			case bySuffix && strings.HasSuffix(dir.Name(), pattern):
+				return dir.Name()
+			case dir.Name() == pattern:
+				return dir.Name()
+			}
 		}
 	}
 

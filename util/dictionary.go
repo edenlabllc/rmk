@@ -35,7 +35,7 @@ const (
 	ToolsVersionDir         = "version"
 
 	ConfigNotInitializedErrorText = "RMK config not initialized, " +
-		"please run command 'rmk config init' with specific parameters"
+		"please run 'rmk config init' command with specific parameters"
 	// UnknownErrorText standard text for unknown errors
 	UnknownErrorText = "unknown error when calling %s"
 	//HelmPluginExist HelmSecretsIsNotEncrypted HelmSecretsAlreadyEncrypted - exception err text matching
