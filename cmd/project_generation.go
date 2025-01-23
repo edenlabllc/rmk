@@ -125,20 +125,20 @@ helmfiles: ` + escapeOpen + `{{ env "HELMFILE_` + escapeClose + `{{ .TenantNameE
 
 ## Description
 
-The repository designed for the rapid setup and deployment of the infrastructure required for the {{ .TenantName }} project. 
+The repository designed for the rapid setup and deployment of the infrastructure required for the ` + escape + `{{ .TenantName }}` + escape + ` project. 
 This project includes scripts, configurations, and instructions to automate the deployment of necessary services and dependencies.
 
 ## Getting Started
 
-To get started with {{ .RepoName }}, ensure you have all the necessary tools and dependencies installed. 
+To get started with ` + escape + `{{ .RepoName }}` + escape + `, ensure you have all the necessary tools and dependencies installed. 
 Detailed information about requirements and installation instructions can be found in the [Requirements](#requirements) section.
 
 ### Requirements
 
-- Git 
-- GitHub PAT to access the repositories listed in the ` + "`dependencies`" + ` section of ` + "`project.yaml`" + `
-- Note: K3D v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
-- [RMK CLI](https://edenlabllc.github.io/rmk/latest)
+- **Git**
+- **GitHub PAT** to access the repositories listed in the ` + "`dependencies`" + ` section of ` + "`project.yaml`" + `
+- **K3D** v5.x.x requires at least Docker v20.10.5 (runc >= v1.0.0-rc93) to work properly
+- **[RMK CLI](https://edenlabllc.github.io/rmk/latest)**
 
 ### GitLab flow strategy
 
@@ -154,10 +154,10 @@ develop ------> staging ------> production
 
 ### Generating project structure
 
-> Note: The generated project structure using the RMK tools is mandatory and is required for the interaction of the RMK with the code base. 
+> The generated project structure using the RMK tools is mandatory and is required for the interaction of the RMK with the code base. 
 > All generated files have example content and can be supplemented according to project requirements.
 
-After generating the project structure, files are created in the deps scope 
+After generating the project structure, files are created in the ` + escape + `deps` + escape + ` scope 
 ` + escape + `etc/deps` + escape + ` and the main project scope ` + escape + `etc/{{ .TenantName }}` + escape + ` to provide 
 an example of configuring cluster provisioning and the ` + escape + `{{ .TenantName }}-app` + escape + ` release. 
 This example demonstrates how the following options are configured and interact with each other:
@@ -179,13 +179,13 @@ This example demonstrates how the following options are configured and interact 
 {{ if .Dependencies }}
 #### Inherited repositories
 {{ range .Dependencies }}
-- **{{ . }}**
+- {{ . }}
 {{ end }}
 {{- end }}
 {{- if .Scopes }}
 #### Available scopes of variables
 {{ range .Scopes }}
-- **{{ . }}**
+- {{ . }}
 {{ end }}
 {{- end }}
 ### Basic RMK commands for project management
@@ -195,7 +195,8 @@ This example demonstrates how the following options are configured and interact 
 ` + "```" + `shell
 rmk project generate \
     --environment=develop.root-domain=localhost \
-    --owners=user \
+    --owners=gh-user \
+    --scopes=deps
     --scopes={{ .TenantName }}
 ` + "```" + `
 
@@ -217,7 +218,7 @@ rmk cluster k3d create
 rmk release sync
 ` + "```" + `
 
-> Note: A complete list of RMK commands and capabilities can be found at the [link](https://edenlabllc.github.io/rmk/latest)
+> A complete list of RMK commands and capabilities can be found at the [link](https://edenlabllc.github.io/rmk/latest)
 `
 
 	releasesFile = `# This file defines the release list, is located in the environment directory

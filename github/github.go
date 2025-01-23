@@ -10,7 +10,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const APIBaseUrl = "https://api.github.com/"
+const APIBaseURL = "https://api.github.com/"
 
 // GitHub contains the functions necessary for interacting with GitHub release
 // objects

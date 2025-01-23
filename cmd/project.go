@@ -26,7 +26,7 @@ import (
 const (
 	clusterDepsRepo      = "cluster-deps.bootstrap.infra"
 	clusterDepsRepoOwner = "edenlabllc"
-	clusterDepsRepoUrl   = "git::https://github.com/" + clusterDepsRepoOwner + "/{{.Name}}.git?ref={{.Version}}"
+	clusterDepsRepoURL   = "git::https://github.com/" + clusterDepsRepoOwner + "/{{.Name}}.git?ref={{.Version}}"
 )
 
 type ProjectCommands struct {
@@ -124,7 +124,7 @@ func (p *ProjectCommands) createProjectFile() error {
 		p.projectFile.Spec.Scopes = p.Ctx.StringSlice("scopes")
 	}
 
-	client, err := github.NewClient(clusterDepsRepoOwner, clusterDepsRepo, "", github.APIBaseUrl)
+	client, err := github.NewClient(clusterDepsRepoOwner, clusterDepsRepo, "", github.APIBaseURL)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (p *ProjectCommands) createProjectFile() error {
 		p.projectFile.Dependencies = append(p.projectFile.Dependencies, config.Package{
 			Name:    clusterDepsRepo,
 			Version: release.GetTagName(),
-			Url:     clusterDepsRepoUrl,
+			Url:     clusterDepsRepoURL,
 		})
 	}
 
