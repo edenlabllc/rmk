@@ -196,7 +196,7 @@ This example demonstrates how the following options are configured and interact 
 rmk project generate \
     --environment=develop.root-domain=localhost \
     --owners=gh-user \
-    --scopes=deps
+    --scopes=deps \
     --scopes={{ .TenantName }}
 ` + "```" + `
 
