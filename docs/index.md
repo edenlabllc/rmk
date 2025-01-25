@@ -185,7 +185,6 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   used by Kodjin, or any other tenant, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
 
-
 ## Requirements
 
 Currently, RMK only supports Unix-like operating systems (OS):
