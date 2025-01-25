@@ -27,7 +27,7 @@ RMK serves as a wrapper for various popular CI/CD and DevOps CLI tools, includin
 - [clusterctl](https://cluster-api.sigs.k8s.io/clusterctl/overview)
 - [K3D](https://k3d.io/)
 - [SOPS](https://getsops.io/)
-- [age](https://age-encryption.org/)
+- [Age](https://age-encryption.org/)
 
 It leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning and management across
 different environments, such as [cloud providers](https://en.wikipedia.org/wiki/Cloud_computing)
