@@ -19,8 +19,8 @@ environment: develop # Environment name.
 root-domain: rmk-test-develop.edenlab.dev # Root domain name used across the cluster.
 aws:
   profile: rmk-test-develop # AWS profile name.
-  region: eu-north-1 # AWS region of the current Kubernetes cluster.
-  account_id: "123456789"
+  region: us-east-1 # AWS region of the current Kubernetes cluster.
+  account_id: "123456789012"
 # ...
 ```
 

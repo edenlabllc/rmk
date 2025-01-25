@@ -219,12 +219,12 @@ An example of the `releases.yaml` file:
 foo:
   enabled: true
   image:
-    repository: 123456789.dkr.ecr.us-east-1.amazonaws.com/app.foo
+    repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/app.foo
     tag: v0.11.1
 bar:
   enabled: true
   image:
-    repository: 123456789.dkr.ecr.us-east-1.amazonaws.com/app.bar
+    repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/app.bar
     tag: v0.16.0
 # ...
 ```
