@@ -6,33 +6,33 @@ By default, RMK exports the following environment variables to each execution of
 # Tenant name, which is equivalent to the project name.
 # For example:
 # TENANT=rmk-test
-TENANT=<project_name>
+TENANT="<project_name>"
 
 # RMK configuration name for the current project (tenant) and environment.
 # For example:
 # NAME=rmk-test-develop
-NAME=<project_name>-<project_branch>
+NAME="<project_name>-<project_branch>"
 
 # Root domain name for target applications in the cluster.
 # For example:
 # ROOT_DOMAIN=rmk-test-develop.example.com
-ROOT_DOMAIN=<project_name>-<project_branch>.<domain>
+ROOT_DOMAIN="<project_name>-<project_branch>.<domain>"
 
 # Path to the file containing the merged private SOPS Age keys.
 # For example:
 # SOPS_AGE_KEY_FILE=/home/user/.rmk/sops-age-keys/rmk-test/.keys.txt
-SOPS_AGE_KEY_FILE=${HOME}/.rmk/sops-age-keys/<project_name>/.keys.txt
+SOPS_AGE_KEY_FILE="${HOME}/.rmk/sops-age-keys/<project_name>/.keys.txt"
 
 # GitHub Personal Access Token (PAT). 
 # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
 # For example:
 # GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-GITHUB_TOKEN=<github_personal_access_token>
+GITHUB_TOKEN="<github_personal_access_token>"
 
 # Path to the directory containing the specific version of hooks required by the downstream (current) project.
 # For example:
 # HELMFILE_RMK_TEST_HOOKS_DIR=/home/user/rmk-test/.PROJECT/inventory/hooks/helmfile.hooks.infra-v1.29.1
-HELMFILE_<project_name>_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/<project_hooks_repo_name>-<project_hooks_version>
+HELMFILE_<project_name>_HOOKS_DIR="${PWD}/.PROJECT/inventory/hooks/<project_hooks_repo_name>-<project_hooks_version>"
 
 # Paths to the directories of the inherited upstream projects required by the downstream (current) project (in JSON format).
 # For example:
@@ -42,12 +42,12 @@ HELMFILE_<project_name>_PATHS='[{"path":"${PWD}/.PROJECT/dependencies/<upstream_
 # Path to the directory containing the specific version of hooks required by the inherited upstream project.
 # For example:
 # HELMFILE_CLUSTER_DEPS_HOOKS_DIR=/home/user/rmk-test/.PROJECT/inventory/hooks/helmfile.hooks.infra-v1.29.1
-HELMFILE_<upstream_project_name>_HOOKS_DIR=${PWD}/.PROJECT/inventory/hooks/<upstream_project_hooks_repo_name>-<upstream_project_hooks_version>
+HELMFILE_<upstream_project_name>_HOOKS_DIR="${PWD}/.PROJECT/inventory/hooks/<upstream_project_hooks_repo_name>-<upstream_project_hooks_version>"
 
 # Version of the inherited upstream project.
 # For example:
 # HELMFILE_CLUSTER_DEPS_BOOTSTRAP_INFRA_VERSION=v0.1.0
-HELMFILE_<upstream_project_name>_VERSION=vN.N.N
+HELMFILE_<upstream_project_name>_VERSION="<upstream_project_version>"
 
 # Flag indicating whether the cluster is K3D (Cluster API management cluster).
 # The variable can be used to override values in the releases.
@@ -67,11 +67,11 @@ K3D_CLUSTER=false
 # AWS_PROFILE=rmk-test-develop
 # AWS_CONFIG_FILE=/home/user/.aws/config_rmk-test-develop
 # AWS_SHARED_CREDENTIALS_FILE=/home/user/.aws/credentials_rmk-test-develop
-AWS_ACCOUNT_ID=<aws_account_id>
-AWS_REGION=<aws_region>
-AWS_PROFILE=<project_name>-<project_branch>
-AWS_CONFIG_FILE=/HOME/.aws/config_<project_name>-<project_branch>
-AWS_SHARED_CREDENTIALS_FILE=${HOME}/.aws/credentials_<project_name>-<project_branch>
+AWS_ACCOUNT_ID="<aws_account_id>"
+AWS_REGION="<aws_region>"
+AWS_PROFILE="<project_name>-<project_branch>"
+AWS_CONFIG_FILE="${HOME}/.aws/config_<project_name>-<project_branch>"
+AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_<project_name>-<project_branch>"
 
 # Only for Kubernetes Cluster API Provider Azure:
 # Azure cluster provider configuration
@@ -80,8 +80,8 @@ AWS_SHARED_CREDENTIALS_FILE=${HOME}/.aws/credentials_<project_name>-<project_bra
 # For example:
 # AZURE_LOCATION=eastus
 # AZURE_SUBSCRIPTION_ID=abcdef12-3456-7890-abcd-ef1234567890
-AZURE_LOCATION=<azure_location>
-AZURE_SUBSCRIPTION_ID=<azure_subscription_id>
+AZURE_LOCATION="<azure_location>"
+AZURE_SUBSCRIPTION_ID="<azure_subscription_id>"
 
 # Only for Kubernetes Cluster API Provider GCP:
 # Google Cloud cluster provider configuration
@@ -91,9 +91,9 @@ AZURE_SUBSCRIPTION_ID=<azure_subscription_id>
 # GCP_PROJECT_ID=rmk-test
 # GCP_REGION=us-east1
 # GOOGLE_APPLICATION_CREDENTIALS=/home/user/.config/gcloud/gcp-credentials-rmk-test-develop.json
-GCP_PROJECT_ID=<google_cloud_project_id>
-GCP_REGION=<google_cloud_region>
-GOOGLE_APPLICATION_CREDENTIALS=${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json
+GCP_PROJECT_ID="<google_cloud_project_id>"
+GCP_REGION="<google_cloud_region>"
+GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json"
 ```
 
 > To view the complete list of all possible exported variables and their values for the `rmk release` command category, 
