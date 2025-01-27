@@ -63,7 +63,7 @@ This area focuses on integration with Helmfile, Helm, and Kubernetes, ensuring *
 management**
 throughout the deployment process.
 
-Normally, the secret files can be **committed to Git** because they are encrypted with SOPS Age keys
+Normally, the secret files can be **committed to Git** because they are encrypted with secret keys
 using [symmetric-key algorithms](https://en.wikipedia.org/wiki/Symmetric-key_algorithm).
 
 In a project repository, all secret files are stored in the `etc/<scope>/<environment>/secrets/` directories.
@@ -120,13 +120,13 @@ username: user1
 password: password1
 ```
 
-This is the human-readable version of the secrets after RMK decrypts them using the appropriate SOPS Age key.
+This is the human-readable version of the secrets after RMK decrypts them using the appropriate secret key.
 
-## SOPS Age keys management
+## Secret keys management
 
-### Creating SOPS Age keys
+### Creating secret keys
 
-Initially, a Kubernetes cluster admin generates the required SOPS Age keys using the following command:
+Initially, a Kubernetes cluster admin generates the required secret keys using the following command:
 
 ```shell
 rmk secret keys create
@@ -160,7 +160,7 @@ creation_rules:
     age: 'age1rq0gx9zuwphw8kjx6ams84rgysqk5kdmhnysxs28r0x955xnzsdsslgtn0'
 ```
 
-### Uploading SOPS Age keys to a remote storage
+### Uploading secret keys to a remote storage
 
 After generating the keys, they can be explicitly uploaded to a remote secrets storage supported by the cloud
 provider:
@@ -169,9 +169,9 @@ provider:
 rmk secret keys upload
 ```
 
-> Users must have the necessary **permissions to upload** SOPS Age keys to the configured secrets storage service.
+> Users must have the necessary **permissions to upload** secret keys to the configured secrets storage service.
 
-### Downloading SOPS Age keys from a remote storage
+### Downloading secret keys from a remote storage
 
 If the keys have already been created by another person (e.g., a cluster admin) and uploaded to the remote storage,
 users can download them to their local environment using the following command:
@@ -317,7 +317,7 @@ rmk secret manager encrypt
 > Directories that do not contain a `.sops.yaml` or `.spec.yaml.gotmpl` file **will be ignored**.
 
 Additionally, each `.sops.yaml` file will be automatically updated with the correct paths  
-and the public keys of the SOPS Age keys used for encryption.
+and the public keys of the secret keys used for encryption.
 
 > Manual editing of the encrypted secrets files is **strictly forbidden**, because SOPS automatically controls the
 > checksums of the secret files. To safely modify encrypted secrets, always use the
