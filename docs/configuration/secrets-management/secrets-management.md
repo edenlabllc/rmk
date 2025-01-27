@@ -6,9 +6,6 @@ RMK utilizes [SOPS](https://github.com/mozilla/sops) and [Age](https://github.co
 for secrets management, ensuring **secure encryption, storage, and access to sensitive data**. The tool ensures
 seamless and automated secret management, reducing manual effort while maintaining **security best practices**.
 
-> All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret)
-> command category.
-
 The functionality in RMK is divided into two key areas:
 
 1. **Working with secret keys** – Managing encryption keys used for encrypting and decrypting secrets.
@@ -324,7 +321,7 @@ and the public keys of the SOPS Age keys used for encryption.
 
 > Manual editing of the encrypted secrets files is **strictly forbidden**, because SOPS automatically controls the
 > checksums of the secret files. To safely modify encrypted secrets, always use the
-> specialized [edit](#editing-a-single-secret) command.
+> specialized [edit](#creating-or-editing-a-secret) command.
 
 ### Create a new secret later
 
@@ -379,6 +376,9 @@ This process ensures that all secrets are freshly generated and securely encrypt
 
 ## Working with a single secret
 
+> All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret)
+> command category.
+
 ### Creating or editing a secret
 
 The `rmk secret edit` command operates in an **idempotent** mode, meaning it can be used for both **creating** new
@@ -418,6 +418,3 @@ rmk secret view etc/deps/develop/secrets/postgres.yaml
 
 This is useful for **inspecting credentials** of deployed services, such as database access details or authentication
 credentials for a web UI.
-
-> All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret)
-> command category.
