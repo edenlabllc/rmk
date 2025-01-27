@@ -83,7 +83,7 @@ inventory:
       rename: true
 ```
 
-1. Run the [RMK configuration initialization](configuration/configuration-management.md#initialization-of-rmk-configuration) command for the repository:
+1. Run the [RMK configuration initialization](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration) command for the repository:
 
    ```shell
    rmk config init --root-domain=localhost --github-token=<github_personal_access_token>

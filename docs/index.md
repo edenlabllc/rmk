@@ -24,7 +24,11 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
     * [General update process](#general-update-process)
     * [Update to specific version](#update-to-specific-version)
   * Configuration
-    * [Configuration management](configuration/configuration-management.md)
+    * [Configuration management](configuration/configuration-management/configuration-management.md)
+      * [Initialization of AWS cluster provider](configuration/configuration-management/init-aws-provider.md)
+      * [Initialization of Azure cluster provider](configuration/configuration-management/init-azure-provider.md)
+      * [Initialization of GCP cluster provider](configuration/configuration-management/init-azure-provider.md)
+      * [Initialization of K3D cluster provider](configuration/configuration-management/init-k3d-provider.md)
     * Project management
       * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
       * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
@@ -252,7 +256,7 @@ rmk update --version vX.X.X
   Easily integrate with CI/CD solutions via [webhooks](https://www.redhat.com/en/topics/automation/what-is-a-webhook) 
   or [workflow dispatch events](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_dispatch)
   to update release and service version declarations, automatically commit the changes to Git.
-- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management.md#support-for-multi-factor-authentication-mfa):** 
+- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management/configuration-management.md#support-for-multi-factor-authentication-mfa):** 
   Automatically detect and use an ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)) device 
   if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
 

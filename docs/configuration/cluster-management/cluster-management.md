@@ -31,7 +31,7 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
 
   Checkout to the branch from which the K8S cluster was previously created. 
 
-  An [initialization](../configuration-management.md#initialization-of-rmk-configuration) might be required,
+  An [initialization](../configuration-management/configuration-management.md#initialization-of-rmk-configuration) might be required,
   if the RMK configuration for this cluster has not been created before:
   
   ```shell
@@ -169,7 +169,7 @@ The CLI will create a cluster according to the declarative instruction for K3D:
 > Prerequisites:
 > 
 > 1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
-> 2. [Initialize configuration](../configuration-management.md#initialization-of-rmk-configuration) for this branch with the `localhost` root domain name:
+> 2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration) for this branch with the `localhost` root domain name:
 > 
 > ```shell
 > rmk config init --root-domain=localhost
