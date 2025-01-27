@@ -418,3 +418,6 @@ rmk secret view etc/deps/develop/secrets/postgres.yaml
 
 This is useful for **inspecting credentials** of deployed services, such as database access details or authentication
 credentials for a web UI.
+
+> All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret)
+> command category.
