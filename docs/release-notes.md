@@ -10,13 +10,13 @@
 - #29 - Added commands for managing Cluster API clusters to the cluster category commands.
 - #29 - Added new configuration arguments for project generation.
 - #29 - Added the generation of values for all cluster provider configurations in the project generate command.
-- #29 - Added unconditional provide of deps scope when generating a project. 
+- #29 - Added deps scope unconditionally when generating projects. 
 - #29 - Fixed the inheritance behavior of dependent repositories.
 - #29 - Fixed the output of the config list command for adjacent tenant names.
 - #29 - Removed the artifact-mode flag and the functionality.
 - #29 - Reworked the behaviour of the config init command to align with each cluster provider.
 - #29 - Reworked the approach to obtaining the Kubernetes context for all cluster providers.
-- #29 - Refactored the flags name for project generate commands.
+- #29 - Refactored flags names of project generate and secret manager commands.
 - #29 - Refactored the environment variables provisioning for all cluster providers in release category commands.
 - #29 - Refactored the k3d list command.
 - #29 - Restructured code files for improved organization.
