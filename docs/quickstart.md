@@ -1,142 +1,106 @@
 # Quickstart
 
-This guide demonstrates how to use `RMK` to prepare the structure of a new project in five steps,
-create a local cluster based on `K3D`, deploy your first application ([Nginx](https://nginx.org/)) using `Helmfile` releases.
+## Introduction
 
-> Prerequisites:
-> 
-> - An active AWS user with access keys and the `AdministratorAccess` permissions.
-> - A prepared [project repository](configuration/project-management/preparation-of-project-repository.md#preparation-of-the-project-repository)
-> - Installed [RMK](index.md#installation)
-> - The fulfilled [requirements](index.md#requirements) for proper RMK operation.
+This guide demonstrates how to use `RMK` to prepare the structure of a new project
+create a local cluster based on `K3D`, deploy your first application ([Nginx](https://nginx.org/)) using `Helmfile`
+releases.
 
-0. Create a [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
-   file in the root of the project repository with the following content:
+## Prerequisites
 
-[//]: # (  TODO ACTUALIZE)
+- A
+  prepared [project repository](configuration/project-management/preparation-of-project-repository.md#preparation-of-the-project-repository)
+- Installed [RMK](index.md#installation)
+- The fulfilled [requirements](index.md#requirements) for proper RMK operation.
 
-```yaml
-project:
-  spec:
-    environments:
-      - develop
-    owners:
-      - owner
-    scopes:
-      - rmk-test
-inventory:
-  helm-plugins:
-    diff:
-      version: v3.8.1
-      url: https://github.com/databus23/helm-diff
-    helm-git:
-      version: v0.15.1
-      url: https://github.com/aslafy-z/helm-git
-    secrets:
-      version: v4.5.0
-      url: https://github.com/jkroepke/helm-secrets
-  hooks:
-    helmfile.hooks.infra:
-      version: v1.18.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
-  tools:
-    terraform:
-      version: 1.0.2
-      url: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64.zip
-      checksum: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_SHA256SUMS
-      os-linux: linux
-      os-mac: darwin
-    kubectl:
-      version: 1.27.6
-      url: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}
-      checksum: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}.sha256
-      os-linux: linux
-      os-mac: darwin
-    helm:
-      version: 3.10.3
-      url: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz
-      checksum: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz.sha256sum
-      os-linux: linux
-      os-mac: darwin
-    helmfile:
-      version: 0.157.0
-      url: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64.tar.gz
-      checksum: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_checksums.txt
-      os-linux: linux
-      os-mac: darwin
-    sops:
-      version: 3.8.1
-      url: https://github.com/getsops/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}.{{.Os}}
-      os-linux: linux.amd64
-      os-mac: darwin
-      rename: true
-    age:
-      version: 1.1.1
-      url: https://github.com/FiloSottile/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz
-      os-linux: linux
-      os-mac: darwin
-    k3d:
-      version: 5.6.0
-      url: https://github.com/k3d-io/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
-      os-linux: linux
-      os-mac: darwin
-      rename: true
-```
+## Preparing a cluster
 
-1. Run the [RMK configuration initialization](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration) command for the repository:
+This example assume, the tenant is `rmk-test`, current branch is `develop`.
+
+1. Checkout the needed branch:
 
    ```shell
-   rmk config init --root-domain=localhost --github-token=<github_personal_access_token>
+   git checkout -b develop
    ```
-   
-   > When executing the command, properly fill in the AWS credentials and region. 
-   > RMK will save the references for them in the system and use them for subsequent executions of this command. 
-   > In our example, the AWS credentials are used to create an S3 bucket for storing private SOPS Age keys 
-   > and distributing them among team members.
 
-2. Generate the project structure according to the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file:
+2. [Initialize RMK configuration](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration)
+   for the repository:
 
    ```shell
-   rmk project generate --create-sops-age-keys
+   rmk config init
    ```
 
-3. Create a local K3D cluster:
+   > The default cluster provider for the `init` command is `K3D`.
 
-   > Before running this step, ensure that Docker is installed in the system according to the [requirements](index.md#requirements).
+3. Generate the project structure according to
+   the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file:
+
+   ```shell
+   rmk project generate --scope rmk-test --environments "develop.root-domain=localhost" --create-sops-age-keys
+   ```
    
+   > The `deps` scope is the default one, it is added unconditionally during the project generation process.
+
+4. Create a local K3D cluster:
+
    ```shell
    rmk cluster k3d create
    ```
 
-4. Generate and encrypt secrets for the `Helmfile` release (Nginx):
+   > According to the [requirements](index.md#requirements), ensure that Docker is installed in and running.
+   
+5. Generate and encrypt secrets for the `Helmfile` releases including `Nginx`.
 
    ```shell
-   rmk secret manager generate
-   rmk secret manager encrypt
+   rmk secret manager generate --scope rmk-test --environment develop
+   rmk secret manager encrypt --scope rmk-test --environment develop
    ```
 
-5. Deploy the `Helmfile` release (Nginx) to the local `K3D` cluster:
+6. Deploy ("sync") all the `Helmfile` releases including `Nginx` to the local `K3D` cluster:
 
    ```shell
    rmk release sync
    ```
 
-At this stage, we have completed the deployment of our test application (Nginx) provided by the `Helmfile` release 
-to the local `K3D` cluster, also the structure of the future project has been prepared. 
+At this stage, we have completed the deployment of our test application (`Nginx`) provided by the `Helmfile` release
+to the local `K3D` cluster, also the structure of the future project has been prepared.
+
+## Check the deployment
 
 We can check the availability of the application in the Kubernetes cluster using the following command:
 
 ```shell
-kubectl port-forward $(kubectl get pod --namespace rmk-test --output name) 8088:80 --namespace rmk-test
+kubectl --namespace rmk-test port-forward "$(kubectl --namespace rmk-test get pod --output name)" 8088:80
 ```
 
-Open your browser and enter the http://localhost:8088 address, after which you will see the Nginx welcome page.
+Open your browser and enter the [http://localhost:8088](http://localhost:8088) address, after which you will see the
+`Nginx` welcome page.
 
-Next, you can commit your changes to a Git branch and push them to your VCS (e.g., GitHub). 
-You can also upload the private SOPS Age keys using the following command: 
+```shell
+open http://localhost:8088
+```
+
+## Using cluster by other team members
+
+For other team members to use the project, commit the changes to a Git branch and push them to your VCS (e.g., GitHub):
+
+```shell
+git commit -am "Generate project structure, create secrets, deploy Nginx."
+```
+
+Then, upload the private SOPS Age keys using the following command:
 
 ```shell
 rmk secret keys upload
 ```
 
-After that, your team members will be able to deploy this project on their own, skipping the 2nd and 4th steps.
+> The secret keys are Git-ignored and never committed to Git.
+
+After that, your team members will be able to deploy this project on their own.
+
+```shell
+git checkout develop
+git pull origin develop
+```
+
+then executing steps 2,5,6
