@@ -165,7 +165,7 @@ func flagsConfig() []cli.Flag {
 			&cli.StringSliceFlag{
 				Category: "Slack notifications",
 				Name:     "slack-message-details",
-				Usage:    "additional information for body of Slack messages",
+				Usage:    "additional details for Slack message body",
 				Aliases:  []string{"smd"},
 				EnvVars:  []string{"RMK_SLACK_MESSAGE_DETAILS"},
 			},
@@ -199,7 +199,7 @@ func flagsClusterK3DImport() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.StringSliceFlag{
 			Name:     "k3d-import-image",
-			Usage:    "list images for import into K3D cluster",
+			Usage:    "list of images to import into running K3D cluster",
 			Aliases:  []string{"ki"},
 			EnvVars:  []string{"RMK_K3D_IMPORT_IMAGE"},
 			Required: true,
@@ -225,18 +225,18 @@ func flagsProjectGenerate() []cli.Flag {
 			Aliases: []string{"c"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "environments",
-			Usage:   "list project environments. Root domain can take form of <environment>.root-domain=<domain-name>",
+			Name:    "environment",
+			Usage:   "list of project environments, root-domain config option must be provided: <environment>.root-domain=<domain-name>",
 			Aliases: []string{"e"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "owners",
-			Usage:   "list project owners",
+			Name:    "owner",
+			Usage:   "list of project owners",
 			Aliases: []string{"o"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "scopes",
-			Usage:   "list project scopes",
+			Name:    "scope",
+			Usage:   "list of project scopes",
 			Aliases: []string{"s"},
 		},
 	)
@@ -290,7 +290,7 @@ func flagsReleaseHelmfile(output bool) []cli.Flag {
 		},
 		&cli.StringSliceFlag{
 			Name:    "selector",
-			Usage:   "only run using releases that match labels. Labels can take form of foo=bar or foo!=bar",
+			Usage:   "list of release labels, used as selector, selector can take form of foo=bar or foo!=bar",
 			Aliases: []string{"l"},
 			EnvVars: []string{"RMK_RELEASE_SELECTOR"},
 		},
@@ -384,16 +384,16 @@ func flagsSecretGenerate() []cli.Flag {
 func flagsSecretManager() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.StringSliceFlag{
-			Name:    "scope",
-			Usage:   "specific scopes for selected secrets",
-			Aliases: []string{"s"},
-			EnvVars: []string{"RMK_SECRET_MANAGER_SCOPE"},
-		},
-		&cli.StringSliceFlag{
 			Name:    "environment",
-			Usage:   "specific environments for selected secrets",
+			Usage:   "list of secret environments, used as selector",
 			Aliases: []string{"e"},
 			EnvVars: []string{"RMK_SECRET_MANAGER_ENVIRONMENT"},
+		},
+		&cli.StringSliceFlag{
+			Name:    "scope",
+			Usage:   "list of secret scopes, used as selector",
+			Aliases: []string{"s"},
+			EnvVars: []string{"RMK_SECRET_MANAGER_SCOPE"},
 		},
 	)
 }
@@ -407,7 +407,7 @@ func flagsUpdate() []cli.Flag {
 		},
 		&cli.StringFlag{
 			Name:        "version",
-			Usage:       "RMK special version.",
+			Usage:       "RMK special version",
 			Aliases:     []string{"v"},
 			DefaultText: "empty value corresponds latest version",
 			EnvVars:     []string{"RMK_UPDATE_VERSION"},
