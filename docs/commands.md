@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 564799e <br />
-**Date:** 2025-01-23T09:26:10Z <br />
+**Commit:** 4778fa7 <br />
+**Date:** 2025-01-28T11:59:21Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -93,7 +93,7 @@ Delete K3D cluster
 
 Import images from docker to K3D cluster
 
-**--k3d-import-image, --ki**="": list images for import into K3D cluster
+**--k3d-import-image, --ki**="": list of images to import into running K3D cluster
 
 ##### list, l
 
@@ -161,7 +161,7 @@ Initialize configuration for current tenant and selected environment
 
 **--slack-channel, --sc**="": channel name for Slack notifications
 
-**--slack-message-details, --smd**="": additional information for body of Slack messages
+**--slack-message-details, --smd**="": additional details for Slack message body
 
 **--slack-notifications, -n**: enable Slack notifications
 
@@ -211,11 +211,11 @@ Generate project directories and files structure
 
 **--create-sops-age-keys, -c**: create SOPS age keys for generated project structure
 
-**--environments, -e**="": list project environments. Root domain can take form of <environment>.root-domain=<domain-name>
+**--environment, -e**="": list of project environments, root-domain config option must be provided: <environment>.root-domain=<domain-name>
 
-**--owners, -o**="": list project owners
+**--owner, -o**="": list of project owners
 
-**--scopes, -s**="": list project scopes
+**--scope, -s**="": list of project scopes
 
 #### update, u
 
@@ -241,7 +241,7 @@ Build releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -253,7 +253,7 @@ Destroy releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -267,7 +267,7 @@ List releases
 
 **--output, -o**="": output format, available: short, yaml (default: "short")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -287,7 +287,7 @@ Sync releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -299,7 +299,7 @@ Template releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -331,27 +331,27 @@ batch secrets management
 
 Decrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### encrypt, e
 
 Encrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### generate, g
 
 Generate secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
 **--force, -f**: force overwriting current secrets after generating new
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 #### keys, k
 
@@ -391,7 +391,7 @@ Update RMK CLI to a new version
 
 **--release-candidate, -r**: force update RMK to latest release candidate version
 
-**--version, -v**="": RMK special version. (default: empty value corresponds latest version)
+**--version, -v**="": RMK special version (default: empty value corresponds latest version)
 
 ### help, h
 
