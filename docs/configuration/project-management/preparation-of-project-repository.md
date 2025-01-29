@@ -4,8 +4,13 @@
 
 - Create a remote repository in your Version Control System (GitHub) according to the
   following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
-- Clone the project repository. For example: **rmk-test.bootstrap.infra**
-  OR `git init && git remote add <name> <url> && git commit -m "init commit"`
+- Clone the project repository. For example: **rmk-test.bootstrap.infra**.
+  Alternatively, run:
+  ```shell
+  git init
+  git remote add "<name>" "<url>"
+  git commit --allow-empty --message "Initial commit"
+  ```
 - Checkout the needed branch. For example: `develop|staging|production`.
 - Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project
   configuration.
