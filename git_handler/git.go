@@ -2,6 +2,7 @@ package git_handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -115,7 +116,11 @@ func (g *GitSpec) GetBranchName() error {
 
 	head, err := repo.Head()
 	if err != nil {
-		return err
+		if errors.Is(err, plumbing.ErrReferenceNotFound) {
+			return fmt.Errorf("reference not found, Git branch or commit missing")
+		} else {
+			return err
+		}
 	}
 
 	if !head.Name().IsBranch() {
@@ -141,7 +146,7 @@ func (g *GitSpec) GetRepoPrefix() error {
 	}
 
 	if _, ok := c.Remotes["origin"]; !ok {
-		return fmt.Errorf("failed to extract prefix from repository name")
+		return fmt.Errorf("failed to extract Git repository name, origin remote missing")
 	} else {
 		g.RepoName = strings.TrimSuffix(filepath.Base(strings.Join(c.Remotes["origin"].URLs, "")), ".git")
 
