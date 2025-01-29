@@ -171,7 +171,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   dependencies, Kodjin, or any other tenant,
   e.g.,
-  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16)).
+  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16).
 - **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra):** K8S
   operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
@@ -248,7 +248,7 @@ rmk update --version vX.X.X
   Define upstream-downstream relationships between sibling projects to reuse releases and services across different installations.
 - **[Initial project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** 
   Generate a complete Kubernetes-based project structure from scratch using RMK, following industry best practices.
-- **[Batch secret management:](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch-in-a-batch-manner-using-the-rmk-secrets-manager)**
+- **[Batch secret management:](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch)**
   Template, generate, and encode project secrets for all environments in a batch manner.
 - **[Self-documentation generation:](commands.md#doc)**
   Generate the full command documentation in the [Markdown](https://en.wikipedia.org/wiki/Markdown) format with one click.
@@ -256,7 +256,7 @@ rmk update --version vX.X.X
   Easily integrate with CI/CD solutions via [webhooks](https://www.redhat.com/en/topics/automation/what-is-a-webhook) 
   or [workflow dispatch events](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_dispatch)
   to update release and service version declarations, automatically commit the changes to Git.
-- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management/configuration-management.md#support-for-multi-factor-authentication-mfa):** 
+- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management/init-aws-provider.md#support-for-multi-factor-authentication-mfa):** 
   Automatically detect and use an ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)) device 
   if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
 
