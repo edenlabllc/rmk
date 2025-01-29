@@ -94,8 +94,8 @@ git checkout develop
 git pull origin develop
 ```
 
-> The [secret keys](configuration/secrets-management/secrets-management.md#secret-keys) are Git-ignored and should *
-*never be committed** to Git.
+> The [secret keys](configuration/secrets-management/secrets-management.md#secret-keys) are Git-ignored, they
+> should **never be committed** to Git.
 >
 > By default, when a local cluster is created via the K3D cluster provider, the private SOPS Age keys **are not shared**
 > and should be recreated, then all the secrets should be regenerated and re-encoded:
