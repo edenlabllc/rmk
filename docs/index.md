@@ -197,7 +197,6 @@ Currently, RMK only supports Unix-like operating systems (OS):
   - **MacOS**: amd64, arm64 (M1, M2 require [Rosetta](https://support.apple.com/en-us/HT211861))
   - **Linux**: amd64
 - **Software:**
-  - **Python** >= 3.9
   - _For managing local clusters using K3D:_ Version _v5.x.x_ requires [Docker](https://www.docker.com/) => v20.10.5 ([runc](https://github.com/opencontainers/runc) >= v1.0.0-rc93) to work
         properly.
 
