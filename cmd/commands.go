@@ -518,13 +518,21 @@ func readInputSourceWithContext(gitSpec *git_handler.GitSpec, conf *config.Confi
 			return err
 		}
 
-		if ctx.Command.Name == "generate" && !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
-			return nil
-		} else if ctx.Command.Name == "generate" && util.IsExists(util.GetPwdPath(util.TenantProjectFile), true) {
-			return fmt.Errorf("%s file exists, please eather delete it or run 'rmk config init' command to regenerate project", util.TenantProjectFile)
+		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
+		detectPrGenCommand := ctx.Command.Category == "project" && ctx.Command.Name == "generate"
+		isProjectDefined := detectPrGenCommand && util.IsExists(util.GetPwdPath(util.TenantProjectFile), true)
+		isProjectUndefined := detectPrGenCommand && !util.IsExists(util.GetPwdPath(util.TenantProjectFile), true)
+
+		if !util.IsExists(configPath, true) {
+			if isProjectUndefined {
+				return nil
+			} else if isProjectDefined {
+				return fmt.Errorf(
+					"%s file exists, please eather delete it or run 'rmk config init' command to regenerate project",
+					util.TenantProjectFile)
+			}
 		}
 
-		configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
 		if err := conf.ReadConfigFile(configPath); err != nil {
 			zap.S().Errorf(util.ConfigNotInitializedErrorText)
 			return err
