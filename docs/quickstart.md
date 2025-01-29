@@ -13,9 +13,14 @@ All of this will be done in just **five steps**.
 - Fulfilled [requirements](index.md#requirements) for proper RMK operation
 - Installed [RMK](index.md#installation)
 
-## Steps
+This example assumes the [project](configuration/project-management/requirement-for-project-repository.md) (tenant) name
+is `rmk-test`, the
+current [Git branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
+is `develop`, the
+configured [Git remote](https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories)
+is `origin`.
 
-This example assumes the tenant is `rmk-test` and the current branch is `develop`.
+## Steps
 
 1. Generate
    the [project structure](configuration/project-management/requirement-for-project-repository.md#expected-repository-structure),
@@ -23,7 +28,7 @@ This example assumes the tenant is `rmk-test` and the current branch is `develop
    Age keys](configuration/secrets-management/secrets-management.md#secret-keys):
 
    ```shell
-   rmk project generate --scope rmk-test --environments "develop.root-domain=localhost" --create-sops-age-keys
+   rmk project generate --scope rmk-test --environment "develop.root-domain=localhost" --create-sops-age-keys
    ```
 
    > The `deps` scope is the default one and is **added unconditionally** during the project generation process, no need
@@ -108,7 +113,8 @@ git pull origin develop
 > ```
 >
 > If **sharing** the secret keys is required, **consider switching** from a K3D provider to a
-> supported [cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers).
+>
+supported [cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers).
 
 Finally, the team members should follow all the [steps](#steps) **except the 1st one**, as the project has already been
 generated.

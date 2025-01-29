@@ -1,16 +1,20 @@
 # Preparation of the project repository
 
-> Prerequisites:
-> 
-> - Create a remote repository in your Version Control System (GitHub) according to the following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
-> - Clone the project repository. For example: **rmk-test.bootstrap.infra** OR `git init && git remote add && git commit -m "init commit"`
-> - Checkout the needed branch. For example: `develop|staging|production`.
-> - Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project configuration.
-> - [Initialize the configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration).
+## Prerequisites:
+
+- Create a remote repository in your Version Control System (GitHub) according to the
+  following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
+- Clone the project repository. For example: **rmk-test.bootstrap.infra**
+  OR `git init && git remote add <name> <url> && git commit -m "init commit"`
+- Checkout the needed branch. For example: `develop|staging|production`.
+- Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project
+  configuration.
+- [Initialize the configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration).
 
 ## Automatic generation of the project structure from scratch
 
-RMK supports automatic generation of the project structure from scratch, according to the presented project specification described in [project.yaml](#projectyaml) file.
+RMK supports automatic generation of the project structure from scratch, according to the presented project
+specification described in [project.yaml](#projectyaml) file.
 
 Use the following command:
 
@@ -29,7 +33,8 @@ and contains the following main sections:
 
 [//]: # (  TODO ACTUALIZE)
 
-* `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project specification.
+* `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project
+  specification.
 
   ```yaml
   project:
@@ -98,6 +103,7 @@ and contains the following main sections:
         os-mac: darwin
       # ...
   ```
+
 <details>
   <summary>Example of the full <code>project.yaml</code> file.</summary>
 
@@ -196,11 +202,13 @@ The project file supports placeholders, they are required for correct URL format
 * **{{.Name}}:** Replaced with the `name` field.
 * **{{.Version}}:** Replaced with the `version` field.
 * **{{.HelmfileTenant}}:** Replaced with the tenant name for the Helmfile selected from the list.
-* **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system, where RMK is run.
+* **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system,
+  where RMK is run.
 
 > The field `rename` of the boolean type is required to correct the name of the binary file of the downloaded tool
-> according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the archive.
+> according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the
+> archive.
 > For example:
-> 
+>
 > - The initial file name after the download: `helmfile_darwin_amd64`.
 > - After applying the `rename` instruction it gets a value of the `name` field: `helmfile`.
