@@ -99,13 +99,10 @@ git pull origin develop
 >
 > By default, when a local cluster is created via the K3D cluster provider, the private SOPS Age keys **are not shared**
 > and should be recreated, then all the secrets should be regenerated and re-encoded:
-
-   ```shell
-   rmk secret keys create
-   ```
-
->
-Otherwise, [initialize any cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers),
-supported by RMK.
+> ```shell
+> rmk secret keys create
+> ```
+> Otherwise, [initialize any cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers), 
+> supported by RMK.
 
 Finally, they need to execute all the steps **except the 1st one**, because the project has been generated already.
