@@ -58,6 +58,12 @@ rmk release list
 rmk release template --selector app=traefik
 ```
 
+### Synchronization of all releases
+
+```shell
+rmk release sync
+```
+
 ### Synchronization of a specific scope of the releases
 
 ```shell
