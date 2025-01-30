@@ -9,41 +9,42 @@ environments,
 [Helm](https://helm.sh/) secrets and releases, built according to best practices
 in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](https://www.atlassian.com/devops).
 
-* [RMK CLI - Reduced Management for Kubernetes](#rmk-cli---reduced-management-for-kubernetes)
-  * [Overview](#overview)
-    * [Efficiency in numbers](#efficiency-in-numbers)
-    * [Advantages](#advantages)
-    * [Edenlab LLC use cases](#edenlab-llc-use-cases)
-      * [Related repositories](#related-repositories)
-        * [GitHub](#github)
-        * [Helm charts](#helm-charts)
-  * [Requirements](#requirements)
-  * [Quickstart](quickstart.md)
-  * [Installation](#installation)
-  * [Update](#update)
-    * [General update process](#general-update-process)
-    * [Update to specific version](#update-to-specific-version)
-  * Configuration
-    * [Configuration management](configuration/configuration-management/configuration-management.md)
-      * [Initialization of AWS cluster provider](configuration/configuration-management/init-aws-provider.md)
-      * [Initialization of Azure cluster provider](configuration/configuration-management/init-azure-provider.md)
-      * [Initialization of GCP cluster provider](configuration/configuration-management/init-azure-provider.md)
-      * [Initialization of K3D cluster provider](configuration/configuration-management/init-k3d-provider.md)
-    * Project management
-      * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
-      * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
-      * [Dependencies management and project inheritance](configuration/project-management/dependencies-management-and-project-inheritance.md)
-    * [Cluster management](configuration/cluster-management/cluster-management.md)
-      * [Exported environment variables](configuration/cluster-management/exported-environment-variables.md)
-    * [Release management](configuration/release-management/release-management.md)
-    * [Secrets management](configuration/secrets-management/secrets-management.md)
-  * [Commands](commands.md)
-  * [Features](#features)
-  * [Supported Kubernetes cluster providers](#supported-kubernetes-cluster-providers)
-  * [Roadmap](#roadmap)
-  * [Development and release](development-and-release.md)
-  * [License](#license)
-  * [Code of Conduct](#code-of-conduct)
+* [Overview](#overview)
+  * [Efficiency in numbers](#efficiency-in-numbers)
+  * [Advantages](#advantages)
+  * [Edenlab LLC use cases](#edenlab-llc-use-cases)
+    * [Related repositories](#related-repositories)
+      * [GitHub](#github)
+      * [Helm charts](#helm-charts)
+* [Requirements](#requirements)
+  * [Operating systems (OS)](#operating-systems-os)
+  * [Software](#software)
+* [Quickstart](quickstart.md)
+* [Installation](#installation)
+* [Update](#update)
+  * [General update process](#general-update-process)
+  * [Update to specific version](#update-to-specific-version)
+* Configuration
+  * [Configuration management](configuration/configuration-management/configuration-management.md)
+    * [Initialization of AWS cluster provider](configuration/configuration-management/init-aws-provider.md)
+    * [Initialization of Azure cluster provider](configuration/configuration-management/init-azure-provider.md)
+    * [Initialization of GCP cluster provider](configuration/configuration-management/init-azure-provider.md)
+    * [Initialization of K3D cluster provider](configuration/configuration-management/init-k3d-provider.md)
+  * Project management
+    * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
+    * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
+    * [Dependencies management and project inheritance](configuration/project-management/dependencies-management-and-project-inheritance.md)
+  * [Cluster management](configuration/cluster-management/cluster-management.md)
+    * [Exported environment variables](configuration/cluster-management/exported-environment-variables.md)
+  * [Release management](configuration/release-management/release-management.md)
+  * [Secrets management](configuration/secrets-management/secrets-management.md)
+* [Commands](commands.md)
+* [Features](#features)
+* [Supported Kubernetes cluster providers](#supported-kubernetes-cluster-providers)
+* [Roadmap](#roadmap)
+* [Development and release](development-and-release.md)
+* [License](#license)
+* [Code of Conduct](#code-of-conduct)
 
 ## Overview
 
@@ -191,16 +192,23 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Requirements
 
+### Operating systems (OS)
+
 Currently, RMK only supports Unix-like operating systems (OS):
 
-- **OS:**
-  - **MacOS**: amd64, arm64 (M1, M2 require [Rosetta](https://support.apple.com/en-us/HT211861))
-  - **Linux**: amd64
-- **Software:**
-  - _For managing local clusters using K3D:_ Version _v5.x.x_ requires [Docker](https://www.docker.com/) => v20.10.5 ([runc](https://github.com/opencontainers/runc) >= v1.0.0-rc93) to work
-        properly.
+- **MacOS**: amd64, arm64 ([M series](https://en.wikipedia.org/wiki/Apple_silicon#M_series) processors
+  require [Rosetta](https://support.apple.com/en-us/HT211861))
+- **Linux**: amd64
 
-> If this is your first project repository managed by RMK, ensure that the above tools are specified in the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file.
+### Software
+
+The following software is required to run RMK:
+
+- **[Git](https://git-scm.com/)**
+- **[for [local K3D clusters](configuration/configuration-management/init-k3d-provider.md)]**:
+  Version [v5.X.X](https://k3d.io/stable/#learning)
+  requires **[Docker](https://www.docker.com/)** >=
+  v20.10.5 (**[runc](https://github.com/opencontainers/runc)** >= v1.0.0-rc93) to work properly.
 
 ## Installation
 
@@ -226,9 +234,10 @@ rmk update
 
 ### Update to specific version
 
-You can update to a specific RMK version to maintain backward compatibility or when updating to the latest version is not possible. 
+You can update to a specific RMK version to maintain backward compatibility or when updating to the latest version is
+not possible.
 
-> This may be necessary due to specific version requirements or when a bug has been detected. 
+> This may be necessary due to specific version requirements or when a bug has been detected.
 
 To update to a specific version, use the following command:
 
@@ -274,18 +283,23 @@ RMK currently supports the provisioning of the following Kubernetes clusters:
 
 ### Provisioned using 3rd-party tools and services
 
-By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a 3rd party. 
-The CLI tool simply requires an existing [Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) 
+By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a 3rd
+party. The CLI tool simply requires an existing 
+[Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
 to connect to and manage the cluster.
 
 ## Roadmap
 
-- **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with **vals** for advanced values and secrets management.
-- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement support for provisioning and destroy of on-premise Kubernetes clusters using Cluster API.
-- **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce errors or regressions during the CI/CD.
-- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating pull requests (PRs).
+- **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with **vals** for advanced
+  values and secrets management.
+- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
+  support for provisioning and destroy of on-premise Kubernetes clusters using Cluster API.
+- **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
+  errors or regressions during the CI/CD.
+- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
+  pull requests (PRs).
 
-> Check the [issues](https://github.com/edenlabllc/rmk/issues) for more information.
+> Check [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
 ## Development and release
 
