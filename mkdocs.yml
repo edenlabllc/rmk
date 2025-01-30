@@ -14,6 +14,8 @@ theme:
   name: material
   language: en
   features:
+    # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
+    - content.code.copy
     # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/
     - search.highlight
     - search.share
