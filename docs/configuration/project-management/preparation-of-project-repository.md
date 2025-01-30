@@ -1,20 +1,28 @@
 # Preparation of the project repository
 
-## Prerequisites:
+## Prerequisites
 
-- Create a remote repository in your Version Control System (GitHub) according to the
-  following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
-- Clone the project repository. For example: **rmk-test.bootstrap.infra**.
-  Alternatively, run:
+- Create a remote repository (Git) for a project in your Version Control System (e.g., [GitHub](https://github.com))
+  according to the [requirements](requirement-for-project-repository.md#requirement-for-project-repository). For
+  example: `rmk-test.bootstrap.infra`
+- Clone the existing project repository:
+
+  ```shell
+  git clone <repo_url>
+  ```
+
+  Alternatively, initialize a new repository manually:
+
   ```shell
   git init
-  git remote add "<name>" "<url>"
+  git remote add <repo_name> <repo_url>
   git commit --allow-empty --message "Initial commit"
   ```
-- Checkout the needed branch. For example: `develop|staging|production`.
-- Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project
-  configuration.
-- [Initialize the configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration).
+
+  > RMK requires a Git branch with at least one commit and a configured `origin` remote  
+  > to correctly resolve the project/tenant name and environment.
+
+- Checkout the required branch. For example: `develop`.
 
 ## Automatic generation of the project structure from scratch
 
@@ -30,6 +38,8 @@ rmk project generate
 > Add the `--create-sops-age-keys` flag if you want to create the project structure along with SOPS age private keys.
 
 This will create a default project structure and prepare an example release based on [Nginx](https://nginx.org/).
+
+> Check [Quickstart](../../quickstart.md) for a detailed example.
 
 ## project.yaml
 
