@@ -39,9 +39,9 @@ rmk project generate --environment="develop.root-domain=localhost" \
 
 > Add the `--create-sops-age-keys` flag if you want to create the project structure along with SOPS age private keys.
 
-This will create a default project structure, `project.yaml` file and prepare an example release based on [Nginx](https://nginx.org/).
+This will create a default project structure and set up an example release based on [Nginx](https://nginx.org/).
 
-> Check [Quickstart](../../quickstart.md) for a detailed example.
+> If the `project.yaml` file is missing, it will be automatically created by the command.
 
 ## project.yaml
 
