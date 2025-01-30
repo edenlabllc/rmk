@@ -19,8 +19,6 @@
 
 ## Expected repository structure:
 
-[//]: # (  TODO ACTUALIZE)
-
 ```yaml
 etc/<upstream_project_name>/<environment>/secrets/
   .sops.yaml # The public key for the current set of secrets.
@@ -67,8 +65,6 @@ project.yaml # Project specification for the dependencies and inventory installe
 
 ### Requirement for `globals.yaml.gotmpl`
 
-[//]: # (  TODO ACTUALIZE)
-
 ```yaml
 # configs - enumeration of configurations divided into sets related to the Kubernetes ConfigMaps.
 configs:
@@ -104,8 +100,6 @@ hooks:
 
 The list of the `helmfile.yaml.gotmpl` sections that must be defined and remained unchanged for working with RMK correctly is:
 
-[//]: # (  TODO ACTUALIZE)
-
 ```gotemplate
 environments:
   local:
@@ -115,29 +109,51 @@ environments:
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
+  production: 
+    missingFileHandler: Warn
+    values:
+      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
+      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl 
+      - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}                        
   staging:
     missingFileHandler: Warn
     values:
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}                     
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
-  production:
-    missingFileHandler: Warn
-    values:
-      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
-      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
-      - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
 ---
-
+helmDefaults:
+wait: true
+waitForJobs: true
+timeout: 3600
+                                                                        
 # The set of paths for the inherited Helmfiles is controlled through the project.yaml file using RMK.
 # DO NOT EDIT the "helmfiles" field's values.
 helmfiles: {{ env "HELMFILE_<project_name>_PATHS" }}
@@ -157,8 +173,16 @@ templates:
     values:
       - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
       - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
+      - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- end }}
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
+      - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- end }}
     secrets:
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/secrets/{{`{{ .Release.Name }}`}}.yaml
 
@@ -167,4 +191,5 @@ releases:
     installed: {{ .Values | get (print " <release_name_foo>" ".enabled") false }}
 ```
 
-> You can use the `rmk project generate` command to view the full example of the contents of all the project files.
+> You can use the [rmk project generate](preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch) 
+> command to view the full example of the contents of all the project files.

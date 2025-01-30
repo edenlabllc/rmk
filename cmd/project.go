@@ -27,6 +27,7 @@ const (
 	clusterDepsRepo      = "cluster-deps.bootstrap.infra"
 	clusterDepsRepoOwner = "edenlabllc"
 	clusterDepsRepoURL   = "git::https://github.com/" + clusterDepsRepoOwner + "/{{.Name}}.git?ref={{.Version}}"
+	depsScope            = "deps"
 )
 
 type ProjectCommands struct {
@@ -83,17 +84,36 @@ func newProjectCommand(conf *config.Config, ctx *cli.Context, workDir string, gi
 	}
 }
 
+func (p *ProjectCommands) appendScopes() {
+	depsScopeExists := false
+	for _, val := range p.Ctx.StringSlice("scope") {
+		if val == depsScope {
+			depsScopeExists = true
+			break
+		}
+	}
+
+	if !depsScopeExists {
+		p.projectFile.Spec.Scopes = append(
+			append(p.projectFile.Spec.Scopes, depsScope), p.Ctx.StringSlice("scope")...)
+
+		return
+	}
+
+	p.projectFile.Spec.Scopes = p.Ctx.StringSlice("scope")
+}
+
 func (p *ProjectCommands) createProjectFile() error {
 	var buf bytes.Buffer
 
-	if !p.Ctx.IsSet("environments") || !p.Ctx.IsSet("scopes") {
+	if !p.Ctx.IsSet("environment") || !p.Ctx.IsSet("scope") {
 		return fmt.Errorf("%s file not found or values not set for flags: %s, %s",
-			util.GetPwdPath(util.TenantProjectFile), "environments", "scopes")
+			util.GetPwdPath(util.TenantProjectFile), "environment", "scope")
 	}
 
-	if p.Ctx.IsSet("environments") {
+	if p.Ctx.IsSet("environment") {
 		p.projectFile.Spec.Environments = make(map[string]*config.ProjectRootDomain)
-		for _, val := range p.Ctx.StringSlice("environments") {
+		for _, val := range p.Ctx.StringSlice("environment") {
 			if len(val) > 0 {
 				matchRootDomain := regexp.MustCompile(`^.+\.root-domain=.+$`).MatchString(val)
 				splitRootDomain := strings.SplitN(val, ".", 2)
@@ -116,13 +136,11 @@ func (p *ProjectCommands) createProjectFile() error {
 		}
 	}
 
-	if p.Ctx.IsSet("owners") {
-		p.projectFile.Spec.Owners = p.Ctx.StringSlice("owners")
+	if p.Ctx.IsSet("owner") {
+		p.projectFile.Spec.Owners = p.Ctx.StringSlice("owner")
 	}
 
-	if p.Ctx.IsSet("scopes") {
-		p.projectFile.Spec.Scopes = p.Ctx.StringSlice("scopes")
-	}
+	p.appendScopes()
 
 	client, err := github.NewClient(clusterDepsRepoOwner, clusterDepsRepo, "", github.APIBaseURL)
 	if err != nil {
@@ -335,7 +353,7 @@ func (p *ProjectCommands) generateProjectFiles(gitSpec *git_handler.GitSpec) err
 	for _, sc := range p.scopes {
 		for _, env := range sc.environments {
 			switch sc.name {
-			case "deps":
+			case depsScope:
 				tAWSCluster, err := p.Conf.ParseTemplate(template.New("TenantAWSCluster"), &p.parseContent, tenantAWSClusterValuesExample)
 				if err != nil {
 					return err

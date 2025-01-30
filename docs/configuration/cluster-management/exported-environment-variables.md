@@ -55,6 +55,11 @@ CAPI_CLUSTER=false
 # The flag that indicates whether the cluster is K3D (local cluster). 
 # The variable can be used to override values in the releases.
 K3D_CLUSTER=false
+# The K3D cluster name equaling exported environment variable $NAME.
+K3D_NAME="${NAME}"
+# The local directory path for mount into K3D cluster.
+# By default, the RMK startup path is used.
+K3D_VOLUME_HOST_PATH="${PWD}"
 
 # Only for Kubernetes Cluster API Provider AWS: 
 # AWS cluster provider configuration
