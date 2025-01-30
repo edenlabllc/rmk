@@ -73,56 +73,69 @@ Before performing actions via RMK with this project repository, simply update to
 rmk update
 ```
 
-#### For previously created project repositories
+#### For previously created project repositories for AWS cluster provider
 
 > For correct migration, be sure to follow the steps in strict order.
 
+1. On the current RMK version download private Age keys if early not do it.
 
-On the current RMK version download private Age keys if early not do it.
+   ```shell
+   rmk config init --github-token=<GitHub_PAT>
+   ```
 
-```shell
-rmk config init --github-token=<GitHub_PAT>
-```
+2. Save the path to the private Age keys storage directory to an environment variable.
 
-Save the path to the private Age keys storage directory to an environment variable.
+   ```shell
+   export RMK_OLD_PATH_AGE_KEYS="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
+   ```
 
-```shell
-export RMK_OLD_PATH_AGE_KEYS="$(rmk -lf=json config view | yq '.config.SopsAgeKeys')"
-```
+   > Skip this step if you lack administrator permissions for the selected AWS account.
 
-Update your current version to `v0.45.0`.
+3. Update your current version to `v0.45.0`.
 
-```shell
-rmk update
-```
+   ```shell
+   rmk update
+   ```
 
-Add root domain specification in project.yaml for project repository.
+4. Add root domain specification in project.yaml for project repository.
 
-```yaml
-project:
-  # ...
-  spec:
-    environments:
-      develop:
-        root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
-      production:
-        root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
-      staging:
-        root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
-```
+   ```yaml
+   project:
+     # ...
+     spec:
+       environments:
+         develop:
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+         production:
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+         staging:
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+   ```
 
-Initialize a new configuration specifying the AWS cluster provider. 
+   > Skip this step if the project.yaml file was previously modified to match the new specification.
 
-```shell
-rmk config init --cluster-provider=aws \
-    --aws-access-key-id=<aws_access_key_id> \
-    --aws-region=<aws_region> \
-    --aws-secret-access-key=<aws_secret_access_key> \
-    --github-token=<GitHub_PAT>
-```
+5. Initialize a new configuration specifying the AWS cluster provider. 
 
-Copy from old path private Age keys in new directory.
+   ```shell
+   rmk config init --cluster-provider=aws \
+       --aws-access-key-id=<aws_access_key_id> \
+       --aws-region=<aws_region> \
+       --aws-secret-access-key=<aws_secret_access_key> \
+       --github-token=<GitHub_PAT>
+   ```
 
-```shell
+6. Copy from old path private Age keys in new directory.
 
-```
+   ```shell
+   cp -f "${RMK_OLD_PATH_AGE_KEYS}"/* $(rmk --log-format=json config view | yq '.config.SopsAgeKeys')
+   ```
+
+   > Skip this step if you lack administrator permissions for the selected AWS account.
+
+7. Upload old private Age keys to AWS Secret Manager.
+
+   ```shell
+   rmk secret keys upload
+   ```
+   
+   > Skip this step if you lack administrator permissions for the selected AWS account. 
