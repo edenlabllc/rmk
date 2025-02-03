@@ -74,9 +74,9 @@ etc/deps/develop/secrets/postgres.yaml
 etc/rmk-test/develop/secrets/app.yaml
 ```
 
-> Secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project should have its
-> own
-> unique set of secrets for all deployed releases.
+> Similar to the [release.yaml](../project-management/requirement-for-project-repository.md#requirement-for-releaseyaml)
+> files, secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project 
+> **should have its own** unique set of secrets for all deployed releases.
 
 In the encrypted secret file, only the values are encrypted, while the object keys remain in plaintext. This approach
 allows teams to easily review changes
