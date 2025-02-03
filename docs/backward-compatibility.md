@@ -2,9 +2,11 @@
 
 ## Breaking change releases
 
-**[v0.44.2](https://github.com/edenlabllc/rmk/releases/tag/v0.44.2) -> [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0)**
+---
 
-### Motivations
+### [v0.44.2](https://github.com/edenlabllc/rmk/releases/tag/v0.44.2) -> [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0)
+
+### Motivation
 
 Migrating RMK `v0.45.0` from **Terraform** to **Cluster API**
 
@@ -13,12 +15,12 @@ This shift was driven by several key factors:
 
 Why We Switched to Cluster API?
 
-1. Maintaining Open-Source Integrity:
+1. **Maintaining Open-Source Integrity**:
    Terraform's transition to a BSL license conflicts with our commitment to keeping RMK fully open-source (OSS). 
    By switching to Cluster API, we ensure that our customers' interests remain unaffected.
    More details on the [Terraform license change](https://www.hashicorp.com/license-faq).
 
-2. A more native Kubernetes Solution:
+2. **A more native Kubernetes Solution**:
    We needed a provisioning approach that seamlessly integrates with Kubernetes across various environments. 
    With the new RMK `v0.45.0`, we now support:
 
@@ -28,11 +30,11 @@ Why We Switched to Cluster API?
    - On-Premise (support is expected in upcoming releases)
    - K3D (local installation)
    
-3. Simplified Configuration Management:
+3. **Simplified Configuration Management**:
    Cluster configurations are now stored in Helm charts, aligning with the way installed components are managed. 
    This ensures a unified format for all declarations.
 
-4. Seamless Cluster Upgrades:
+4. **Seamless Cluster Upgrades**:
    Our new approach makes cluster updates easier and Kubernetes-native, leveraging:
 
    - Pod status awareness
@@ -41,7 +43,7 @@ Why We Switched to Cluster API?
 > This transition marks a significant step in enhancing RMK’s provisioning capabilities, ensuring better scalability, 
 > openness, and ease of management. Stay tuned for more updates in upcoming releases! 🚀
 
-### Deprecated Features
+### Deprecated features
 
 For command `rmk config init`:
 
@@ -162,3 +164,5 @@ rmk update
    ```
    
    > Skip this step if you lack administrator permissions for the selected `AWS` account. 
+
+---
