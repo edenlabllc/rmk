@@ -3,7 +3,7 @@
 RMK uses [Helmfile](https://github.com/helmfile/helmfile) for the release management.
 
 RMK uses a reduced set of the `Helmfile` commands without changing their behavior.
-The full list of commands can be found in the [release category](../../commands.md#release).
+The full list of commands can be found in the [release](../../commands.md#release) category.
 Additionally, flags are provided for the commands, which allow extending capabilities and help during the command
 execution debug.
 
@@ -18,7 +18,7 @@ rmk release destroy
 ```
 
 > The `--skip-context-switch` (`-s`) flag can be used with commands
-> like [rmk release template](http://localhost:8000/rmk/commands/#template-t) to **skip switching** to a
+> like [rmk release template](../../commands.md#template-t) to **skip switching** to a
 > Kubernetes cluster.
 >
 > This is useful in situations where a **cluster has not been provisioned** yet, releases are being
@@ -44,7 +44,7 @@ etc/deps/develop/releases.yaml
 ```
 
 > Similar to the [SOPS secrets files](../secrets-management/secrets-management.md#secret-files), the `releases.yaml`
-> files are **not inherited by the projects** in contrast to the release values. Each project **should have its own**
+> files are **never inherited by the projects** in contrast to the release values. Each project **should have its own**
 > `releases.yaml` files for all deployed scopes and environments.
 
 The release installation order is declared in `helmfile.yaml.gotmpl` file. For an example, see the `cluster-deps`
@@ -158,7 +158,7 @@ machinePools:
 ```
 
 Then, if you need to change the `machinePools.app.*` values in the `develop` environment of the `rmk-test` downstream
-project, e.g., to enable the `app` nodes and increase their count to 10, you **don’t need to copy the entire file**.
+project, e.g., to enable the `app` nodes and increase their count to 10, you **do not need to copy the entire file**.
 Instead, you can **override only the specific values** by repeating their YAML path.
 
 Your override file will be minimalistic and contain only the necessary changes:
@@ -199,17 +199,17 @@ machinePools:
 >     value: value2
 > ```
 
-To check the final result, run the [rmk release template](http://localhost:8000/rmk/commands/#template-t) command and
+To check the final result, run the [rmk release template](../../commands.md#template-t) command and
 see the final YAML.
 
 ## Release update and integration into the CD pipeline
 
-The [rmk release update](http://localhost:8000/rmk/commands/#update-u_2) command automates the process of **updating and
+The [rmk release update](../../commands.md#update-u-2) command automates the process of **updating and
 delivering releases** according to the version changes of artifacts, e.g., container images, following
 the [GitOps](https://www.gitops.tech) methodology.
 
 Since RMK is a binary file that can be **downloaded and installed** on any Unix-based operating system,
-it can be **integrated** with almost any CI/CD system: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
+it can be **integrated** with almost **any CI/CD system**: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
 
 ### Example of integration with GitHub Actions
 
