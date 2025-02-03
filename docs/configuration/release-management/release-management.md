@@ -2,22 +2,27 @@
 
 RMK uses [Helmfile](https://github.com/helmfile/helmfile) for the release management.
 
-RMK uses a reduced set of the `Helmfile` commands without changing their behavior. 
-The full list of commands can be found in the [release category](../../commands.md#release). 
-Additionally, flags are provided for the commands, which allow extending capabilities and help during the command execution debug.
+RMK uses a reduced set of the `Helmfile` commands without changing their behavior.
+The full list of commands can be found in the [release category](../../commands.md#release).
+Additionally, flags are provided for the commands, which allow extending capabilities and help during the command
+execution debug.
 
 For example:
 
 ```shell
 rmk release build
-rmk release list --selector app=name
-rmk release template --selector app=name --skip-context-switch
-rmk release sync --helmfile-log-level=debug --selector app=name 
+rmk release list
+rmk release template --skip-context-switch --selector app=myapp1
+rmk release sync --helmfile-log-level=debug --selector app=myapp1 
 rmk release destroy 
 ```
 
-> The `--skip-context-switch` (`-s`) flag can be used for the commands like `rmk release template` to skip switching to a Kubernetes cluster.
-> This might be useful in the situations, when a cluster has not been provisioned yet and its releases and values are being developed.
+> The `--skip-context-switch` (`-s`) flag can be used with commands
+> like [rmk release template](http://localhost:8000/rmk/commands/#template-t) to **skip switching** to a
+> Kubernetes cluster.
+>
+> This is useful in situations where a **cluster has not been provisioned** yet, releases are being
+> developed, but the user still wants to **preview intermediate results**, such as checking the templating of a release.
 
 In a project repository, all the release values files are stored in the `etc/<scope>/<env>/values/` directories.
 For example:
@@ -27,24 +32,46 @@ etc/deps/develop/values/
 etc/rmk-test/staging/values/
 ```
 
-> The release values are inherited by the projects, e.g., the upstream project's values are included into the downstream project's values.
+> The release values are **inherited by the projects**, e.g., the upstream project's values ("deps") are included into
+> the downstream project's values ("rmk-test").
 
-All `releases.yaml` files controlling which releases are enabled/disabled are stored in the `etc/<scope>/<env>/`directories.
+All `releases.yaml` files controlling which releases are enabled/disabled are stored in the `etc/<scope>/<env>/`
+directories.
 For example:
 
 ```
 etc/deps/develop/releases.yaml
 ```
 
-> The `releases.yaml` files are not inherited by the projects in contrast to the values. Each project should have its
-> `releases.yaml` files for all deployed scopes and envs.
-> Running any of the commands in the release category will trigger the dependency resolution mechanism,
-> as well as the check for the Kubernetes context for the current environment to prevent releases 
-> from being synchronized outside the environment context.
+> Similar to the [SOPS secrets files](../secrets-management/secrets-management.md#secret-files), the `releases.yaml`
+> files are **not inherited by the projects** in contrast to the release values. Each project **should have its own**
+> `releases.yaml` files for all deployed scopes and environments.
 
-The release installation order is declared in `helmfile.yaml.gotmpl` file.
+The release installation order is declared in `helmfile.yaml.gotmpl` file. For an example, see the `cluster-deps`
+[Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl).
 
-## Examples of Usage
+Running any of the commands in the `release` category will trigger the Helmfile's dependency resolution mechanism
+("[DAG](https://helmfile.readthedocs.io/en/latest/#dag-aware-installationdeletion-ordering-with-needs)").
+Additionally, RMK **verifies** that the current Kubernetes context matches the Git branch and environment,
+**preventing** releases from being synchronized to an **unintended** Kubernetes cluster (RMK will select a correct
+automatically).
+
+Among the user-defined `Helmfile` selectors, the following
+[labels](https://helmfile.readthedocs.io/en/stable/#labels-overview) are available **by default**:
+
+- `name`: Release name.
+- `namespace`: Release namespace.
+- `chart`: Chart name.
+
+For example:
+
+```shell
+rmk release list --selector name=myapp1
+rmk release sync --selector namespace=kube-system
+rmk release destroy --selector chart=mychart1
+```
+
+## Examples of usage
 
 ### List of all available releases
 
@@ -55,7 +82,7 @@ rmk release list
 ### Viewing a specific release YAML after the Helm values template rendering
 
 ```shell
-rmk release template --selector app=traefik
+rmk release template --selector app=myapp1
 ```
 
 ### Synchronization of all releases
@@ -73,7 +100,7 @@ rmk release sync --selector scope=deps
 ### Synchronization of a specific release with passing the "--set" Helmfile argument
 
 ```shell
-rmk release sync --selector app=redis --helmfile-args="--set='values.name=foo'"
+rmk release sync --selector app=myapp1 --helmfile-args="--set='values.key1=value1'"
 ```
 
 ### Destroy all releases
@@ -82,90 +109,117 @@ rmk release sync --selector app=redis --helmfile-args="--set='values.name=foo'"
 rmk release destroy
 ```
 
-Among the `Helmfile` selectors, the following [predefined keys](https://helmfile.readthedocs.io/en/stable/#labels-overview) 
-are provided out of the box: 
+## Overriding release values for inherited upstream projects
 
-- Release name.
-- Release namespace.
-- Chart name.
+It is possible to override any release value for
+the [inherited upstream project repository](../project-management/dependencies-management-and-project-inheritance.md#dependencies-management-and-project-inheritance).
+You can **override any element** separately in its YAML file.
 
-For example:
-
-```shell
-rmk release sync --selector namespace=kube-system
-```
-
-## Overriding release values for inherited projects
-
-It is possible to override any release value for the [inherited project repository](../project-management/dependencies-management-and-project-inheritance.md#dependencies-management-and-project-inheritance).
-You can override any element separately in its YAML file.
-
-For example, you have the following file in the upstream project by the `.PROJECT/dependencies/deps.bootstrap.infra-<version>/etc/deps/develop/values/metrics-server.yaml` path:
+For example, you have the following file in the `cluster-deps` upstream project,
+e.g. [aws-cluster.yaml.gotmpl](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl).
 
 ```yaml
-apiService:
-  create: true
-extraArgs:
-  - --metric-resolution=10s
-  - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
-  - --cert-dir=/tmp
-resources:
-  requests:
-    cpu: 100m
-    memory: 200Mi
-containerSecurityContext:
-  readOnlyRootFilesystem: true
-extraVolumes:
-  - name: tmpdir
-    emptyDir: {}
-extraVolumeMounts:
-  - name: tmpdir
-    mountPath: /tmp
+# ...
+
+## The machine pools configurations
+machinePools:
+  app:
+    enabled: false
+    annotations: { }
+    labels: { }
+    managed:
+      spec:
+        # AdditionalTags is an optional set of tags to add to AWS resources managed by the AWS provider, in addition 
+        # to the ones added by default.
+        additionalTags: { }
+        # DiskSize specifies the root disk size
+        diskSize: 10
+        # InstanceType specifies the AWS instance type
+        instanceType: t3.medium
+        # Labels specifies labels for the Kubernetes node objects
+        labels:
+          db: app
+        # Scaling specifies scaling for the ASG behind this pool
+        scaling:
+          maxSize: 1
+          minSize: 1
+        # Taints specifies the taints to apply to the nodes of the machine pool
+        taints:
+          - effect: NoSchedule
+            key: old-taint
+            value: value1
+        # ...
+    # Number of desired machines.
+    replicas: 1
+    spec:
+    # ...
+
+# ...
 ```
 
-Then you want to change the `resources.requests.cpu` value of the `develop` environment in your downstream project. 
-In this case, you don't need to copy the whole file but only change the concrete value by repeating the YAML path to it. 
-So, your file with the override will look like this:
+Then, if you need to change the `machinePools.app.*` values in the `develop` environment of the `rmk-test` downstream
+project, e.g., to enable the `app` nodes and increase their count to 10, you **don’t need to copy the entire file**.
+Instead, you can **override only the specific values** by repeating their YAML path.
+
+Your override file will be minimalistic and contain only the necessary changes:
 
 ```yaml
-resources:
-  requests:
-    cpu: 100m
+machinePools:
+  app:
+    enabled: true
+    managed:
+      spec:
+        scaling:
+          maxSize: 10
+          minSize: 10
+    replicas: 10
 ```
 
-> You cannot override a part of an element if it is an array. 
-> If you want to override the name of the extraVolumeMounts field of the example file above, you cannot use the following content:
+> If you want to **override** the `taints` field, which is an **array**, the correct way to do this is to
+> **provide the whole array**:
+>
 > ```yaml
-> extraVolumeMounts:
->   - name: tmp
+> taints:
+>   # old taint
+>   - effect: NoSchedule
+>     key: old-taint
+>     value: value1
+>   # new taint
+>   - effect: PreferNoSchedule
+>     key: new-taint
+>     value: value2
 > ```
-> The correct way to override is to provide the whole item of the array:
+>
+> You **cannot override a subset** of the array items:
 > ```yaml
-> extraVolumeMounts:
->   - name: tmp
->     mountPath: /tmp
+> taints:
+>   # incorrect
+>   - effect: NoSchedule
+>     key: new-taint
+>     value: value2
 > ```
 
-To check the final result, run the `rmk release template` command and see the final YAML.
+To check the final result, run the [rmk release template](http://localhost:8000/rmk/commands/#template-t) command and
+see the final YAML.
 
 ## Release update and integration into the CD pipeline
 
-The `rmk release update` command automates the process of updating and delivering releases 
-according to the version changes of artifacts (container images) following the [GitOps](https://www.gitops.tech) methodology.
+The [rmk release update](http://localhost:8000/rmk/commands/#update-u_2) command automates the process of **updating and
+delivering releases** according to the version changes of artifacts, e.g., container images, following
+the [GitOps](https://www.gitops.tech) methodology.
 
-Since RMK is a binary file that can be downloaded and installed on any Unix-based CI/CD system, 
-it can be integrated with almost any CI/CD system: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
+Since RMK is a binary file that can be **downloaded and installed** on any Unix-based operating system,
+it can be **integrated** with almost any CI/CD system: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
 
 ### Example of integration with GitHub Actions
 
-> Prerequisites:
-> 
-> - The project repository has already been generated and [prepared](../project-management/preparation-of-project-repository.md) using RMK.
+> **Prerequisites:**
+>
+> - The project repository has already
+    been [generated and prepared](../project-management/preparation-of-project-repository.md) using RMK.
 
-Create the following workflow in your project repository at `.github/workflows/release-update.yaml`. 
-An example content of the GitHub Actions' workflow:
-
-[//]: # (  TODO ACTUALIZE)
+Create the following workflow in your project repository at `.github/workflows/release-update.yaml`.
+An example content of the [GitHub Actions](https://github.com/features/actions)' workflow:
 
 ```yaml
 name: Release update
@@ -202,21 +256,21 @@ jobs:
           RMK_RELEASE_UPDATE_TAG: ${{ github.event.inputs.version }}
         run: |
           curl -sL "https://edenlabllc-rmk-tools-infra.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash
-          
+
           rmk config init --progress-bar=false --slack-notifications
           rmk release update --skip-ci --deploy
 ```
 
-In this example, we have prepared a `GitHub Action` that expects two input parameters: 
+In this example, we have prepared a `GitHub Action` that expects two input parameters:
 
 - `image_repository_full_name`
 - `version`
 
-As soon as a request with these parameters is sent to this action, 
-RMK will be executed, first analyzing all the `releases.yaml` files to match the `image_repository_full_name` and will replace the tag field 
-with the corresponding version if the versions differ. 
-After that, it will automatically commit the changes to the current branch in the `releases.yaml` files where changes have been found. 
-Then, it will synchronize the releases where the version changes were found.
+As soon as a request with these parameters is sent to this action,
+RMK will be executed, first analyzing all the `releases.yaml` files to match the `image_repository_full_name` and will
+replace the tag field with the corresponding version if the versions differ. After that, it will 
+**automatically commit** the changes to the current branch in the `releases.yaml` files where changes have been found. 
+Then, it will **synchronize the releases** where the version changes were found.
 
 An example of the `releases.yaml` file:
 
@@ -226,16 +280,16 @@ foo:
   enabled: true
   image:
     repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/app.foo
-    tag: v0.11.1
+    tag: v0.1.0
 bar:
   enabled: true
   image:
     repository: 123456789012.dkr.ecr.us-east-1.amazonaws.com/app.bar
-    tag: v0.16.0
+    tag: v0.1.1
 # ...
 ```
 
-To make the code delivery process fully automatic on the CI pipeline's side, after building and pushing 
-the container image to the image repository, add a step that triggers the deployment action and passes 
-the container image repository's full name and its final tag. This can be done via an API call using [cURL](https://en.wikipedia.org/wiki/CURL) 
-or through [GitHub CLI](https://cli.github.com/). This way, we achieve automatic code delivery to the infrastructure environment.
+To fully automate code delivery in the CI pipeline, add a step that triggers the deployment after building and pushing
+the container image. This step should pass the full image repository name and tag via an API call
+using [cURL](https://en.wikipedia.org/wiki/CURL) or [GitHub CLI](https://cli.github.com/). This ensures **seamless
+deployment** to the infrastructure environment.
