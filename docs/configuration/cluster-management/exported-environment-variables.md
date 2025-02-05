@@ -49,7 +49,7 @@ HELMFILE_<upstream_project_name>_HOOKS_DIR="${PWD}/.PROJECT/inventory/hooks/<ups
 # HELMFILE_CLUSTER_DEPS_BOOTSTRAP_INFRA_VERSION=v0.1.0
 HELMFILE_<upstream_project_name>_VERSION="<upstream_project_version>"
 
-# Flag indicating whether the cluster is K3D (Cluster API management cluster).
+# Flag indicating whether the cluster is K3D (Kubernetes Cluster API management cluster).
 # The variable can be used to override values in the releases.
 CAPI_CLUSTER=false
 # The flag that indicates whether the cluster is K3D (local cluster). 

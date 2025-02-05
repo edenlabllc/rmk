@@ -1,6 +1,6 @@
 # Cluster management
 
-RMK uses [Cluster API](https://cluster-api.sigs.k8s.io/introduction) and [K3D](https://k3d.io) for cluster management.
+RMK uses [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/introduction) and [K3D](https://k3d.io) for cluster management.
 
 RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through
 native Helmfile functionality.
@@ -40,8 +40,10 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   might be required, if the RMK configuration for this cluster has not been created before:
 
   ```shell
-  rmk config init --cluster-provider=<aws|azure|gcp|k3d (by default)>
+  rmk config init --cluster-provider=<aws|azure|gcp|k3d>
   ```
+  
+  > The default cluster provider is `k3d`.
 
   The next command depends on whether a remote cluster provider (e.g., AWS, Azure, GCP) or a local one (e.g., K3D) has
   been used:
@@ -127,14 +129,14 @@ and for provisioning target clusters can be found [here](../../commands.md#capi-
 
 Currently, the following cluster providers are supported by RMK:
 
-- **AWS EKS | Azure AKS | GCP GKE**: Configuration for managing clusters using Cluster API.
+- **AWS EKS | Azure AKS | GCP GKE**: Configuration for managing clusters using Kubernetes Cluster API.
   Kubernetes clusters can be provisioned from scratch and destroyed
   via the `rmk cluster capi provision`, `rmk cluster capi destroy` commands.
   All configurations of the description of the provided target clusters are described in the values of
   the `Helmfile` [releases](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/tree/develop/etc/deps/develop/values).
   Which in turn use the Helm charts we provide for each individual cloud provider.
 
-  > Since the Cluster API provider is essentially a Kubernetes operator, all configuration changes are applied
+  > Since the Kubernetes Cluster API provider is essentially a Kubernetes operator, all configuration changes are applied
   declarative.
   > It also does not store its state of managed resources like Terraform, but it does have a dynamic resource scanner
   > to match the current configuration. This leads to the fact that if it is necessary to destroy a previously
@@ -152,7 +154,7 @@ Currently, the following cluster providers are supported by RMK:
 > the CAPI management cluster and the target cluster.
 
 Support for on-premise will be implemented in the future. This enhancement might include the introduction
-of Cluster API providers, K8S operators. The main infrastructure configuration can always be checked in the
+of Kubernetes Cluster API providers, K8S operators. The main infrastructure configuration can always be checked in the
 [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.
 
 ### Provision or destroy AWS EKS Kubernetes clusters
@@ -205,8 +207,9 @@ you can add the required number of machine pools depending on the requirements f
 
 > For AWS provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
+> 
 > - create SSH key for cluster nodes.
-> - create secrets with private Age keys in the AWS Secret Manager, if they have not been created previously.
+> - create secrets with private SOPS Age keys in the AWS Secret Manager, if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -265,7 +268,8 @@ you can add the required number of machine pools depending on the requirements f
 
 > For AWS provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
-> - create secrets with private Age keys in the Azure Key Vault, if they have not been created previously.
+> 
+> - create secrets with private SOPS Age keys in the Azure Key Vault, if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -322,8 +326,9 @@ you can add the required number of machine pools depending on the requirements f
 
 > For AWS provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
+>
 > - create Cloud NAT for outbound traffic cluster nodes.
-> - create secrets with private Age keys in the GCP Secret Manager, if they have not been created previously.
+> - create secrets with private SOPS Age keys in the GCP Secret Manager, if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 

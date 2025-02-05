@@ -44,7 +44,7 @@ The 3 supported configuration scenarios are:
 
 * **through RMK flags**:
   ```shell
-  rmk config init --cp=azure \ 
+  rmk config init --cluster-provider=azure \ 
     --azure-client-id=<azure_client_id> \
     --azure-client-secret=<azure_client_secret> \
     --azure-location=eastus \
@@ -61,7 +61,7 @@ The 3 supported configuration scenarios are:
   ```shell
   az login
   az ad sp create-for-rbac --name rmk-test --role contributor --scopes="/subscriptions/<azure_subscription_id>" --output json | \
-    rmk config init --cp=azure --azure-location=eastus --azure-service-principle
+    rmk config init --cluster-provider=azure --azure-location=eastus --azure-service-principle
   ```
 
 If the environment variables has been declared before the  `rmk config init --cluster-provider=azure` command was run,

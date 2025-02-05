@@ -42,9 +42,9 @@ The 2 supported configuration scenarios are:
 
 * **through RMK flags**:
   ```shell
-  rmk config init --cp=gcp 
+  rmk config init --cluster-provider=gcp 
     --gcp-region=us-east1 \
-    --google-application-credentials <path_to_exported_GCP_service_accout_file>
+    --google-application-credentials <path_to_exported_google_service_account_file>
   ```
   
 * **through environment variables**: `GCP_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`.
@@ -61,5 +61,5 @@ If flags will be declared, RMK will create a GCP service account file based on v
 Change the value of a specific flag if adjustments are required.
 
 ```shell
-rmk config init --google-application-credentials <path_to_new_exported_GCP_service_accout_file>
+rmk config init --google-application-credentials <path_to_new_exported_google_service_account_file>
 ```
