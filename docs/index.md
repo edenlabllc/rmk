@@ -172,15 +172,15 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   dependencies, Kodjin, or any other tenant,
   e.g.,
-  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16).
-- **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra):** K8S
+  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16)).
+- **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra)**: K8S
   operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
-- **[ebs-snapshot-provision.operators.infra](https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra):**
+- **[ebs-snapshot-provision.operators.infra](https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra)**:
   K8S operator for automatic provisioning of Amazon EBS snapshots to be used in existing K8S clusters.
-- **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra):** K8S operator
+- **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**: K8S operator
   for automatic refresh of the Amazon ECR authorization token before it expires.
-- **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra):** K8S operator for
+- **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**: K8S operator for
   automatically copying of existing K8S secrets between namespaces.
 
 ##### Helm charts
