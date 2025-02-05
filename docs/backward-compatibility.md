@@ -8,96 +8,104 @@
 
 ### Motivation
 
-Migrating RMK `v0.45.0` from **Terraform** to **Cluster API**
+The main change in the [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0) RMK version is the
+**replacement** of the technology stack for **cluster provisioning**, transitioning
+from [Terraform](https://www.terraform.io/) to [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/).
 
-We are replaced the technology stack for provisioning clusters in RMK `v0.45.0`, transitioning from Terraform to [Cluster API](https://cluster-api.sigs.k8s.io/). 
-This shift was driven by several key factors:
+This change was driven by several **key factors**:
 
-Why We Switched to Cluster API?
+1. **Maintaining open-source integrity**:
 
-1. **Maintaining Open-Source Integrity**:
-   Terraform's transition to a BSL license conflicts with our commitment to keeping RMK fully open-source (OSS). 
-   By switching to Cluster API, we ensure that our customers' interests remain unaffected.
-   More details on the [Terraform license change](https://www.hashicorp.com/license-faq).
+   Terraform's transition to a BSL license **conflicts** with our commitment to keeping RMK **fully open-source (OSS)**.
+   By switching to Kubernetes Cluster API, we ensure that our customers' interests remain **unaffected**.
 
-2. **A more native Kubernetes Solution**:
-   We needed a provisioning approach that seamlessly integrates with Kubernetes across various environments. 
-   With the new RMK `v0.45.0`, we now support:
+   More details on the Terraform's license change are available at the [link](https://www.hashicorp.com/license-faq).
 
-   - AWS
-   - Azure
-   - GCP
-   - On-Premise (support is expected in upcoming releases)
-   - K3D (local installation)
-   
-3. **Simplified Configuration Management**:
-   Cluster configurations are now stored in Helm charts, aligning with the way installed components are managed. 
-   This ensures a unified format for all declarations.
+2. **Kubernetes-native solution**:
 
-4. **Seamless Cluster Upgrades**:
-   Our new approach makes cluster updates easier and Kubernetes-native, leveraging:
+   We needed a provisioning approach that **seamlessly integrates** with Kubernetes across various environments.
 
-   - Pod status awareness
-   - Zero downtime upgrades
+   With the new `v0.45.0` version, we now support
+   [AWS](configuration/configuration-management/init-aws-provider.md),
+   [Azure](configuration/configuration-management/init-azure-provider.md),
+   [GCP](configuration/configuration-management/init-gcp-provider.md),
+   [K3D](configuration/configuration-management/init-k3d-provider.md) (local installation).
 
-> This transition marks a significant step in enhancing RMK’s provisioning capabilities, ensuring better scalability, 
-> openness, and ease of management. Stay tuned for more updates in upcoming releases! 🚀
+   > **On-premise** support expected in **upcoming releases**.
+
+3. **Simplified configuration management**:
+
+   Cluster configurations are now stored in [Helm charts](https://helm.sh/docs/topics/charts/), aligning with the way
+   installed components are managed. This ensures a **unified format** for all declarations.
+
+4. **Seamless cluster upgrades**:
+
+   Our new approach makes cluster updates **Kubernetes-native** with
+   [pod status awareness](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) and
+   [zero-downtime upgrades](https://en.wikipedia.org/wiki/Downtime#Service_levels).
+
+> This transition marks a **significant step** in enhancing RMK’s provisioning capabilities, ensuring better
+> scalability, openness, and ease of management. [Stay tuned](index.md#roadmap) for more updates in upcoming releases!
+> 🚀
 
 ### Deprecated features
 
-For command `rmk config init`:
+For the [rmk config init](http://localhost:8000/rmk/commands/#init-i) command:
 
-- **--artifact-mode**, **--aws-reconfigure-artifact-license** - deprecated along with the functionality and no longer needed.
-- **--aws-ecr-host**, **--aws-ecr-region**, **--aws-ecr-user-name** - deprecated along with the functionality, 
-  now replaced by the third-party Kubernetes-native 
+- **--artifact-mode**, **--aws-reconfigure-artifact-license**: removed the flag along with the functionality, no longer
+  needed.
+- **--aws-ecr-host**, **--aws-ecr-region**, **--aws-ecr-user-name**: removed the flag along with the functionality,
+  replaced by the third-party Kubernetes-native
   [ecr-token-refresh](https://github.com/edenlabllc/ecr-token-refresh.operators.infra) operator.
-- **--aws-reconfigure** - deprecated, replacing AWS CLI with [AWS SDK](https://github.com/aws/aws-sdk-go-v2).
-- **--cloudflare-token** - deprecated along with the functionality, now replaced by the third-party 
-  Kubernetes-native [external-dns](https://github.com/kubernetes-sigs/external-dns).
-- **--cluster-provisioner-state-locking** - Terraform usage has been deprecated.
-- **--config-from-environment** - deprecated along with the functionality. 
-- **--root-domain** - deprecated and replaced by declarative configuration via 
-  [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml).
-- **--s3-charts-repo-region** - deprecated, with private repository configuration now managed via 
-  [Helmfile](https://helmfile.readthedocs.io/en/latest/#configuration).
+- **--aws-reconfigure**: removed the flag, replaced [AWS CLI](https://aws.amazon.com/cli/) with
+  [AWS SDK](https://github.com/aws/aws-sdk-go-v2).
+- **--cloudflare-token**: removed the flag along with the functionality, replaced by the third-party
+  Kubernetes-native [external-dns](https://github.com/kubernetes-sigs/external-dns) operator.
+- **--cluster-provisioner-state-locking**: removed the flag (Terraform is no longer in use).
+- **--config-from-environment**: removed the flag along with the functionality.
+- **--root-domain**: removed the flag, replaced by the declarative configuration
+  via [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml).
+- **--s3-charts-repo-region**: removed the flag, replaced with the private repository configuration
+  via [Helmfile](https://helmfile.readthedocs.io/en/latest/#configuration).
 
-For command category `rmk cluster`:
+For the [rmk cluster](http://localhost:8000/rmk/commands/#cluster) command category:
 
-- **container-registry** - deprecated command with all available flags. Terraform is no longer in use.
-- **destroy** - deprecated command with all available flags. Terraform is no longer in use.
-- **list** - deprecated command with all available flags. Terraform is no longer in use.
-- **provision** - deprecated command with all available flags. Terraform is no longer in use.
-- **state** - deprecated command with all available flags. Terraform is no longer in use.
+- **container-registry**: removed the command along with all flags.
+- **destroy**: removed the command along with all flags (Terraform is no longer in use).
+- **list**: removed the command along with all flags (Terraform is no longer in use).
+- **provision**: removed the command along with all flags (Terraform is no longer in use).
+- **state**: removed the command along with all flags (Terraform is no longer in use).
 
-### How to migrate to RMK v0.45.0 version from currently
+### Steps to migrate
 
-#### For newly created project repositories
+#### Newly created project repositories
 
-Before performing actions via RMK with this project repository, simply update to `v0.45.0` version.
+Before performing actions via RMK with this project repository, **simply update** to `v0.45.0` version.
 
 ```shell
 rmk update
 ```
 
-#### For previously created project repositories for the AWS cluster provider
+#### Previously created project repositories for the AWS cluster provider
 
-> For correct migration, be sure to follow the steps in strict order.
+> To ensure a successful migration, strictly follow the steps in the **specified order**.
 
-1. Download private Age keys in the current RMK version if you haven't done it earlier.
-
-   ```shell
-   rmk config init --github-token=<GitHub_PAT>
-   ```
-
-   > Skip this step if you lack administrator permissions for the selected `AWS` account.
-
-2. Save the path to the private Age keys storage directory to an environment variable.
+1. Download private [SOPS Age keys](configuration/secrets-management/secrets-management.md#secret-keys) of the current
+   RMK version if you haven't done it earlier.
 
    ```shell
-   export RMK_OLD_PATH_AGE_KEYS="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
+   rmk config init --github-token=<github_personal_access_token>
    ```
 
-   > Skip this step if you lack administrator permissions for the selected `AWS` account.
+   > Skip this step if you lack **administrator permissions** for the selected AWS account.
+
+2. Save the path to the private SOPS Age keys storage directory to an environment variable.
+
+   ```shell
+   export RMK_SOPS_AGE_KEYS_PATH_OLD="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
+   ```
+
+   > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
 3. Update your current version to `v0.45.0`.
 
@@ -105,8 +113,9 @@ rmk update
    rmk update
    ```
 
-4. Add root domain specification in [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
-   for project repository.
+4. Add root domain specification
+   in [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) for project
+   repository.
 
    ```yaml
    project:
@@ -114,55 +123,53 @@ rmk update
      spec:
        environments:
          develop:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
          production:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
          staging:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> if you member Edenlab team
+           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
    ```
-   
-   > If the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file 
-   > already had a `spec.environments` section, be sure to replace it with a `spec.environments` with a root domain. 
-   
+
+   If the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file has
+   the `spec.environments` section already:
+
    ```yaml
    project:
      # ...
      spec:
        environments:
-         - develop # deprecated
-         - production # deprecated
-         - staging # deprecated
+         - develop # removed
+         - production # removed
+         - staging # removed
    ```
 
-   > Skip this step if the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) 
-   > file was previously modified to match the new specification.
+   be sure to replace it with `spec.environments` with the root domains.
 
-5. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration 
-   specifying the `AWS` cluster provider. 
+5. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration
+   specifying the AWS cluster provider.
 
    ```shell
    rmk config init --cluster-provider=aws \
        --aws-access-key-id=<aws_access_key_id> \
        --aws-region=<aws_region> \
        --aws-secret-access-key=<aws_secret_access_key> \
-       --github-token=<GitHub_PAT>
+       --github-token=<github_personal_access_token>
    ```
 
-6. Copy from old path private `Age keys` in new directory.
+6. Copy private SOPS Age keys from the old path
+   to the new directory.
 
    ```shell
-   cp -f "${RMK_OLD_PATH_AGE_KEYS}"/* $(rmk --log-format=json config view | yq '.config.SopsAgeKeys')
-   unset RMK_OLD_PATH_AGE_KEYS
+   cp -f "${RMK_SOPS_AGE_KEYS_PATH_OLD}"/* $(rmk --log-format=json config view | yq '.config.SopsAgeKeys')
+   unset RMK_SOPS_AGE_KEYS_PATH_OLD
    ```
 
-   > Skip this step if you lack administrator permissions for the selected `AWS` account.
+   > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-7. Upload old private Age keys to `AWS Secret Manager`.
+7. Upload the old private SOPS Age keys to [AWS Secret Manager](https://aws.amazon.com/secrets-manager/).
 
    ```shell
    rmk secret keys upload
    ```
-   
-   > Skip this step if you lack administrator permissions for the selected `AWS` account. 
 
----
+   > Skip this step if you lack **administrator permissions** for the selected AWS account.
