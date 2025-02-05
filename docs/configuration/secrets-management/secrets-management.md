@@ -8,8 +8,8 @@ seamless and automated secret management, reducing manual effort while maintaini
 
 The functionality in RMK is divided into two key areas:
 
-1. **Working with secret keys** – Managing encryption keys used for encrypting and decrypting secrets.
-2. **Working with secret files** – Handling encrypted YAML files that store sensitive configuration data.
+1. **Working with secret keys**: Managing encryption keys used for encrypting and decrypting secrets.
+2. **Working with secret files**: Handling encrypted YAML files that store sensitive configuration data.
 
 ### Secret keys
 
@@ -21,9 +21,9 @@ provider’s Secrets Manager service, and downloads them to the local machine up
 
 For each supported cloud provider, RMK integrates with the respective secrets management service:
 
-- **AWS** – Integrates with [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
-- **Azure** – Integrates with [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault).
-- **GCP** – Integrates
+- **AWS**: Integrates with [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
+- **Azure**: Integrates with [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault).
+- **GCP**: Integrates
   with [Google Cloud Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en).
 
 Locally, secret keys are stored in a secure file within the user's home directory:
@@ -40,9 +40,9 @@ ${HOME}/.rmk/sops-age-keys/rmk-test/
 
 might have the following content:
 
-- `.keys.txt` - the main merged file of all secret keys that SOPS uses.
-- `rmk-test-deps.txt` - secret key for the `deps` scope.
-- `rmk-test-rmk-test.txt` - secret key for the `rmk-test` scope.
+- `.keys.txt`: the main merged file of all secret keys that SOPS uses.
+- `rmk-test-deps.txt`: secret key for the `deps` scope.
+- `rmk-test-rmk-test.txt`: secret key for the `rmk-test` scope.
 
 A secret key will look like this:
 
@@ -75,7 +75,7 @@ etc/rmk-test/develop/secrets/app.yaml
 ```
 
 > Similar to the [release.yaml](../project-management/requirement-for-project-repository.md#requirement-for-releaseyaml)
-> files, secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project 
+> files, secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project
 > **should have its own** unique set of secrets for all deployed releases.
 
 In the encrypted secret file, only the values are encrypted, while the object keys remain in plaintext. This approach

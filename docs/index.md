@@ -247,24 +247,24 @@ rmk update --version vX.X.X
 
 ## Features
 
-- **[Simplified management of Kubernetes clusters:](#overview)**
+- **[Simplified management of Kubernetes clusters](#overview)**:
   Provision Kubernetes clusters across various environments and providers, streamline release management 
   with [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/) and other popular DevOps tools.
-- **[Time-proven project structure:](configuration/project-management/preparation-of-project-repository.md)** 
+- **[Time-proven project structure](configuration/project-management/preparation-of-project-repository.md)**: 
   Define the project structure using the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) methodology.
-- **[Hierarchies between different projects:](configuration/project-management/dependencies-management-and-project-inheritance.md)** 
+- **[Hierarchies between different projects](configuration/project-management/dependencies-management-and-project-inheritance.md)**: 
   Define upstream-downstream relationships between sibling projects to reuse releases and services across different installations.
-- **[Initial project structure generation:](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)** 
+- **[Initial project structure generation](configuration/project-management/preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch)**: 
   Generate a complete Kubernetes-based project structure from scratch using RMK, following industry best practices.
-- **[Batch secret management:](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch)**
+- **[Batch secret management](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch)**:
   Template, generate, and encode project secrets for all environments in a batch manner.
-- **[Self-documentation generation:](commands.md#doc)**
+- **[Self-documentation generation](commands.md#doc)**:
   Generate the full command documentation in the [Markdown](https://en.wikipedia.org/wiki/Markdown) format with one click.
-- **[Push-based release and downstream project updates:](configuration/release-management/release-management.md#release-update-and-integration-into-the-cd-pipeline)**
+- **[Push-based release and downstream project updates](configuration/release-management/release-management.md#release-update-and-integration-into-the-cd-pipeline)**:
   Easily integrate with CI/CD solutions via [webhooks](https://www.redhat.com/en/topics/automation/what-is-a-webhook) 
   or [workflow dispatch events](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_dispatch)
   to update release and service version declarations, automatically commit the changes to Git.
-- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management/init-aws-provider.md#support-for-multi-factor-authentication-mfa):** 
+- **[Automatic detection of Multi-Factor Authentication (MFA) for AWS](configuration/configuration-management/init-aws-provider.md#support-for-multi-factor-authentication-mfa)**: 
   Automatically detect and use an ([MFA](https://en.wikipedia.org/wiki/Multi-factor_authentication)) device 
   if one is defined by an [IAM](https://aws.amazon.com/iam/) user (must be supported by the cluster provider, e.g., [AWS](https://aws.amazon.com/)).
 
