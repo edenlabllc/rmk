@@ -32,7 +32,7 @@ specification described in [project.yaml](#projectyaml) file.
 Use the following command:
 
 ```shell
-rmk project generate --environment="develop.root-domain=localhost" \
+rmk project generate --environment="develop.root-domain=<custom_root_domain_name>" \
   --owner=gh_user --scope=<upstream_project_name> \
   --scope=<downstream_project_name> 
 ```
@@ -66,7 +66,7 @@ and contains the following main sections:
       # Required, list of available environments with specific root domain name (Git branches). 
       environments:
         - develop:
-            root-domain: localhost
+            root-domain: <custom_name>.example.com
         - production:
             root-domain: <custom_name>.example.com
         - staging:

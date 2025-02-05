@@ -87,7 +87,7 @@ project:
   spec:
     environments:
       develop:
-        root-domain: 'test.example.com'
+        root-domain: test.example.com
 ```
 
 Then run the following command:

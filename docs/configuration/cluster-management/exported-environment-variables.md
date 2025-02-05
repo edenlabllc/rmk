@@ -15,7 +15,7 @@ NAME="<project_name>-<project_branch>"
 
 # Root domain name for target applications in the cluster.
 # For example:
-# ROOT_DOMAIN=rmk-test-develop.example.com
+# ROOT_DOMAIN=rmk-test-develop.edenlab.dev
 ROOT_DOMAIN="<project_name>-<project_branch>.<domain>"
 
 # Path to the file containing the merged private SOPS Age keys.

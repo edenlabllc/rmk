@@ -50,7 +50,7 @@ This change was driven by several **key factors**:
 
 ### Deprecated features
 
-For the [rmk config init](http://localhost:8000/rmk/commands/#init-i) command:
+For the [rmk config init](commands.md#init-i) command:
 
 - **--artifact-mode**, **--aws-reconfigure-artifact-license**: removed the flag along with the functionality, no longer
   needed.
@@ -68,7 +68,7 @@ For the [rmk config init](http://localhost:8000/rmk/commands/#init-i) command:
 - **--s3-charts-repo-region**: removed the flag, replaced with the private repository configuration
   via [Helmfile](https://helmfile.readthedocs.io/en/latest/#configuration).
 
-For the [rmk cluster](http://localhost:8000/rmk/commands/#cluster) command category:
+For the [rmk cluster](commands.md#cluster) command category:
 
 - **container-registry**: removed the command along with all flags.
 - **destroy**: removed the command along with all flags (Terraform is no longer in use).
