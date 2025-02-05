@@ -120,12 +120,12 @@ A standard Kodjin-based cluster follows a 4-level inheritance structure:
 - **[Kodjin](https://kodjin.com/) (downstream#1)**:
   A set of [Rust](https://www.rust-lang.org/) microservices that form the Kodjin FHIR
   API ([REST](https://en.wikipedia.org/wiki/REST)).
-- **Target tenant (downstream#2)**:
+- **Target project (tenant) (downstream#2)**:
   Encompasses products built on top of Kodjin, including UI components, user portals, and middleware services, such as
   the
   e.g., [Kodjin Demo FHIR Server](https://demo.kodjin.com/)
 
-Each project ("tenant") follows a
+Each project repository follows a
 standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model.
 
 #### Related repositories
@@ -137,7 +137,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes clusters for different providers.
 - **[helmfile.hooks.infra](https://github.com/edenlabllc/helmfile.hooks.infra)**:
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
-  dependencies, Kodjin, or any other tenant,
+  dependencies, Kodjin, or any other project,
   e.g.,
   check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16)).
 - **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra)**: K8S
@@ -154,7 +154,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 - **[core-charts](https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/)**: A publicly
   accessible, [S3-based](https://aws.amazon.com/s3/) [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) 
-  used by Kodjin, or any other tenant, e.g.,
+  used by Kodjin, or any other project, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
 
 ## Development and release

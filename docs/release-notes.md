@@ -12,7 +12,7 @@
 - #29 - Added the generation of values for all cluster provider configurations in the project generate command.
 - #29 - Added deps scope unconditionally when generating projects. 
 - #29 - Fixed the inheritance behavior of dependent repositories.
-- #29 - Fixed the output of the config list command for adjacent tenant names.
+- #29 - Fixed the output of the config list command for sibling project names.
 - #29 - Removed the artifact-mode flag and the functionality.
 - #29 - Reworked the behaviour of the config init command to align with each cluster provider.
 - #29 - Reworked the approach to obtaining the Kubernetes context for all cluster providers.

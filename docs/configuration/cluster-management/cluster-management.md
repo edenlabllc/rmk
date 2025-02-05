@@ -173,7 +173,7 @@ controlPlane:
     iamAuthenticatorConfig:
       # UserMappings is a list of user mappings
       mapUsers:
-        # TODO: Add a list of users at the downstream tenant repository level
+        # TODO: Add a list of users at the downstream project repository level
         - groups:
             - system:masters
           # UserARN is the AWS ARN for the user to map

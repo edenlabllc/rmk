@@ -109,7 +109,7 @@ Stop K3D cluster
 
 #### switch, s
 
-Switch Kubernetes context for tenant cluster
+Switch Kubernetes context to project cluster
 
 **--force, -f**: force update Kubernetes context from remote cluster
 
@@ -127,7 +127,7 @@ Configuration management
 
 #### init, i
 
-Initialize configuration for current tenant and selected environment
+Initialize configuration for current project and selected environment
 
 **--aws-access-key-id, --awid**="": AWS access key ID for IAM user
 
@@ -173,9 +173,9 @@ Delete configuration for selected environment
 
 #### list, l
 
-List available configurations for current tenant
+List available configurations for current project
 
-**--all, -a**: list all tenant configurations
+**--all, -a**: list all project configurations
 
 #### view, v
 

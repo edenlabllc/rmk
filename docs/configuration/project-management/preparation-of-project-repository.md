@@ -20,7 +20,7 @@
   ```
 
   > RMK requires a Git branch with at least one commit and a configured `origin` remote  
-  > to correctly resolve the project/tenant name and environment.
+  > to correctly resolve the project name and environment.
 
 - Checkout the required branch. For example: `develop`.
 
@@ -220,11 +220,11 @@ inventory:
 
 </details>
 
-The project file supports placeholders, they are required for correct URL formation.
+The project file's `inventory` section supports placeholders, they are required for correct URL formation.
 
 * **{{.Name}}:** Replaced with the key's value.
 * **{{.Version}}:** Replaced with the `version` field.
-* **{{.HelmfileTenant}}:** Replaced with the tenant name for the Helmfile selected from the list.
+* **{{.HelmfileTenant}}:** Replaced with the tenant (project) name for the Helmfile selected from the list.
 * **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system,
   where RMK is run.
 

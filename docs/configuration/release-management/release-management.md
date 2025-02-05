@@ -251,7 +251,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           RMK_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_REPO }}
           RMK_SLACK_WEBHOOK: ${{ secrets.RMK_SLACK_WEBHOOK }}
-          RMK_SLACK_CHANNEL: project-cd-notifications
+          RMK_SLACK_CHANNEL: project1-cd-notifications
           RMK_RELEASE_UPDATE_REPOSITORY: ${{ github.event.inputs.image_repository_full_name }}
           RMK_RELEASE_UPDATE_TAG: ${{ github.event.inputs.version }}
         run: |

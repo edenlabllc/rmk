@@ -191,5 +191,5 @@ releases:
     installed: {{ .Values | get (print " <release_name_foo>" ".enabled") false }}
 ```
 
-> You can use the [rmk project generate](preparation-of-project-repository.md#automatic-generation-of-the-project-structure-from-scratch) 
+> You can use the [rmk project generate](../../commands.md#generate-g-1) 
 > command to view the full example of the contents of all the project files.

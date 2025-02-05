@@ -3,8 +3,8 @@
 ## List of main attributes of the RMK configuration
 
 ```yaml
-name: rmk-test-develop # RMK config name, a unique identifier which consists of the tenant name and the abbreviated name of the Git branch.
-tenant: rmk-test # Tenant repository name.
+name: rmk-test-develop # RMK config name, a unique identifier which consists of the project (tenant) name and the abbreviated name of the Git branch.
+tenant: rmk-test # Tenant name, which is equivalent to the project name.
 environment: develop # Environment name.
 root-domain: rmk-test-develop.edenlab.dev # Root domain name used across the cluster.
 cluster-provider: gcp # Selected cluster provider.

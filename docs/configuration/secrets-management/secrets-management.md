@@ -205,7 +205,7 @@ Key features include:
 
 ### Generating all secrets from scratch
 
-When creating a new tenant from scratch, all required directories, such as:
+When creating a new project from scratch, all required directories, such as:
 
 ```shell
 etc/<scope>/<environment>/secrets/
