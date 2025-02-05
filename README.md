@@ -37,25 +37,6 @@ RMK has been designed to be used by different IT specialists, among them are Dev
 SREs,
 cloud architects, system analytics, software testers and even managers with minimal technical background.
 
-### Efficiency in numbers
-
-Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
-[Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
-
-Since 2021, RMK has been an integral part of the company’s Kubernetes infrastructure, used regularly for automated
-provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and within
-CI/CD pipelines.
-
-**:rocket: Proven at scale**:
-
-- **220+** clusters handled **monthly** (based on a 5-day workweek).
-- **2,600+** clusters handled **annually**.
-- **10,000+** clusters orchestrated **since 2021**.
-
-Beyond internal use, RMK is also leveraged by various external clients to streamline their CI/CD workflows, ensuring
-fast and
-efficient Kubernetes environment management.
-
 ### Advantages
 
 RMK simplifies the setup and management of Kubernetes-based projects of any complexity level due to the following
@@ -91,6 +72,27 @@ advantages:
   functionality and fixes.
 
 ### Edenlab LLC use cases
+
+#### Efficiency in numbers
+
+Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
+[Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
+
+Since 2021, RMK has been an integral part of the company’s Kubernetes infrastructure, used regularly for automated
+provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and within
+CI/CD pipelines.
+
+**:rocket: Proven at scale**:
+
+- **220+** clusters handled **monthly** (based on a 5-day workweek).
+- **2,600+** clusters handled **annually**.
+- **10,000+** clusters orchestrated **since 2021**.
+
+Beyond internal use, RMK is also leveraged by various external clients to streamline their CI/CD workflows, ensuring
+fast and
+efficient Kubernetes environment management.
+
+#### Managing clusters
 
 At [Edenlab LLC](https://edenlab.io/), RMK is utilized to deploy the [Kodjin FHIR Server](https://kodjin.com)
 across various cloud providers and on-premise environments.
