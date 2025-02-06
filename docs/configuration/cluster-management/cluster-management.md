@@ -138,7 +138,7 @@ and for provisioning target Kubernetes clusters can be found [here](../../comman
 
 Currently, the following cluster providers are supported by RMK:
 
-- **AWS (EKS), Azure (AKS), GCP (GKE)**: 
+- **AWS EKS, Azure AKS, GCP GKE**: 
 
   Configuration for managing clusters using Kubernetes Cluster API. Kubernetes clusters can be provisioned from scratch 
   and destroyed via the [rmk cluster capi provision](../../commands.md#provision-p) and
@@ -163,19 +163,21 @@ Currently, the following cluster providers are supported by RMK:
   [rmk cluster k3d create](../../commands.md#create-c) and
   [rmk cluster k3d delete](../../commands.md#delete-d) commands.
 
-> When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK automatically switches the 
+> When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the 
 > Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
-> Support for on-premise will be implemented in the future. This enhancement might include the introduction
-> of Kubernetes Cluster API providers, Kubernetes operators. The main infrastructure configuration can always be checked in the
-> [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.
+> **On-premise** support expected in **upcoming releases** This enhancement might include the introduction
+> of additional Kubernetes Cluster API providers and 
+> [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). The main infrastructure 
+> configuration can always be checked in the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) 
+> repository.
 
 ### Provisioning or destroying AWS EKS Kubernetes clusters
 
 > AWS users must have the
 > [PowerUserAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/PowerUserAccess.html),
 > [SecretsManagerReadWrite](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/SecretsManagerReadWrite.html)
-> permissions to be able to provision and destroy EKS clusters.
+> permissions to be able to provision and destroy [EKS](https://aws.amazon.com/eks/) clusters.
 
 Before provisioning the Kubernetes cluster, add override for
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl)
@@ -233,7 +235,7 @@ To start provisioning a Kubernetes cluster, run the commands:
 rmk cluster capi provision
 ```
 
-> When the cluster is ready, RMK automatically switches the Kubernetes context to the newly created cluster.
+> When the cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created cluster.
 
 To destroy a Kubernetes cluster, run the command:
 
@@ -241,7 +243,7 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will delete the previously created SSH key and also delete the context
+> After the cluster is destroyed, RMK will delete the previously created SSH key and the context
 > for the target Kubernetes cluster.
 
 ### Provisioning or destroying Azure AKS Kubernetes clusters
@@ -249,7 +251,8 @@ rmk cluster capi destroy
 > Azure service principal must have the
 > [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor),
 > [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer)
-> roles to be able to provision and destroy AKS clusters.
+> roles to be able to provision and destroy [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service)
+> clusters.
 
 Before provisioning the Kubernetes cluster, add override for the
 [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/azure-cluster.yaml.gotmpl)
@@ -296,7 +299,7 @@ To start provisioning a Kubernetes cluster, run the commands:
 rmk cluster capi provision
 ```
 
-> When the cluster is ready, RMK automatically switches the Kubernetes context to the newly created cluster.
+> When the cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created cluster.
 
 To destroy a Kubernetes cluster, run the command:
 
@@ -309,7 +312,8 @@ rmk cluster capi destroy
 ### Provisioning or destroying GCP GKE Kubernetes clusters
 
 > GCP service account must have the `Editor`, `Secret Manager Admin`, `Kubernetes Engine Admin` 
-> [roles](https://cloud.google.com/iam/docs/understanding-roles) to be able to provision and destroy GKE clusters.
+> [roles](https://cloud.google.com/iam/docs/understanding-roles) to be able to provision and destroy 
+> [GKE](https://cloud.google.com/kubernetes-engine?hl=en) clusters.
 
 Before provisioning the Kubernetes cluster, add override
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl)
@@ -357,7 +361,7 @@ To start provisioning a Kubernetes cluster, run the commands:
 rmk cluster capi provision
 ```
 
-> When the cluster is ready, RMK automatically switches the Kubernetes context to the newly created cluster.
+> When the cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created cluster.
 
 To destroy a Kubernetes cluster, run the command:
 
@@ -393,8 +397,8 @@ rmk cluster k3d create
 
 > By default, RMK will use the current directory for the [--k3d-volume-host-path](../../commands.md#create-c) flag.
 
-> When the Kubernetes cluster is ready, RMK automatically switches the Kubernetes context to the newly created cluster.
-> You can create multiple local K3D clusters by separating them with environment Git branches.
+> When the Kubernetes cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created 
+> cluster. You can create multiple local K3D clusters by **separating** them using Git branches.
 
 #### Deleting K3D clusters
 
