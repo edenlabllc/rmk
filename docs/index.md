@@ -43,7 +43,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
 * [Features](#features)
 * [Supported Kubernetes cluster providers](#supported-kubernetes-cluster-providers)
   * [Provisioned by RMK](#provisioned-by-rmk)
-  * [Provisioned using 3rd-party tools and services](#provisioned-using-3rd-party-tools-and-services)
+  * [Provisioned using third-party tools and services](#provisioned-using-third-party-tools-and-services)
 * [Roadmap](#roadmap)
 * [Development and release](development-and-release.md)
 * [License](#license)
@@ -286,9 +286,9 @@ RMK currently supports the provisioning of the following Kubernetes clusters:
 
 > Check the [Roadmap](#roadmap) section for more information.
 
-### Provisioned using 3rd-party tools and services
+### Provisioned using third-party tools and services
 
-By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a 3rd
+By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a third
 party. The CLI tool simply requires an existing 
 [Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
 to connect to and manage the cluster.
