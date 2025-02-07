@@ -140,21 +140,21 @@ and for provisioning target Kubernetes clusters can be found [here](../../comman
 
 Currently, the following cluster providers are supported by RMK:
 
-- **AWS EKS, Azure AKS, GCP GKE**: 
+- **AWS EKS, Azure AKS, GCP GKE**:
 
-  Configuration for managing clusters using Kubernetes Cluster API. Kubernetes clusters can be provisioned from scratch 
+  Configuration for managing clusters using Kubernetes Cluster API. Kubernetes clusters can be provisioned from scratch
   and destroyed via the [rmk cluster capi provision](../../commands.md#provision-p) and
   [rmk cluster capi destroy](../../commands.md#destroy) commands. All configurations of the description of the provided
-  target Kubernetes clusters are described in the values of the [Helmfile](https://helmfile.readthedocs.io/en/latest/) 
+  target Kubernetes clusters are described in the values of the [Helmfile](https://helmfile.readthedocs.io/en/latest/)
   [releases](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/tree/develop/etc/deps/develop/values),
   which in turn use the Helm charts we provide for each individual cloud provider.
 
   > The Kubernetes Cluster API provider is
   > a [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/), meaning all configuration
-  > changes are applied **declaratively**. Unlike Terraform, it **does not store** the state of managed resources but 
-  > instead uses a **resource scanner** to match the current configuration. If a previously created target Kubernetes 
-  > cluster needs to be destroyed, but the CAPI management cluster has no record of it, you must first run 
-  > [rmk cluster capi provision](../../commands.md#provision-p) before executing 
+  > changes are applied **declaratively**. Unlike Terraform, it **does not store** the state of managed resources but
+  > instead uses a **resource scanner** to match the current configuration. If a previously created target Kubernetes
+  > cluster needs to be destroyed, but the CAPI management cluster has no record of it, you must first run
+  > [rmk cluster capi provision](../../commands.md#provision-p) before executing
   > [rmk cluster capi destroy](../../commands.md#destroy).
 
 - **K3D**:
@@ -165,13 +165,13 @@ Currently, the following cluster providers are supported by RMK:
   [rmk cluster k3d create](../../commands.md#create-c) and
   [rmk cluster k3d delete](../../commands.md#delete-d) commands.
 
-> When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the 
+> When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the
 > Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
 > **On-premise** support expected in **upcoming releases** This enhancement might include the introduction
-> of additional Kubernetes Cluster API providers and 
-> [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). The main infrastructure 
-> configuration can always be checked in the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) 
+> of additional Kubernetes Cluster API providers and
+> [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). The main infrastructure
+> configuration can always be checked in the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)
 > repository.
 
 ### Provisioning or destroying AWS EKS Kubernetes clusters
@@ -228,8 +228,8 @@ you can add the required number of machine pools depending on the requirements f
 > RMK will perform the following preliminary steps:
 >
 > - create SSH key for cluster nodes.
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the 
->   [AWS Secret Manager](https://aws.amazon.com/secrets-manager/), if they have not been created previously.
+> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+    > [AWS Secret Manager](https://aws.amazon.com/secrets-manager/), if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -292,8 +292,8 @@ you can add the required number of machine pools depending on the requirements f
 > For the Azure provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
 >
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the 
->   [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault), if they have not been created previously.
+> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+    > [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault), if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -313,8 +313,8 @@ rmk cluster capi destroy
 
 ### Provisioning or destroying GCP GKE Kubernetes clusters
 
-> GCP service account must have the `Editor`, `Secret Manager Admin`, `Kubernetes Engine Admin` 
-> [roles](https://cloud.google.com/iam/docs/understanding-roles) to be able to provision and destroy 
+> GCP service account must have the `Editor`, `Secret Manager Admin`, `Kubernetes Engine Admin`
+> [roles](https://cloud.google.com/iam/docs/understanding-roles) to be able to provision and destroy
 > [GKE](https://cloud.google.com/kubernetes-engine?hl=en) clusters.
 
 Before provisioning the Kubernetes cluster, add override
@@ -353,9 +353,10 @@ you can add the required number of machine pools depending on the requirements f
 > RMK will perform the following preliminary steps:
 >
 > - create a [Cloud NAT](https://cloud.google.com/nat/docs/overview) for outbound traffic cluster nodes.
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the 
->   [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en), if they have not been created
->   previously.
+> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+    > [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en), if they have not been
+    created
+    > previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -371,8 +372,8 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will delete the previously created 
-> [Cloud NAT](https://cloud.google.com/nat/docs/overview) if this resource is no longer used by other clusters in the 
+> After the cluster is destroyed, RMK will delete the previously created
+> [Cloud NAT](https://cloud.google.com/nat/docs/overview) if this resource is no longer used by other clusters in the
 > same region. Also deleting the context for the target Kubernetes cluster.
 
 ### Creating or deleting K3D Kubernetes clusters
@@ -383,11 +384,11 @@ The CLI will create a cluster according to the
 declarative [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/k3d-cluster.yaml.gotmpl)
 for K3D.
 
-> Prerequisites:
->
-> 1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
-> 2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-with-a-custom-root-domain)
-     for this branch with the `localhost` root domain name.
+#### Prerequisites
+
+1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
+2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-with-a-custom-root-domain)
+   for this branch with the `localhost` root domain name.
 
 #### Creating K3D clusters
 
@@ -399,7 +400,7 @@ rmk cluster k3d create
 
 > By default, RMK will use the current directory for the [--k3d-volume-host-path](../../commands.md#create-c) flag.
 
-> When the Kubernetes cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created 
+> When the Kubernetes cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created
 > cluster. You can create multiple local K3D clusters by **separating** them using Git branches.
 
 #### Deleting K3D clusters
