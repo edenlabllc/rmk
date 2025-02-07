@@ -31,7 +31,7 @@ azure:
    providers: `Microsoft.Authorization`, `Microsoft.Compute`, `Microsoft.ContainerService`, `Microsoft.ManagedIdentity`, `Microsoft.Network`.
 
    > See the
-   > [useful links](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types).
+   > [useful link](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types).
 
 3. Allocated [quotas](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview) for specific family VMs in the
    required region.
