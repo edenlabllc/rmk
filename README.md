@@ -65,10 +65,10 @@ advantages:
 - **Respects the [DevOps](https://www.atlassian.com/devops) methodology:** Allows diverse teams to work without blocking
   each other. Each team or multiple teams can develop and release their projects separately, later on the result of
   their work can be combined in a single project.
-- **Calls the CLI tools directly instead of using their libraries/SDKs**: RMK executes the tools directly in a way that
+- **Calls the wrapped CLI tools directly**: RMK executes the tools directly in a way that
   a typical person would do it,
   passing correct sets of CLI arguments and flags to the commands based on a project configuration structure.
-  This decouples the updating of RMK itself from the wrapped CLI tools, allowing developers to utilize recent
+  This decouples the updating of RMK itself from the CLI tools, allowing developers to utilize recent
   functionality and fixes.
 
 ### Edenlab LLC use cases
