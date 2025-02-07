@@ -1,5 +1,7 @@
 # Requirement for project repository
 
+## Overview
+
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
    For example: `rmk-test.bootstrap.infra` or `rmk-test.infra`.
 2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only

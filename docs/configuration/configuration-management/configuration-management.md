@@ -1,19 +1,21 @@
 # Configuration management
 
+## Overview
+
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
 At the time of configuration initialization launch, RMK prepares
 the state in the form of the current environment config with all the required attributes for further work.
 It also downloads and resolves and installs all necessary dependencies and tools described 
 in the [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) file in the root of the project repository.
 
-### List of main attributes of the RMK configuration
+## List of main attributes of the RMK configuration
 
 Example of the configuration:
 
-- for [AWS](init-aws-provider.md#list-of-main-attributes-of-the-rmk-configuration)
-- for [Azure](init-azure-provider.md#list-of-main-attributes-of-the-rmk-configuration)
-- for [GCP](init-gcp-provider.md#list-of-main-attributes-of-the-rmk-configuration)
-- for [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [AWS](init-aws-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [Azure](init-azure-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [GCP](init-gcp-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
 
 > All attributes can be overridden using RMK flags or environment variables.
 
@@ -23,7 +25,7 @@ To view the available options of the created configuration, use the command:
 rmk config view
 ```
 
-### Understanding the behavior of the configuration initialization command
+## Understanding the behavior of the configuration initialization command
 
 The `rmk config init` command supports declarative behavior within a single 
 [project repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository) 
@@ -72,10 +74,10 @@ rmk config init --github-token=<github_personal_access_token>
 
 ### Initialization of RMK configuration for different cluster providers
 
-- for [AWS](init-aws-provider.md#prerequisites)
-- for [Azure](init-azure-provider.md#prerequisites)
-- for [GCP](init-gcp-provider.md#prerequisites)
-- for [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [AWS](init-aws-provider.md#prerequisites)
+- [Azure](init-azure-provider.md#prerequisites)
+- [GCP](init-gcp-provider.md#prerequisites)
+- [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
 
 ### Initialization of RMK configuration with a custom root domain
 
@@ -96,7 +98,7 @@ Then run the following command:
 rmk config init
 ```
 
-### Deletion of RMK configuration
+## Deletion of RMK configuration
 
 ```shell
 rmk config delete

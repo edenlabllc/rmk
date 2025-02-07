@@ -22,7 +22,7 @@ goreleaser build --snapshot --clean
 In RMK development, we use the classic [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) workflow, 
 embracing all its advantages and disadvantages.
 
-#### Git branch naming conventions
+**Git branch naming conventions:**
 
 - `feature/RMK-<issue_number>-<issue_description>`
 - `release/<SemVer2>`

@@ -1,6 +1,6 @@
 # Quickstart
 
-## Introduction
+## Overview
 
 This guide demonstrates **how to use RMK** to prepare the structure of a new project, create a local cluster based on
 [K3D](configuration/configuration-management/init-k3d-provider.md),

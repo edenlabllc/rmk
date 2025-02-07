@@ -1,5 +1,7 @@
 # Dependencies management and project inheritance
 
+## Overview
+
 To work with the RMK project's repository, RMK needs to resolve and install additional dependencies that are described in
 the [project.yaml](preparation-of-project-repository.md#projectyaml) file.
 The inheritance configuration of the upstream project's repository is defined in the `project.dependencies` section of the [project.yaml](preparation-of-project-repository.md#projectyaml) file.

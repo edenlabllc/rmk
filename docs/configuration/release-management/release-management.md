@@ -1,5 +1,7 @@
 # Release management
 
+## Overview
+
 RMK uses [Helmfile](https://github.com/helmfile/helmfile) for the release management.
 
 RMK uses a reduced set of the `Helmfile` commands without changing their behavior.

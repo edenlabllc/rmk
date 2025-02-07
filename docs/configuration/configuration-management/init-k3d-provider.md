@@ -1,7 +1,5 @@
 # Initialization of K3D cluster provider
 
-> Local provisioning cluster for develop environment.
-
 ## List of main attributes of the RMK configuration
 
 ```yaml
@@ -21,3 +19,5 @@ the following command:
 ```shell
 rmk config init
 ```
+
+> K3D can be used to provision **local** clusters for **develop** environments.
