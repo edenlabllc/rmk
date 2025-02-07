@@ -21,28 +21,35 @@ azure:
 
 ### Prerequisites
 
-1. Having an subscription in Azure and a created service principal with access roles in IAM: Contributor, Key Vault Secrets Officer.
-   [Useful links](https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal).
+1. Having an subscription in Azure and a created service principal with access roles in IAM:
+   [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor),
+   [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer).
+   > See the
+   > [useful link](https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal).
 
-2. Enable the following resource providers:
-   
-   - Microsoft.Authorization
-   - Microsoft.Compute
-   - Microsoft.ContainerService
-   - Microsoft.ManagedIdentity
-   - Microsoft.Network
+2. Enable the following resource
+   providers: `Microsoft.Authorization`, `Microsoft.Compute`, `Microsoft.ContainerService`, `Microsoft.ManagedIdentity`, `Microsoft.Network`.
 
-3. Allocated quotas for specific family VMs in the required region.
+   > See the
+   > [useful links](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types).
+
+3. Allocated [quotas](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview) for specific family VMs in the
+   required region.
 
 ### Configuration of Azure
 
-If an Azure service principal file `service-principal-credentials_<project_name>-<project_branch>.json` with 
-the correct name has not been created previously during the first initialization of the configuration, RMK will start the creation process. 
-RMK store the Azure service principle file by path: `${HOME}/.azure/service-principal-credentials_<project_name>-<project_branch>.json`.
+If
+an [Azure service principal](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser)
+file was not created during the initial configuration, RMK will generate it automatically and store it at the following
+path:
+
+```shell
+`${HOME}/.azure/service-principal-credentials_<project_name>-<project_branch>.json`.
+```
 
 The 3 supported configuration scenarios are:
 
-* **through RMK flags**:
+* **via RMK flags**:
   ```shell
   rmk config init --cluster-provider=azure \ 
     --azure-client-id=<azure_client_id> \
@@ -51,26 +58,33 @@ The 3 supported configuration scenarios are:
     --azure-subscription-id=<azure_subscription_id> \ 
     --azure-tenant-id=<azure_tenant_id>
   ```
-  
-* **through environment variables**: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_LOCATION`, `AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`.
+
+* **via environment variables
+  **: `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_LOCATION`, `AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`.
   ```shell
+  export AZURE_CLIENT_ID=<azure_client_id>
+  export AZURE_CLIENT_SECRET=<azure_client_secret>
+  export AZURE_LOCATION=eastus
+  export AZURE_SUBSCRIPTION_ID=<azure_subscription_id>
+  export AZURE_TENANT_ID=<azure_tenant_id>
   rmk config init --cluster-provider=azure
   ```
-  
-* **through stdin from az CLI**:
+
+* **via `stdin` using output of the `az` CLI**:
   ```shell
+  # login interactively: https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively#interactive-login
   az login
   az ad sp create-for-rbac --name rmk-test --role contributor --scopes="/subscriptions/<azure_subscription_id>" --output json | \
     rmk config init --cluster-provider=azure --azure-location=eastus --azure-service-principle
   ```
 
-If the environment variables has been declared before the  `rmk config init --cluster-provider=azure` command was run,
-RMK will create a Azure service principal file based on their values.
-If flags will be declared, RMK will create a Azure service principal file based on values flags because flags has priority.
+If environment variables were set before running the command, RMK will create an Azure service principal file based on
+their values. If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take
+precedence**.
 
 ### Reconfiguration of the Azure service principal attributes if wrong credentials has been input
 
-Change the value of a specific flag if adjustments are required.
+Modify the value of a specific flag if changes are needed:
 
 ```shell
 rmk config init --azure-client-id=<new_azure_client_id> --azure-client-secret=<new_azure_client_secret>

@@ -3,6 +3,7 @@
 ### List of main attributes of the RMK configuration
 
 Without MFA:
+
 ```yaml
 name: rmk-test-develop # RMK config name, a unique identifier which consists of the project (tenant) name and the abbreviated name of the Git branch.
 tenant: rmk-test # Tenant name, which is equivalent to the project name.
@@ -21,6 +22,7 @@ aws:
 ```
 
 With MFA:
+
 ```yaml
 name: rmk-test-develop
 tenant: rmk-test
@@ -42,61 +44,77 @@ aws:
 
 ### Prerequisites
 
-1. Having an account in AWS and a created user with access policies in IAM: PowerUserAccess, SecretsManagerReadWrite.
-[Useful links](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html).
+1. Having an account in AWS and a created user with access policies in IAM:
+   [PowerUserAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/PowerUserAccess.html),
+   [SecretsManagerReadWrite](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/SecretsManagerReadWrite.html).
+   > See the [useful link](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html).
 
-2. Having an AWS access key.
-[Useful links](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-key-self-managed.html).
+2. Having an AWS access key pair.
+   > See the [useful link](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-key-self-managed.html).
 
-3. Allocated quotas for specific family VMs (EC2) in the required region.
+3. Allocated [EC2 quotas](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html) for specific
+   family VMs in the required region.
 
 ### Configuration of AWS
 
-If an AWS profile with the correct name has not been created previously during the first initialization of the configuration,
-RMK will start the creation process.
-RMK store the AWS config and credentials files by path:
-- `${HOME}/.aws/config_<project_name>-<project_branch>`
-- `${HOME}/.aws/credentials_<project_name>-<project_branch>`
+If an [AWS profile](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html) with the correct name was
+not created during the initial configuration, RMK will generate it and store the AWS config and credentials files at the
+following path:
+
+```shell
+${HOME}/.aws/config_<project_name>-<project_branch>
+${HOME}/.aws/credentials_<project_name>-<project_branch>
+```
 
 The 2 supported configuration scenarios are:
 
-* **through RMK flags:**:
+* **using RMK flags:**:
   ```shell
   rmk config init --cluster-provider=aws \
     --aws-access-key-id=<aws_access_key_id> \
     --aws-region=us-east-1 \
     --aws-secret-access-key=<aws_secret_access_key>
   ```
-  
-* **through environment variables**: `AWS_ACCESS_KEY_ID`, `AWS_REGION`, `AWS_SECRET_ACCESS_KEY`.
+
+* **using environment variables**: `AWS_ACCESS_KEY_ID`, `AWS_REGION`, `AWS_SECRET_ACCESS_KEY`.
   ```shell
+  export AWS_ACCESS_KEY_ID=<aws_access_key_id>
+  export AWS_REGION=us-east-1
+  export AWS_SECRET_ACCESS_KEY=<aws_secret_access_key>
   rmk config init --cluster-provider=aws
   ```
 
-If the environment variables has been declared before the  `rmk config init --cluster-provider=aws` command was run, 
-RMK will create a profile based on their values. 
-If flags will be declared, RMK will create a profile based on values flags because flags has priority.
+If environment variables were set before running the command, RMK will create a profile based on their values.  
+If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take precedence**.
 
-### Support for Multi-Factor Authentication (MFA)
+### Support for multi-factor authentication (MFA)
 
-RMK automatically check for an MFA device, when the following command is executed: `rmk config init --cluster-provider=aws`.
+RMK automatically check for an [MFA](https://aws.amazon.com/iam/features/mfa/) device, when the following command
+is executed:
 
-To set up an MFA device, if it is required by the administrator, the following actions should be executed:
+```shell
+rmk config init --cluster-provider=aws
+```
 
-1. First, sign in to the AWS Management Console.
-2. Then, go to the following page to set up security
+To **set up an MFA device**, if it is required by the administrator, the following actions should be executed:
+
+1. Sign in to the AWS Management Console.
+2. Go to the following page to set up security
    credentials: [My security credentials](https://console.aws.amazon.com/iam/home#/security_credentials)
 3. Navigate to the "Multi-factor authentication (MFA)" section and set up an MFA device.
    If a device name is required, specify a name.
 4. After that, sign out and sign in again to refresh AWS policies
-   (might be required in case of an IAM policy based on the `aws:MultiFactorAuthPresent` condition exists).
+   (might be required in case of an IAM policy based on the
+   [aws:MultiFactorAuthPresent](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html)
+   condition exists).
 5. Finally, on the "My security credentials" page navigate to the "Access keys for CLI, SDK, & API access" section
    and create a new AWS access key, if needed.
 
-> For the detailed documentation regarding the MFA setup in AWS, go to
-> [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html#enable-virt-mfa-for-own-iam-user)
+> For the **detailed** documentation regarding the MFA setup in AWS, go to
+> [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html#enable-virt-mfa-for-own-iam-user).
 
-You can also check the lifetime of the session token by running the command: `rmk config init`
+You can also **check the lifetime** of the session token by running the [rmk config init](../../commands.md#init-i)
+command:
 
 ```
 2022-12-14T09:02:20.267+0100 INFO MFA remaining time for token validity: 11:59:48
@@ -104,7 +122,7 @@ You can also check the lifetime of the session token by running the command: `rm
 
 ### Reconfiguration of the AWS profile if wrong credentials has been input
 
-Change the value of a specific flag if adjustments are required.
+Modify the value of a specific flag if changes are needed:
 
 ```shell
 rmk config init --aws-access-key-id=<new_aws_access_key_id> --aws-secret-access-key=<new_aws_secret_access_key>

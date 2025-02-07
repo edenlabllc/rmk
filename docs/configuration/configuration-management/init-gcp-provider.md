@@ -18,47 +18,49 @@ gcp:
 
 ### Prerequisites
 
-1. Having an account and project in GCP and a created service account with access roles in IAM: **Editor**, **Secret Manager Admin**, **Kubernetes Engine Admin**.
-   [Useful links](https://cloud.google.com/iam/docs/service-accounts-create#creating).
+1. Having an account and project in GCP and a created service account with access roles in IAM: `Editor`, `Secret
+   Manager Admin`, `Kubernetes Engine Admin`.
+   > See the
+   > [useful link](https://cloud.google.com/iam/docs/understanding-roles).
 
-2. Enable the following services API:
+2. Enable the following services
+   API: `Kubernetes Engine API (container.googleapis.com)`, `Cloud Compute Engine API (compute.googleapis.com)`, `Cloud NAT API (servicenetworking.googleapis.com)`, `IAM Service API (iam.googleapis.com)`, `Cloud Logging API (logging.googleapis.com)`, `Cloud Monitoring API (monitoring.googleapis.com)`.
+   > See the
+   > [useful link](https://cloud.google.com/apis?hl=en).
 
-   - Kubernetes Engine API (container.googleapis.com)
-   - Cloud Compute Engine API (compute.googleapis.com)
-   - Cloud NAT API (servicenetworking.googleapis.com)
-   - IAM Service API (iam.googleapis.com)
-   - Cloud Logging API (logging.googleapis.com)
-   - Cloud Monitoring API (monitoring.googleapis.com)
-   
-3. Allocated quotas for specific family VMs in the required region.
+3. Allocated [quotas](https://cloud.google.com/docs/quotas/overview) for specific family VMs in the required region.
 
 ### Configuration of GCP
 
-If an GCP service account file `gcp-credentials-<project_name>-<project_branch>.json` with the correct name 
-has not been created previously during the first initialization of the configuration, RMK will start the creation process.
-RMK store the GCP service account file by path: `${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json`.
+If a [GCP service account key](https://cloud.google.com/iam/docs/keys-create-delete#creating) file with the correct name
+was not created during the initial configuration, RMK will generate it automatically and store it at the following path:
+
+```shell
+${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json
+```
 
 The 2 supported configuration scenarios are:
 
-* **through RMK flags**:
+* **via RMK flags**:
   ```shell
   rmk config init --cluster-provider=gcp 
     --gcp-region=us-east1 \
     --google-application-credentials <path_to_exported_google_service_account_file>
   ```
-  
-* **through environment variables**: `GCP_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`.
+
+* **via environment variables**: `GCP_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`.
   ```shell
+  export GCP_REGION=us-east1
+  export GOOGLE_APPLICATION_CREDENTIALS=<path_to_exported_google_service_account_file>
   rmk config init --cluster-provider=gcp
   ```  
 
-If the environment variables has been declared before the  `rmk config init --cluster-provider=gcp` command was run,
-RMK will create a GCP service account file based on their values.
-If flags will be declared, RMK will create a GCP service account file based on values flags because flags has priority.
+If environment variables were set before running the command, RMK will create a GCP service account file based on their
+values. If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take precedence**.
 
 ### Reconfiguration of the GCP service account attributes if wrong credentials has been input
 
-Change the value of a specific flag if adjustments are required.
+Modify the value of a specific flag if changes are needed:
 
 ```shell
 rmk config init --google-application-credentials <path_to_new_exported_google_service_account_file>

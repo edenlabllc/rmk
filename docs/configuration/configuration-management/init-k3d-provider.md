@@ -11,13 +11,15 @@ cluster-provider: k3d # Selected cluster provider.
 # ...
 ```
 
-### Configuration of K3D
+### Configuring K3D
 
-K3D as a cluster provider promote in RMK by default. For initialization RMK configuration for K3D cluster provider run
-the following command:
+K3D is the default cluster provider in RMK.
+
+To initialize RMK configuration for a K3D cluster, run:
 
 ```shell
 rmk config init
 ```
 
-> K3D can be used to provision **local** clusters for **develop** environments.
+> K3D is intended for provisioning **local** clusters, primarily for **development** environments.
+
