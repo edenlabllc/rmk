@@ -42,8 +42,8 @@ etc/<downstream_project_name>/<environment>/secrets/
   <release name>.yaml.gotmpl # -//-
 etc/<downstream_project_name>/<environment>/
   releases.yaml # -//-
-  globals.yaml # - // -
-  globals.yaml.gotmpl # - // -
+  globals.yaml # -//-
+  globals.yaml.gotmpl # -//-
 helmfile.yaml.gotmpl # Helmfile describing the release process for specific project releases using the Golang templates.
 project.yaml # Project specification for the dependencies and inventory installed via RMK.
 ```
@@ -63,7 +63,7 @@ project.yaml # Project specification for the dependencies and inventory installe
 # ...
 ```
 
-> releases.yaml cannot be used as a template, all the values must be defined.
+> releases.yaml cannot be used as a template, all the values must be defined explicitly.
 
 ### Requirement for `globals.yaml.gotmpl`
 
@@ -100,7 +100,10 @@ hooks:
 
 ### Requirement for `helmfile.yaml.gotmpl`
 
-The list of the `helmfile.yaml.gotmpl` sections that must be defined and remained unchanged for working with RMK correctly is:
+All sections in `helmfile.yaml.gotmpl` must be properly defined for RMK to function correctly.
+
+<details>
+  <summary>Example of the <code>helmfile.yaml.gotmpl</code> file</summary>
 
 ```gotemplate
 environments:
@@ -192,6 +195,7 @@ releases:
   - name: <release_name_foo>
     installed: {{ .Values | get (print " <release_name_foo>" ".enabled") false }}
 ```
+</details>
 
 > You can use the [rmk project generate](../../commands.md#generate-g-1) 
 > command to view the full example of the contents of all the project files.

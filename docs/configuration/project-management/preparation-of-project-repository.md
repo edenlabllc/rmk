@@ -120,7 +120,7 @@ and contains the following main sections:
   ```
 
 <details>
-  <summary>Example of the full <code>project.yaml</code> file.</summary>
+  <summary>Example of the full <code>project.yaml</code> file</summary>
 
 ```yaml
 project:
