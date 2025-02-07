@@ -5,8 +5,9 @@
 To start working with Kubernetes clusters, RMK needs to initialize the configuration for the current environment.
 At the time of configuration initialization launch, RMK prepares
 the state in the form of the current environment config with all the required attributes for further work.
-It also downloads and resolves and installs all necessary dependencies and tools described 
-in the [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) file in the root of the project repository.
+It also downloads and resolves and installs all necessary dependencies and tools described
+in the [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) file in the root of the
+project repository.
 
 ## List of main attributes of the RMK configuration
 
@@ -27,11 +28,12 @@ rmk config view
 
 ## Understanding the behavior of the configuration initialization command
 
-The `rmk config init` command supports declarative behavior within a single 
-[project repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository) 
+The `rmk config init` command supports declarative behavior within a single
+[project repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository)
 and a single environment that equal branch name.
 
 For example:
+
 ```shell
 # Branch name - develop
 # Environment - develop
@@ -46,15 +48,16 @@ rmk config init --cluster-provider=aws \
 rmk config init --github-token=<new_github_personal_access_token>
 ```
 
-If this configuration was applied for the first time. Then the options will be set according to the values. 
-Subsequently, it is not necessary to re-specify the entire list of required values, 
+If this configuration was applied for the first time. Then the options will be set according to the values.
+Subsequently, it is not necessary to re-specify the entire list of required values,
 it is enough to change the required value for a specific option. As described in the example above.
 
 ## Initialization of RMK configuration
 
 > Prerequisites:
 >
-> - [Project repository](../project-management/requirement-for-project-repository.md) has already been created and initialized.
+> - [Project repository](../project-management/requirement-for-project-repository.md) has already been created and
+    initialized.
 > - At least one Git branch for the environment exists already.
 
 ```shell
@@ -65,7 +68,8 @@ rmk config init
 
 > Prerequisites:
 >
-> The `GITHUB_TOKEN` variable or `--github-token` flag are required: [GitHub Personal Access Tokens (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic).
+> The `GITHUB_TOKEN` variable or `--github-token` flag are
+> required: [GitHub Personal Access Tokens (PAT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic).
 > The token should have the `repo: full control` permissions.
 
 ```shell
@@ -81,7 +85,8 @@ rmk config init --github-token=<github_personal_access_token>
 
 ### Initialization of RMK configuration with a custom root domain
 
-To change the root domain name, you need to edit the [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) 
+To change the root domain name, you need to edit
+the [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml)
 file in the section `develop.root-domain`.
 
 ```yaml

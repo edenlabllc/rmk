@@ -13,7 +13,7 @@ cluster-provider: k3d # Selected cluster provider.
 
 ### Configuration of K3D
 
-K3D as a cluster provider promote in RMK by default. For initialization RMK configuration for K3D cluster provider run 
+K3D as a cluster provider promote in RMK by default. For initialization RMK configuration for K3D cluster provider run
 the following command:
 
 ```shell

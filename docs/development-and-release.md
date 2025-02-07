@@ -43,7 +43,7 @@ This triggers a CI process that will build and release an intermediate version,
 the `<SemVer2>-rc` release candidate. 
 
 > This version is available for update from RMK via the `rmk update --release-candidate` command
-and can be used for an intermediate or beta testing. 
+> and can be used for an intermediate or beta testing. 
 
 After successful testing, the PR is merged into the master branch, 
 triggering another CI process that will release the stable RMK version. 

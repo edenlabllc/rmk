@@ -10,7 +10,7 @@
 - #29 - Added commands for managing Cluster API clusters to the cluster category commands.
 - #29 - Added new configuration arguments for project generation.
 - #29 - Added the generation of values for all cluster provider configurations in the project generate command.
-- #29 - Added deps scope unconditionally when generating projects. 
+- #29 - Added deps scope unconditionally when generating projects.
 - #29 - Fixed the inheritance behavior of dependent repositories.
 - #29 - Fixed the output of the config list command for sibling project names.
 - #29 - Removed the artifact-mode flag and the functionality.

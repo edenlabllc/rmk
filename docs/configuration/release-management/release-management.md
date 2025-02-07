@@ -270,8 +270,8 @@ In this example, we have prepared a `GitHub Action` that expects two input param
 
 As soon as a request with these parameters is sent to this action,
 RMK will be executed, first analyzing all the `releases.yaml` files to match the `image_repository_full_name` and will
-replace the tag field with the corresponding version if the versions differ. After that, it will 
-**automatically commit** the changes to the current branch in the `releases.yaml` files where changes have been found. 
+replace the tag field with the corresponding version if the versions differ. After that, it will
+**automatically commit** the changes to the current branch in the `releases.yaml` files where changes have been found.
 Then, it will **synchronize the releases** where the version changes were found.
 
 An example of the `releases.yaml` file:

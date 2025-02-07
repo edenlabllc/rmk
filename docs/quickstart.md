@@ -11,7 +11,9 @@ All of this will be done in just **five steps**.
 ## Prerequisites
 
 - Installed [RMK](index.md#installation).
-- Fulfilled [requirements](index.md#requirements) and [prerequisites](configuration/project-management/preparation-of-project-repository.md#prerequisites) for proper RMK operation.
+- Fulfilled [requirements](index.md#requirements)
+  and [prerequisites](configuration/project-management/preparation-of-project-repository.md#prerequisites) for proper
+  RMK operation.
 
 This example assumes the [project](configuration/project-management/requirement-for-project-repository.md) (tenant) name
 is `rmk-test`, the
