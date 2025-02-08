@@ -51,9 +51,9 @@ you can add the required number of machine pools depending on the requirements f
 > For the AWS provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
 >
-> - create SSH key for cluster nodes.
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
-    > [AWS Secret Manager](https://aws.amazon.com/secrets-manager/), if they have not been created previously.
+> - Create an [SSH key pair](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) for cluster nodes.
+> - Create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+>   [AWS Secret Manager](https://aws.amazon.com/secrets-manager/), if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 

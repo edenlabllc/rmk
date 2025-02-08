@@ -22,8 +22,8 @@ rmk cluster k3d create
 
 > By default, RMK will use the current directory for the [--k3d-volume-host-path](../../commands.md#create-c-1) flag.
 
-> When the Kubernetes cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created
-> cluster. You can create multiple local K3D clusters by **separating** them using Git branches.
+When the Kubernetes cluster is ready, RMK **automatically switches** the Kubernetes context to the newly created
+cluster. You can create multiple local K3D clusters by **separating** them using Git branches.
 
 #### Deleting K3D clusters
 

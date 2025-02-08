@@ -39,11 +39,10 @@ you can add the required number of machine pools depending on the requirements f
 > For the GCP provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
 >
-> - create a [Cloud NAT](https://cloud.google.com/nat/docs/overview) for outbound traffic cluster nodes.
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
-    > [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en), if they have not been
-    created
-    > previously.
+> - Create a [Cloud NAT](https://cloud.google.com/nat/docs/overview) for outbound traffic cluster nodes.
+> - Create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+>   [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en), 
+>   if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 

@@ -42,8 +42,8 @@ you can add the required number of machine pools depending on the requirements f
 > For the Azure provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
 >
-> - create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
-    > [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault), if they have not been created previously.
+> - Create secrets with private [SOPS Age keys](../secrets-management/secrets-management.md#secret-keys) in the
+>   [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault), if they have not been created previously.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
