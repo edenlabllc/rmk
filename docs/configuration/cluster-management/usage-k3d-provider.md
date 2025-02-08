@@ -1,4 +1,4 @@
-### Using K3D Kubernetes clusters
+# Using K3D cluster provider
 
 RMK supports managing single-node Kubernetes clusters using [K3D](https://k3d.io).
 

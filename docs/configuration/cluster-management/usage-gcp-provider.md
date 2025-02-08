@@ -1,8 +1,8 @@
-# Using GCP GKE Kubernetes clusters
+# Using GCP cluster provider
 
 > GCP service account must have the `Editor`, `Secret Manager Admin`, `Kubernetes Engine Admin`
 > [roles](https://cloud.google.com/iam/docs/understanding-roles) to be able to provision and destroy
-> [GKE](https://cloud.google.com/kubernetes-engine?hl=en) clusters.
+> [GCP GKE](https://cloud.google.com/kubernetes-engine?hl=en) clusters.
 
 Before provisioning the Kubernetes cluster, add override
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl)

@@ -1,9 +1,9 @@
-# Using AWS EKS Kubernetes clusters
+# Using AWS cluster provider
 
 > AWS users must have the
 > [PowerUserAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/PowerUserAccess.html),
 > [SecretsManagerReadWrite](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/SecretsManagerReadWrite.html)
-> permissions to be able to provision and destroy [EKS](https://aws.amazon.com/eks/) clusters.
+> permissions to be able to provision and destroy [AWS EKS](https://aws.amazon.com/eks/) clusters.
 
 Before provisioning the Kubernetes cluster, add override for
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl)

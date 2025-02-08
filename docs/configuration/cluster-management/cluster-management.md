@@ -14,10 +14,10 @@ The 2 scenarios are:
   used
   by RMK.
 - **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as
-  [AWS](../../configuration/configuration-management/init-aws-provider.md),
-  [Azure](../../configuration/configuration-management/init-azure-provider.md),
-  [GCP](../../configuration/configuration-management/init-gcp-provider.md),
-  [K3D](../../configuration/configuration-management/init-k3d-provider.md) (local installation)
+  [AWS](../configuration-management/init-aws-provider.md),
+  [Azure](../configuration-management/init-azure-provider.md),
+  [GCP](../configuration-management/init-gcp-provider.md),
+  [K3D](../configuration-management/init-k3d-provider.md) (local installation)
   will be utilized.
 
 ## Switching the context to an existing Kubernetes cluster
@@ -53,9 +53,11 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
 
   > The default value for the `--cluster-provider` argument is `k3d`.
 
-  The next command depends on whether a remote Kubernetes cluster provider (e.g., AWS, Azure, GCP) or a local one (e.g.,
-  K3D) has
-  been used:
+  The next command depends on whether a remote Kubernetes cluster provider
+  (e.g., [AWS](../configuration-management/init-aws-provider.md),
+  [Azure](../configuration-management/init-azure-provider.md),
+  [GCP](../configuration-management/init-gcp-provider.md))
+  or a local one (e.g., [K3D](../configuration-management/init-k3d-provider.md)) has been used:
 
   **AWS, Azure, GCP**:
 
@@ -136,13 +138,15 @@ file, however it can be changed on demand.
 A full list of available commands for working with CAPI management clusters
 and for provisioning target Kubernetes clusters can be found [here](../../commands.md#capi-c).
 
-## Using RMK remote cluster providers to provision and destroy target Kubernetes clusters
+## Using RMK cluster providers to provision and destroy target Kubernetes clusters
 
 Currently, the following cluster providers are supported by RMK:
 
-- **AWS EKS, Azure AKS, GCP GKE**:
+- **[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**:
 
-  Configuration for managing clusters using Kubernetes Cluster API. Kubernetes clusters can be provisioned from scratch
+  Configuration for managing remote clusters using Kubernetes Cluster API.
+
+  Such Kubernetes clusters can be provisioned from scratch
   and destroyed via the [rmk cluster capi provision](../../commands.md#provision-p) and
   [rmk cluster capi destroy](../../commands.md#destroy) commands. All configurations of the description of the provided
   target Kubernetes clusters are described in the values of the [Helmfile](https://helmfile.readthedocs.io/en/latest/)
@@ -157,10 +161,11 @@ Currently, the following cluster providers are supported by RMK:
   > [rmk cluster capi provision](../../commands.md#provision-p) before executing
   > [rmk cluster capi destroy](../../commands.md#destroy).
 
-- **K3D**:
+- **[K3D](usage-k3d-provider.md)**:
 
-  Configuration for managing
-  single-machine clusters using K3D (suitable for both local development and minimal cloud deployments).
+  Configuration for managing single-machine clusters using K3D (suitable for both local development and minimal cloud
+  deployments).
+
   Such Kubernetes clusters can be created from scratch and deleted via the
   [rmk cluster k3d create](../../commands.md#create-c) and
   [rmk cluster k3d delete](../../commands.md#delete-d) commands.

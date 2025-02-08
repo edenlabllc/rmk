@@ -1,9 +1,9 @@
-# Using Azure AKS Kubernetes clusters
+# Using Azure cluster provider
 
 > Azure service principal must have the
 > [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor),
 > [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer)
-> roles to be able to provision and destroy [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service)
+> roles to be able to provision and destroy [Azure AKS](https://azure.microsoft.com/en-us/products/kubernetes-service)
 > clusters.
 
 Before provisioning the Kubernetes cluster, add override for the
