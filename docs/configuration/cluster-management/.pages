@@ -1,0 +1,8 @@
+nav:
+  - cluster-management.md
+  - exported-environment-variables.md
+  - usage-aws-provider.md
+  - usage-azure-provider.md
+  - usage-gcp-provider.md
+  - usage-k3d-provider.md
+collapse: false
