@@ -83,21 +83,23 @@ cloud architects, system analytics, software testers and even managers with mini
 
 RMK simplifies the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
 
-- **Fully tested and validated CI/CD solution**: Tested across multiple cloud providers, RMK
-  leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
+- **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and 
+  real customers, RMK leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
   and [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/) for efficient release and secrets
-  management, ensuring reliability for real customers and internal use.
-- **Seamless integration with any [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) tool**: A
-  self-sufficient, portable binary that follows the [12-factor app](https://12factor.net/) methodology.
+  management.
+- **Seamless integration with [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) platforms**: A
+  self-sufficient, portable binary that follows the [12-factor app](https://12factor.net/) methodology and can
+  easily be integrated with any CI/CD solution.
 - **Built-in [versioning](https://en.wikipedia.org/wiki/Software_versioning) for CI/CD pipelines**: Supports static and
-  dynamic tags (e.g., [SemVer2](https://semver.org/)) to guarantee stable, well-tested, and predictable releases.
-- **Transparent project structure and dependency management**: Enables rapid setup, configuration reuse, and
-  hierarchical inheritance (e.g., "parent-child" or "upstream-downstream" relationships).
-- **Hierarchical project relationships**: Defines
-  upstream-downstream [relationships](configuration/project-management/dependencies-management-and-project-inheritance.md)
-  between sibling projects to enable release and service reuse.
-- **Batch secret management**: Automates templating, generation, and encryption of secrets across all environments
-  in [batch mode](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch).
+  dynamic tags (e.g., [SemVer2](https://semver.org/)) for project and releases to guarantee stable, well-tested, and
+  predictable deployments.
+- **Transparent [project structure](configuration/project-management/preparation-of-project-repository.md) and
+  [dependency management](configuration/project-management/dependencies-management-and-project-inheritance.md)**:
+  Enables rapid project setup and hierarchical project inheritance, e.g., _parent-child_ or _upstream-downstream_
+  relationships) between sibling projects to enable release configuration reuse.
+- **[Batch](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
+  management**: Automates templating, generation, and encryption of secrets across all environments
+  in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements

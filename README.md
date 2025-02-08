@@ -37,39 +37,38 @@ RMK has been designed to be used by different IT specialists, among them are Dev
 SREs,
 cloud architects, system analytics, software testers and even managers with minimal technical background.
 
-### Advantages
+## Advantages
 
-RMK simplifies the setup and management of Kubernetes-based projects of any complexity level due to the following
-advantages:
+RMK simplifies the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
 
-- **Includes everything needed for daily CI/CD and DevOps tasks**:
-  Utilizes [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/)
-  for provisioning clusters across various environments and providers,
-  and [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/)
-  along with other tools for efficient release, secrets management across multiple clusters.
-- **Integrates with any [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) tool easily**: A self-sufficient,
-  portable binary that strictly follows the [12 factor app](https://12factor.net/) methodology.
-- **Supports [versioning](https://en.wikipedia.org/wiki/Software_versioning) of projects in a CI/CD pipeline**: Each
-  project can be versioned and referenced by static or dynamic tags (e.g., [SemVer2](https://semver.org/)),
-  which guarantees stable, well-tested and predictable releases.
-- **Provides a transparent project structure, generation from scratch, dependency management:** Enables rapid project
-  setup, efficient configuration reuse across projects, inheritance from other projects, e.g., "parent-child" or "
-  upstream-downstream" relationships.
-- **Respects the [GitOps](https://www.gitops.tech/) approach:** Each Git branch is used as a unique identifier for
-  determining the environment, cluster name,
-  set of configurations and other attributes required for setting up the wrapped tools for project management in the
-  Kubernetes environment.
-- **Respects the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) workflow**: Follows
-  a standard branching model with _develop_, _staging_, _production_, and ephemeral branches (e.g., _feature_,
-  _release_) for temporary environments.
-- **Respects the [DevOps](https://www.atlassian.com/devops) methodology:** Allows diverse teams to work without blocking
-  each other. Each team or multiple teams can develop and release their projects separately, later on the result of
-  their work can be combined in a single project.
-- **Calls the wrapped CLI tools directly**: RMK executes the tools directly in a way that
-  a typical person would do it,
-  passing correct sets of CLI arguments and flags to the commands based on a project configuration structure.
-  This decouples the updating of RMK itself from the CLI tools, allowing developers to utilize recent
-  functionality and fixes.
+- **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and
+  real customers, RMK leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
+  and [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/) for efficient release and secrets
+  management.
+- **Seamless integration with [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) platforms**: A
+  self-sufficient, portable binary that follows the [12-factor app](https://12factor.net/) methodology and can
+  easily be integrated with any CI/CD solution.
+- **Built-in [versioning](https://en.wikipedia.org/wiki/Software_versioning) for CI/CD pipelines**: Supports static and
+  dynamic tags (e.g., [SemVer2](https://semver.org/)) for project and releases to guarantee stable, well-tested, and
+  predictable deployments.
+- **Transparent [project structure](configuration/project-management/preparation-of-project-repository.md) and
+  [dependency management](configuration/project-management/dependencies-management-and-project-inheritance.md)**:
+  Enables rapid project setup and hierarchical project inheritance, e.g., _parent-child_ or _upstream-downstream_
+  relationships) between sibling projects to enable release configuration reuse.
+- **[Batch](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
+  management**: Automates templating, generation, and encryption of secrets across all environments
+  in batch mode.
+- **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
+  environments, clusters, configurations, and project management in Kubernetes.
+- **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
+  a standard branching strategy (_develop_, _staging_, _production_) and ephemeral branches (_feature_, _release_) for
+  temporary environments.
+- **Aligns with the [DevOps](https://www.atlassian.com/devops) methodology**: Enables multiple teams to develop and
+  release independently while seamlessly integrating their work into a single project.
+- **Directly executes the wrapped [CLI tools](#overview)**: Calls CLI tools as a user would, passing the correct
+  arguments and flags
+  based on the project configuration, ensuring RMK updates remain decoupled from CLI tool updates for continued access
+  to new features and fixes.
 
 ## Supported Kubernetes cluster providers
 
