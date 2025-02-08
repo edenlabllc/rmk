@@ -71,6 +71,26 @@ advantages:
   This decouples the updating of RMK itself from the CLI tools, allowing developers to utilize recent
   functionality and fixes.
 
+## Supported Kubernetes cluster providers
+
+### Provisioned by RMK
+
+RMK currently supports the provisioning of the following Kubernetes clusters:
+
+- [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
+- [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
+- [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
+- Single-machine [K3D](https://k3d.io/) clusters
+
+> Check the [Roadmap](#roadmap) section for more information.
+
+### Provisioned using third-party tools and services
+
+By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a third
+party. The CLI tool simply requires an existing
+[Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+to connect to and manage the cluster.
+
 ### Edenlab LLC use cases
 
 #### Efficiency in numbers
@@ -132,7 +152,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ##### GitHub
 
-- **[cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)**: 
+- **[cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)**:
   [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) and system components required for provisioning of
   Kubernetes clusters for different providers.
 - **[helmfile.hooks.infra](https://github.com/edenlabllc/helmfile.hooks.infra)**:
@@ -153,7 +173,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ##### Helm charts
 
 - **[core-charts](https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/)**: A publicly
-  accessible, [S3-based](https://aws.amazon.com/s3/) [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) 
+  accessible, [S3-based](https://aws.amazon.com/s3/) [Helm chart repository](https://helm.sh/docs/topics/chart_repository/)
   used by Kodjin, or any other project, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
 

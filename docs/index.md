@@ -9,71 +9,49 @@ environments,
 [Helm](https://helm.sh/) secrets and releases, built according to best practices
 in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](https://www.atlassian.com/devops).
 
-- [Overview](#overview)
-  * [Advantages](#advantages)
-  * [Edenlab LLC use cases](#edenlab-llc-use-cases)
-    + [Efficiency in numbers](#efficiency-in-numbers)
-    + [Managing clusters](#managing-clusters)
-    + [Related repositories](#related-repositories)
-        * [GitHub](#github)
-        * [Helm charts](#helm-charts)
-  * [Requirements](#requirements)
-      * [Operating systems (OS)](#operating-systems-os)
-      * [Software](#software)
-
-[//]: # (* [Quickstart]&#40;quickstart.md&#41;)
-
-[//]: # (* [Installation]&#40;#installation&#41;)
-
-[//]: # (* [Update]&#40;#update&#41;)
-
-[//]: # (    * [General update process]&#40;#general-update-process&#41;)
-
-[//]: # (    * [Updating to specific version]&#40;#update-to-specific-version&#41;)
-
-[//]: # (* Configuration)
-
-[//]: # (    * [Configuration management]&#40;configuration/configuration-management/configuration-management.md&#41;)
-
-[//]: # (        * [Initialization of AWS cluster provider]&#40;configuration/configuration-management/init-aws-provider.md&#41;)
-
-[//]: # (        * [Initialization of Azure cluster provider]&#40;configuration/configuration-management/init-azure-provider.md&#41;)
-
-[//]: # (        * [Initialization of GCP cluster provider]&#40;configuration/configuration-management/init-azure-provider.md&#41;)
-
-[//]: # (        * [Initialization of K3D cluster provider]&#40;configuration/configuration-management/init-k3d-provider.md&#41;)
-
-[//]: # (* Project management)
-
-[//]: # (* [Requirement for project repository]&#40;configuration/project-management/requirement-for-project-repository.md&#41;)
-
-[//]: # (* [Preparation of project repository]&#40;configuration/project-management/preparation-of-project-repository.md&#41;)
-
-[//]: # (* [Dependencies management and project inheritance]&#40;configuration/project-management/dependencies-management-and-project-inheritance.md&#41;)
-
-[//]: # (* [Cluster management]&#40;configuration/cluster-management/cluster-management.md&#41;)
-
-[//]: # (    * [Exported environment variables]&#40;configuration/cluster-management/exported-environment-variables.md&#41;)
-
-[//]: # (* [Release management]&#40;configuration/release-management/release-management.md&#41;)
-
-[//]: # (* [Secrets management]&#40;configuration/secrets-management/secrets-management.md&#41;)
-
-[//]: # (* [Commands]&#40;commands.md&#41;)
-
-[//]: # (* [Supported Kubernetes cluster providers]&#40;#supported-kubernetes-cluster-providers&#41;)
-
-[//]: # (* [Provisioned by RMK]&#40;#provisioned-by-rmk&#41;)
-
-[//]: # (* [Provisioned using third-party tools and services]&#40;#provisioned-using-third-party-tools-and-services&#41;)
-
-[//]: # (* [Roadmap]&#40;#roadmap&#41;)
-
-[//]: # (* [Development and release]&#40;development-and-release.md&#41;)
-
-[//]: # (* [License]&#40;#license&#41;)
-
-[//]: # (* [Code of Conduct]&#40;#code-of-conduct&#41;)
+* [Overview](#overview)
+* [Advantages](#advantages)
+* [Supported Kubernetes cluster providers](#supported-kubernetes-cluster-providers)
+  * [Provisioned by RMK](#provisioned-by-rmk)
+  * [Provisioned using third-party tools and services](#provisioned-using-third-party-tools-and-services)
+* [Edenlab LLC use cases](#edenlab-llc-use-cases)
+  * [Efficiency in numbers](#efficiency-in-numbers)
+  * [Managing clusters](#managing-clusters)
+  * [Related repositories](#related-repositories)
+    * [GitHub](#github)
+    * [Helm charts](#helm-charts)
+* [Requirements](#requirements)
+  * [Operating systems (OS)](#operating-systems-os)
+  * [Software](#software)
+* [Installation](#installation)
+* [Update](#update)
+  * [General update process](#general-update-process)
+  * [Updating to specific version](#update-to-specific-version)
+* [Quickstart](quickstart.md)
+* [Backward compatibility](backward-compatibility.md)
+* Configuration
+  * [Configuration management](configuration/configuration-management/configuration-management.md)
+    * [Initialization of AWS cluster provider](configuration/configuration-management/init-aws-provider.md)
+    * [Initialization of Azure cluster provider](configuration/configuration-management/init-azure-provider.md)
+    * [Initialization of GCP cluster provider](configuration/configuration-management/init-azure-provider.md)
+    * [Initialization of K3D cluster provider](configuration/configuration-management/init-k3d-provider.md)
+  * Project management
+    * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
+    * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
+    * [Dependencies management and project inheritance](configuration/project-management/dependencies-management-and-project-inheritance.md)
+  * [Cluster management](configuration/cluster-management/cluster-management.md)
+    * [Exported environment variables](configuration/cluster-management/exported-environment-variables.md)
+    * [Using AWS cluster provider](configuration/cluster-management/usage-aws-provider.md)
+    * [Using Azure cluster provider](configuration/cluster-management/usage-azure-provider.md)
+    * [Using GCP cluster provider](configuration/cluster-management/usage-azure-provider.md)
+    * [Using K3D cluster provider](configuration/cluster-management/usage-k3d-provider.md)
+  * [Release management](configuration/release-management/release-management.md)
+  * [Secrets management](configuration/secrets-management/secrets-management.md)
+* [Commands](commands.md)
+* [Roadmap](#roadmap)
+* [Development and release](development-and-release.md)
+* [License](#license)
+* [Code of Conduct](#code-of-conduct)
 
 ## Overview
 
@@ -101,7 +79,7 @@ RMK has been designed to be used by different IT specialists, among them are Dev
 SREs,
 cloud architects, system analytics, software testers and even managers with minimal technical background.
 
-### Advantages
+## Advantages
 
 RMK simplifies the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
 
@@ -132,9 +110,29 @@ RMK simplifies the setup and management of Kubernetes-based projects of any comp
   based on the project configuration, ensuring RMK updates remain decoupled from CLI tool updates for continued access
   to new features and fixes.
 
-### Edenlab LLC use cases
+## Supported Kubernetes cluster providers
 
-#### Efficiency in numbers
+### Provisioned by RMK
+
+RMK currently supports the provisioning of the following Kubernetes clusters:
+
+- [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
+- [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
+- [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
+- Single-machine [K3D](https://k3d.io/) clusters
+
+> Check the [Roadmap](#roadmap) section for more information.
+
+### Provisioned using third-party tools and services
+
+By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a third
+party. The CLI tool simply requires an existing
+[Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+to connect to and manage the cluster.
+
+## Edenlab LLC use cases
+
+### Efficiency in numbers
 
 Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
 [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
@@ -153,7 +151,7 @@ Beyond internal use, RMK is also leveraged by various external clients to stream
 fast and
 efficient Kubernetes environment management.
 
-#### Managing clusters
+### Managing clusters
 
 At [Edenlab LLC](https://edenlab.io/), RMK is utilized to deploy the [Kodjin FHIR Server](https://kodjin.com)
 across various cloud providers and on-premise environments.
@@ -189,9 +187,9 @@ A standard Kodjin-based cluster follows a 4-level inheritance structure:
 Each project repository follows a
 standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model.
 
-#### Related repositories
+### Related repositories
 
-##### GitHub
+#### GitHub
 
 - **[cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)**:
   [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) and system components required for provisioning of
@@ -211,7 +209,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**: K8S operator for
   automatically copying of existing K8S secrets between namespaces.
 
-##### Helm charts
+#### Helm charts
 
 - **[core-charts](https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/)**: A publicly
   accessible, [S3-based](https://aws.amazon.com/s3/) [Helm chart repository](https://helm.sh/docs/topics/chart_repository/)
@@ -272,26 +270,6 @@ To update to a specific version, use the following command:
 ```shell
 rmk update --version vX.X.X 
 ```
-
-## Supported Kubernetes cluster providers
-
-### Provisioned by RMK
-
-RMK currently supports the provisioning of the following Kubernetes clusters:
-
-- [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
-- [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
-- [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
-- Single-machine [K3D](https://k3d.io/) clusters
-
-> Check the [Roadmap](#roadmap) section for more information.
-
-### Provisioned using third-party tools and services
-
-By design, RMK can work with any existing Kubernetes cluster, provided it has been provisioned in advance by a third
-party. The CLI tool simply requires an existing
-[Kubernetes context](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
-to connect to and manage the cluster.
 
 ## Roadmap
 
