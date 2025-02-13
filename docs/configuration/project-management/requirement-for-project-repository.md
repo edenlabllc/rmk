@@ -50,7 +50,7 @@ project.yaml # Project specification for the dependencies and inventory installe
 
 ## Files for managing releases and their values at the scope level
 
-### Requirement for `release.yaml`
+### Requirement for `releases.yaml`
 
 ```yaml
 <release_name_foo>: # Required, release name from helmfile.yaml.gotmpl.

@@ -44,7 +44,7 @@ project:
 ```
 
 Then, in the `helmfiles` section of the `helmfile.yaml.gotmpl` file
-the [{{ env "HELMFILE_<project_name>_PATHS" }}](../cluster-management/exported-environment-variables.md)
+the [{{ env "HELMFILE_<project_name\>_PATHS" }}](../cluster-management/exported-environment-variables.md)
 environment variable will be used, this way RMK will manage the dependencies of the nested `Helmfile`s.
 
 > The variable name is formed according to the following template: `HELMFILE_<project_name>_PATHS`.
@@ -59,14 +59,14 @@ It also supports multi-versioning of the `Helmfile` hooks as part of the inherit
 downstream project.
 
 In order for these features to work, you need to use
-the [{{ env "HELMFILE_<current_project_name>_HOOKS_DIR" }}](../cluster-management/exported-environment-variables.md)
+the [{{ env "HELMFILE_<current_project_name\>_HOOKS_DIR" }}](../cluster-management/exported-environment-variables.md)
 variable in `helmfile.yaml.gotmpl`.
 For example:
 
 ```yaml
 commonLabels:
   # ...
-  bin: { { env "HELMFILE_RMK_TEST_HOOKS_DIR" } }/bin
+  bin: {{ env "HELMFILE_RMK_TEST_HOOKS_DIR" }}/bin
 # ...
 ```
 

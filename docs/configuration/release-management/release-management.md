@@ -127,13 +127,13 @@ e.g. [aws-cluster.yaml.gotmpl](https://github.com/edenlabllc/cluster-deps.bootst
 machinePools:
   app:
     enabled: false
-    annotations: { }
-    labels: { }
+    annotations: {}
+    labels: {}
     managed:
       spec:
         # AdditionalTags is an optional set of tags to add to AWS resources managed by the AWS provider, in addition 
         # to the ones added by default.
-        additionalTags: { }
+        additionalTags: {}
         # DiskSize specifies the root disk size
         diskSize: 10
         # InstanceType specifies the AWS instance type
@@ -259,7 +259,7 @@ jobs:
         run: |
           curl -sL "https://edenlabllc-rmk-tools-infra.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash
 
-          rmk config init --progress-bar=false --slack-notifications
+          rmk config init --cluster-provider=aws --progress-bar=false --slack-notifications
           rmk release update --skip-ci --deploy
 ```
 

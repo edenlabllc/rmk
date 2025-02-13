@@ -74,7 +74,7 @@ etc/deps/develop/secrets/postgres.yaml
 etc/rmk-test/develop/secrets/app.yaml
 ```
 
-> Similar to the [release.yaml](../project-management/requirement-for-project-repository.md#requirement-for-releaseyaml)
+> Similar to the [releases.yaml](../project-management/requirement-for-project-repository.md#requirement-for-releasesyaml)
 > files, secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project
 > **should have its own** unique set of secrets for all deployed releases.
 
@@ -90,10 +90,10 @@ without exposing sensitive information.
   username: ENC[AES256_GCM,data:A0jb1wU=,iv:RM8V1IOHvCrBv7f9f/GKobaBYyjcX9jcNQp6XPopNcU=,tag:T79VY3/yqlIffdbvYDwukQ==,type:str]
   password: ENC[AES256_GCM,data:Kjo5hDSb+VmhdLLuq48oVg==,iv:5wpJBsiA5B82RRaguW8/TcKgGYbiZhihdIhXnPwyRG8=,tag:yQ5Chi949jBB1cSaFDVlOQ==,type:str]
   sops:
-    kms: [ ]
-    gcp_kms: [ ]
-    azure_kv: [ ]
-    hc_vault: [ ]
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
     age:
       - recipient: age1rq0gx9zuwphw8kjx6ams84rgysqk5kdmhnysxs28r0x955xnzsdsslgtn0
         enc: |
@@ -106,7 +106,7 @@ without exposing sensitive information.
           -----END AGE ENCRYPTED FILE-----
     lastmodified: "2025-01-25T09:40:29Z"
     mac: ENC[AES256_GCM,data:ytSnoJOi6eIzWjETgJo8/ppttKbHiSDcxQRJfocW0SWC2kQhyXtM0Y9R/d9JXbJrupqEcFH3yS4NJQz4uFyButI78pOrFxuhxNIhL3YSghTrBZKZ71IpjTe6W/oqz4UUhio5r1VU6KKFcKRKIvZZIUUnlqhJToOLB/VcLxqIQgw=,iv:Gufcas0JD7RVCTPIycN46EUq8V5OzYu++qmtolFu7hA=,tag:46k/pE546i4h18sXudp6Qw==,type:str]
-    pgp: [ ]
+    pgp: []
     unencrypted_suffix: _unencrypted
     version: 3.7.1
   ```
@@ -169,7 +169,8 @@ provider:
 rmk secret keys upload
 ```
 
-> Users must have the necessary **permissions to upload** secret keys to the configured secrets storage service.
+> Users must have the necessary **[permissions to upload](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers)** 
+> secret keys to the configured secrets storage service.
 
 ### Downloading secret keys from a remote storage
 
