@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 5f64a94 <br />
-**Date:** 2025-02-17T14:26:45Z <br />
+**Commit:** 47a12cd <br />
+**Date:** 2025-02-17T17:02:25Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -52,8 +52,6 @@ CAPI cluster management
 ##### create, c
 
 Create CAPI management cluster
-
-**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: present working directory)
 
 ##### delete, d
 
