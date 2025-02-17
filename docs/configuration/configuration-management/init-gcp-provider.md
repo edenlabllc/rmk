@@ -16,7 +16,7 @@ gcp:
 # ...
 ```
 
-### Prerequisites
+## Prerequisites
 
 1. Having an account and project in GCP and a created service account with access roles in IAM: `Editor`, `Secret
    Manager Admin`, `Kubernetes Engine Admin`.
@@ -30,7 +30,7 @@ gcp:
 
 3. Allocated [quotas](https://cloud.google.com/docs/quotas/overview) for specific family VMs in the required region.
 
-### Configuration of GCP
+## Configuration
 
 If a [GCP service account key](https://cloud.google.com/iam/docs/keys-create-delete#creating) file with the correct name
 was not created during the initial configuration, RMK will generate it automatically and store it at the following path:
@@ -58,7 +58,7 @@ The 2 supported configuration scenarios are:
 If environment variables were set before running the command, RMK will create a GCP service account file based on their
 values. If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take precedence**.
 
-### Reconfiguration of the GCP service account attributes if wrong credentials has been input
+## Reconfiguration of the GCP service account attributes if wrong credentials has been input
 
 Modify the value of a specific flag if changes are needed:
 

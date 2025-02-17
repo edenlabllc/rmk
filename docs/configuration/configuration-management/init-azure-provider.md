@@ -19,7 +19,7 @@ azure:
 # ...
 ```
 
-### Prerequisites
+## Prerequisites
 
 1. Having an subscription in Azure and a created service principal with access roles in IAM:
    [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor),
@@ -29,14 +29,14 @@ azure:
 
 2. Enable the following resource
    providers: `Microsoft.Authorization`, `Microsoft.Compute`, `Microsoft.ContainerService`, `Microsoft.ManagedIdentity`, `Microsoft.Network`.
-
+   
    > See the
    > [useful link](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types).
 
 3. Allocated [quotas](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview) for specific family VMs in the
    required region.
 
-### Configuration of Azure
+## Configuration
 
 If
 an [Azure service principal](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser)
@@ -44,7 +44,7 @@ file was not created during the initial configuration, RMK will generate it auto
 path:
 
 ```shell
-`${HOME}/.azure/service-principal-credentials_<project_name>-<project_branch>.json`.
+${HOME}/.azure/service-principal-credentials_<project_name>-<project_branch>.json
 ```
 
 The 3 supported configuration scenarios are:
@@ -70,7 +70,7 @@ The 3 supported configuration scenarios are:
   rmk config init --cluster-provider=azure
   ```
 
-* **via `stdin` using output of the `az` CLI**:
+* **via `STDIN` using output of the [az CLI](https://learn.microsoft.com/en-us/cli/azure/)**:
   ```shell
   # login interactively: https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively#interactive-login
   az login
@@ -82,20 +82,33 @@ If environment variables were set before running the command, RMK will create an
 their values. If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take
 precedence**.
 
-### Definition resource group name for Key Vault
+## Custom resource group name for Azure Key Vault
 
-By default, RMK generates the following Key Vault resource group name: 
-[<tenant_name>-sops-age-keys](../project-management/requirement-for-project-repository.md#requirement-for-project-repository).
-If the service principal used for authorization has the [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer) 
-role with a custom scope:
+By default, RMK generates the following [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault) 
+resource group name:
+
+```shell
+<project_name>-sops-age-keys
+```
+
+For example:
+
+```shell
+rmk-test-sops-age-keys
+```
+
+If the service principal used for authorization has the 
+[Key Vault Secrets Officer](https://learn.microsoft. com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer)
+role with a scope, e.g.:
 
 ```shell
 /subscriptions/<subscription-id>/resourceGroups/<resource_group>
 ```
 
-pointing to a custom Key Vault resource group, RMK can automatically determine its name based on this scope.
-Additionally, you can manually specify the custom Key Vault resource group name when initializing RMK configuration 
-for the current environment using: `--azure-key-vault-resource-group-name=<key_vault_resource_group>`.
+pointing to a Azure Key Vault resource group, RMK will **automatically determine** its name based on this scope.
+
+Alternatively, you can **manually specify** the custom resource group name when initializing RMK configuration for the 
+current environment using the optional `--azure-key-vault-resource-group-name=<key_vault_resource_group>` flag:
 
 ```shell
 rmk config init --cluster-provider=azure \ 
@@ -107,9 +120,7 @@ rmk config init --cluster-provider=azure \
     --azure-key-vault-resource-group-name=<key_vault_resource_group> # Optional
 ```
 
-> Configuration via flag takes the highest priority.
-
-### Reconfiguration of the Azure service principal attributes if wrong credentials has been input
+## Reconfiguration of the Azure service principal attributes if wrong credentials has been input
 
 Modify the value of a specific flag if changes are needed:
 

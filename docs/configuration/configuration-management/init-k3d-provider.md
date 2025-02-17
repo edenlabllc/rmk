@@ -11,7 +11,7 @@ cluster-provider: k3d # Selected cluster provider.
 # ...
 ```
 
-### Configuring K3D
+## Configuration
 
 K3D is the default cluster provider in RMK.
 

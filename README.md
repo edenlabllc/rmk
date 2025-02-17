@@ -9,7 +9,7 @@ environments,
 [Helm](https://helm.sh/) secrets and releases, built according to best practices
 in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](https://www.atlassian.com/devops).
 
-Full documentation is available at https://edenlabllc.github.io/rmk/latest/
+Full documentation is available at https://edenlabllc.github.io/rmk/latest/.
 
 ## Overview
 
@@ -178,7 +178,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Development and release
 
-The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/
+The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/.
 
 ## License
 
@@ -191,4 +191,5 @@ This project adheres to the Contributor
 Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
 Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for
+
 further information.

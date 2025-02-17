@@ -299,5 +299,6 @@ the [Apache 2.0 License](https://github.com/edenlabllc/rmk/blob/master/LICENSE).
 This project adheres to the Contributor
 Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
+
 Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for
 further information.
