@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"reflect"
 	"strings"
@@ -210,7 +211,7 @@ func (ac *AzureConfigure) createKeyVaultResourceGroup() error {
 	update, err := ac.GroupsClient.CreateOrUpdate(ac.Ctx, ac.ResourceGroupName, params, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 			zap.S().Warnf("permission denied to create Azure Resource Group: %s", ac.ResourceGroupName)
 			return nil
 		}
@@ -229,7 +230,7 @@ func (ac *AzureConfigure) existsKeyVaultResourceGroup() (bool, error) {
 	existence, err := ac.GroupsClient.CheckExistence(ac.Ctx, ac.ResourceGroupName, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 			zap.S().Warnf("permission denied to check existence of Azure Resource Group: %s",
 				ac.ResourceGroupName)
 			return false, nil
@@ -263,7 +264,7 @@ func (ac *AzureConfigure) CreateAzureKeyVault(tenant string) error {
 	update, err := ac.VaultsClient.BeginCreateOrUpdate(ac.Ctx, ac.ResourceGroupName, ac.KeyVaultName, params, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 			zap.S().Warnf("permission denied to create Azure Key Vault: %s",
 				ac.KeyVaultName)
 			return nil
@@ -306,7 +307,7 @@ func (ac *AzureConfigure) getResourceGroupNameByRoleAssignments() (string, error
 	get, err := ac.GraphServiceClient.ServicePrincipalsWithAppId(to.Ptr(ac.ClientID)).Get(ac.Ctx, nil)
 	if err != nil {
 		var graphErr *msgrapherror.ODataError
-		if errors.As(err, &graphErr) && graphErr.GetStatusCode() == 403 {
+		if errors.As(err, &graphErr) && graphErr.GetStatusCode() == http.StatusForbidden {
 			zap.S().Warnf("permission denied to get Azure Service Principal by app ID")
 			return "", nil
 		}
@@ -323,7 +324,7 @@ func (ac *AzureConfigure) getResourceGroupNameByRoleAssignments() (string, error
 		page, err := pager.NextPage(ac.Ctx)
 		if err != nil {
 			var respErr *azcore.ResponseError
-			if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+			if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 				zap.S().Warnf("permission denied to list Azure Role Assignments for Service Principal by ID: %s",
 					*get.GetId())
 				return "", nil
@@ -336,7 +337,7 @@ func (ac *AzureConfigure) getResourceGroupNameByRoleAssignments() (string, error
 			id, err := ac.RoleDefinitionsClient.GetByID(ac.Ctx, *v.Properties.RoleDefinitionID, nil)
 			if err != nil {
 				var respErr *azcore.ResponseError
-				if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+				if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 					zap.S().Warnf("permission denied to get Azure Role Definitions by ID: %s",
 						*v.Properties.RoleDefinitionID)
 					return "", nil
@@ -369,11 +370,11 @@ func (ac *AzureConfigure) GetAzureKeyVault(tenant string) (bool, error) {
 	resp, err := ac.VaultsClient.Get(ac.Ctx, ac.ResourceGroupName, ac.KeyVaultName, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 404 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusNotFound {
 			return false, nil
 		}
 
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 			zap.S().Warnf("permission denied to get Azure Key Vault: %s", ac.KeyVaultName)
 			return false, nil
 		}
@@ -403,7 +404,7 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 		page, err := listSecrets.NextPage(ac.Ctx)
 		if err != nil {
 			var respErr *azcore.ResponseError
-			if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+			if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 				zap.S().Warnf("permission denied to list Azure Key Vault secrets")
 				return nil, nil
 			}
@@ -418,7 +419,7 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 			secret, err := client.GetSecret(ac.Ctx, name, version, nil)
 			if err != nil {
 				var respErr *azcore.ResponseError
-				if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+				if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 					zap.S().Warnf("permission denied to get of Azure Key Vault secret: %s", name)
 					return nil, nil
 				}
@@ -446,7 +447,7 @@ func (ac *AzureConfigure) SetAzureSecret(keyName, value string) error {
 	secret, err := client.SetSecret(ac.Ctx, keyName, params, nil)
 	if err != nil {
 		var respErr *azcore.ResponseError
-		if errors.As(err, &respErr) && respErr.StatusCode == 403 {
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusForbidden {
 			zap.S().Warnf("permission denied to create Azure Key Vault secret: %s", keyName)
 			return nil
 		}
