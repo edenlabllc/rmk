@@ -86,7 +86,7 @@ Before running provisioning and destroying of cloud provider target Kubernetes c
 rmk cluster capi create
 ```
 
-> Only one local CAPI management cluster can exist on the cluster administrator machine.
+> **Only one** local CAPI management cluster can exist on the cluster administrator machine.
 > The cluster can contain all cloud cluster providers at once and work with them independently.
 
 At the time of creation of the local CAPI management cluster, a Kubernetes K3D cluster with a specially
@@ -136,7 +136,7 @@ file, however it can be changed on demand.
   > provider.
 
 A full list of available commands for working with CAPI management clusters
-and for provisioning target Kubernetes clusters can be found [here](../../commands.md#capi-c).
+and for provisioning target Kubernetes clusters can be found at the [link](../../commands.md#capi-c).
 
 ## Using RMK cluster providers to provision and destroy target Kubernetes clusters
 
@@ -173,8 +173,9 @@ Currently, the following cluster providers are supported by RMK:
 When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the
 Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
-> **On-premise** support expected in **upcoming releases** This enhancement might include the introduction
-> of additional Kubernetes Cluster API providers and
-> [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). The main infrastructure
-> configuration can always be checked in the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)
-> repository.
+> **On-premise** support is expected in [upcoming releases](../../index.md#roadmap). This enhancement might include the 
+> introduction of additional Kubernetes Cluster API providers and
+> [Kubernetes operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). 
+>
+> The main infrastructure configuration can always be checked in the 
+> [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.

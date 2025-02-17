@@ -80,13 +80,13 @@ Let's look at the following examples of the inheritance:
    project:
      dependencies:
        - name: rmk-test.bootstrap.infra
-         version: v4.4.0
+         version: v0.1.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
 
    In this case, a version of the Helmfile hooks in the `inventory.hooks` section is not specified, however,
-   it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with the `v4.4.0`
+   it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with the `v0.1.0`
    version.
    In turn, `rmk-test.bootstrap.infra` inherits
    the [cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.
@@ -124,7 +124,7 @@ Let's look at the following examples of the inheritance:
 
    ```textmate
    Project repo name:            cluster-deps.bootstrap.infra -> rmk-test.bootstrap.infra -----> <downstream_project>.bootstrap.infra
-   Project repo version:         v0.1.0                          v4.4.0                          <downstream_project_version>
+   Project repo version:         v0.1.0                          v0.1.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.29.1 -> helmfile.hooks.infra-v1.29.1 -> helmfile.hooks.infra-v1.29.1
    ```
 
@@ -137,14 +137,14 @@ Let's look at the following examples of the inheritance:
    project:
      dependencies:
        - name: rmk-test.bootstrap.infra
-         version: v4.4.0
+         version: v0.1.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
 
    In this case, the version of the Helmfile hooks in the `inventory.hooks` section is not specified,
    however, it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with
-   the `v4.4.0` version.
+   the `v0.1.0` version.
    In turn, `rmk-test.bootstrap.infra` inherits
    the [cluster-deps.bootstrap.infra](https://github.com/edenlabllc/cluster-deps.bootstrap.infra)
    repository which already has its own fixed version of `v1.29.0` of the `Helmfile` hooks in the `inventory.hooks`
@@ -184,7 +184,7 @@ Let's look at the following examples of the inheritance:
 
    ```textmate
    Project repo name:            cluster-deps.bootstrap.infra -> rmk-test.bootstrap.infra -----> <downstream_project>.bootstrap.infra
-   Project repo version:         v0.1.0                          v4.4.0                          <downstream_project_version>
+   Project repo version:         v0.1.0                          v0.1.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.29.1 -> helmfile.hooks.infra-v1.29.0 -> helmfile.hooks.infra-v1.29.1
    ```
 
@@ -210,7 +210,7 @@ Let's look at the following examples of the inheritance:
          version: v0.2.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}       
        - name: rmk-test.bootstrap.infra
-         version: v4.4.0
+         version: v0.1.0
          url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
        # ...
    ```
@@ -221,7 +221,7 @@ Let's look at the following examples of the inheritance:
 
    In this case, a version of the `Helmfile` hooks in the `inventory.hooks` section is not specified,
    however, it is indicated that the current project of the repository inherits `rmk-test.bootstrap.infra` with
-   the `v4.4.0` version.
+   the `v0.1.0` version.
    In turn, `rmk-test.bootstrap.infra` inherits the `cluster-deps.bootstrap.infra` repository.
    The [project.yaml](preparation-of-project-repository.md#projectyaml) file for the `rmk-test.bootstrap.infra`
    repository is also missing the version of the hooks:
@@ -254,7 +254,7 @@ Let's look at the following examples of the inheritance:
 
    ```textmate
    Project repo name:            cluster-deps.bootstrap.infra -> rmk-test.bootstrap.infra -----> <downstream_project>.bootstrap.infra
-   Project repo version:         v0.2.0                          v4.4.0                          <downstream_project_version>
+   Project repo version:         v0.2.0                          v0.1.0                          <downstream_project_version>
    Hooks repo name with version: helmfile.hooks.infra-v1.30.0 -> helmfile.hooks.infra-v1.30.0 -> helmfile.hooks.infra-v1.30.0
    ```
 
@@ -264,10 +264,12 @@ Let's look at the following examples of the inheritance:
 
 ## Change inherited versions of Helm plugins, tools
 
-The same inheritance method as for the `Helmfile` hooks is supported for `inventory` sections as `helm-plugins`
-and `tools`.
-If a specific version is not specified, the latest version from the upstream project's repository will always be used,
-with one exception only: in this case, multi-versioning is not supported, and only one version will be downloaded.
+The same inheritance method as for the `Helmfile` hooks is supported for the `inventory`'s `helm-plugins`
+and `tools` sections.
 
-> All add-ons versions in the inventory sections must be specified in the `SemVer2` format,
+If a specific version is **not specified**, the latest version from the upstream project's repository 
+**will be used**. In this case, multi-versioning is not supported, and only one version 
+will be downloaded.
+
+> All add-ons versions in the `inventory` section **must be specified** in the [SemVer2](https://semver.org/) format,
 > as the inheritance mechanism relies on this format to distinguish the version order.

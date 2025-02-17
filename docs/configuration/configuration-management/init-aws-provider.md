@@ -68,7 +68,7 @@ ${HOME}/.aws/credentials_<project_name>-<project_branch>
 
 The 2 supported configuration scenarios are:
 
-* **using RMK flags:**:
+* **using RMK flags**:
   ```shell
   rmk config init --cluster-provider=aws \
     --aws-access-key-id=<aws_access_key_id> \
@@ -98,7 +98,7 @@ rmk config init --cluster-provider=aws
 
 To **set up an MFA device**, if it is required by the administrator, the following actions should be executed:
 
-1. Sign in to the AWS Management Console.
+1. Sign in to the "AWS Management Console".
 2. Go to the following page to set up security
    credentials: [My security credentials](https://console.aws.amazon.com/iam/home#/security_credentials)
 3. Navigate to the "Multi-factor authentication (MFA)" section and set up an MFA device.
@@ -110,10 +110,10 @@ To **set up an MFA device**, if it is required by the administrator, the followi
 5. Finally, on the "My security credentials" page navigate to the "Access keys for CLI, SDK, & API access" section
    and create a new AWS access key, if needed.
 
-> For the **detailed** documentation regarding the MFA setup in AWS, go to
+> For the detailed documentation regarding the MFA setup in AWS, go to
 > [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html#enable-virt-mfa-for-own-iam-user).
 
-You can also **check the lifetime** of the session token by running the [rmk config init](../../commands.md#init-i)
+You can also check the lifetime of the session token by running the [rmk config init](../../commands.md#init-i)
 command:
 
 ```

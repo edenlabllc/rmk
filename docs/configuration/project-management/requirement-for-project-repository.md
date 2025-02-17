@@ -5,17 +5,17 @@
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
    For example: `rmk-test.bootstrap.infra` or `rmk-test.infra`.
 2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
-   and therefor supports the following set of static branches:
+   and therefore supports the following set of static branches:
 
    - `develop`
    - `staging`
    - `production`
    
-   Each branch corresponds to its own environment with a separately deployed K8S cluster. RMK supports these branches 
-   as well as the feature or release branches:
+   Each branch corresponds to its own environment with a separately deployed Kubernetes cluster. RMK supports these 
+   branches as well as the feature or release branches:
 
    - A feature branch should have the following naming: `feature/<issue_key>-<issue_number>-<issue_description>`.
-     For example: `feature/FFS-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
+     For example: `feature/RMK-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
    - A release branch should have the following naming: `release/<SemVer2>-rc` or `release/<SemVer2>`
      For example: `release/v1.0.0`. RMK will use the project name and the `<SemVer2>` tag as the release cluster name.
 
@@ -63,7 +63,7 @@ project.yaml # Project specification for the dependencies and inventory installe
 # ...
 ```
 
-> releases.yaml cannot be used as a template, all the values must be defined explicitly.
+> `releases.yaml` cannot be used as a template, all the values must be defined explicitly.
 
 ### Requirement for `globals.yaml.gotmpl`
 
@@ -95,8 +95,8 @@ hooks:
 
 > globals.yaml.gotmpl is used in two cases:
 > 
-> 1. When values, configurations or environment variables need to be declared globally for multiple releases. 
-> 2. When the current project is planned to be inherited by a downstream project and the overrides should be supported.
+> 1. When values, configurations or environment variables need to be **declared globally** for multiple releases. 
+> 2. When the current project is planned to be **inherited** by a downstream project and the overrides should be supported.
 
 ### Requirement for `helmfile.yaml.gotmpl`
 

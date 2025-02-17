@@ -34,8 +34,8 @@ etc/deps/develop/values/
 etc/rmk-test/staging/values/
 ```
 
-> The release values are **inherited by the projects**, e.g., the upstream project's values ("deps") are included into
-> the downstream project's values ("rmk-test").
+> The release values are **inherited by the projects**, e.g., the upstream project's values ([deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/tree/develop/etc/deps)) are included into
+> the downstream project's values (`rmk-test`).
 
 All `releases.yaml` files controlling which releases are enabled/disabled are stored in the `etc/<scope>/<env>/`
 directories.
@@ -53,7 +53,7 @@ The release installation order is declared in `helmfile.yaml.gotmpl` file. For a
 [Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl).
 
 Running any of the commands in the `release` category will trigger the Helmfile's dependency resolution mechanism
-("[DAG](https://helmfile.readthedocs.io/en/latest/#dag-aware-installationdeletion-ordering-with-needs)").
+([DAG](https://helmfile.readthedocs.io/en/latest/#dag-aware-installationdeletion-ordering-with-needs)).
 Additionally, RMK **verifies** that the current Kubernetes context matches the Git branch and environment,
 **preventing** releases from being synchronized to an **unintended** Kubernetes cluster (RMK will select a correct
 automatically).
@@ -211,7 +211,7 @@ delivering releases** according to the version changes of artifacts, e.g., conta
 the [GitOps](https://www.gitops.tech) methodology.
 
 Since RMK is a binary file that can be **downloaded and installed** on any Unix-based operating system,
-it can be **integrated** with almost **any CI/CD system**: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
+it can be **integrated** with almost any CI/CD system: GitHub Actions, GitLab, Drone CI, Jenkins, etc.
 
 ### Example of integration with GitHub Actions
 

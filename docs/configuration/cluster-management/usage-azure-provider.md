@@ -59,4 +59,4 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will delete the context for the target Kubernetes cluster.
+> After the cluster is destroyed, RMK will **delete** the context for the target Kubernetes cluster.

@@ -6,7 +6,7 @@ This guide demonstrates **how to use RMK** to prepare the structure of a new pro
 [K3D](configuration/configuration-management/init-k3d-provider.md),
 and deploy your first application ([Nginx](https://nginx.org/)) using Helmfile releases.
 
-All of this will be done in just **five steps**.
+All of this will be done in just [5 steps](#steps).
 
 ## Prerequisites
 
@@ -33,8 +33,8 @@ is `origin`.
    rmk project generate --scope rmk-test --environment "develop.root-domain=localhost" --create-sops-age-keys
    ```
 
-   > The `deps` scope is the default one and is **added unconditionally** during the project generation process, no need
-   to specify it explicitly.
+   > The default scope is [deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/tree/develop/etc/deps), 
+   > it is **added unconditionally** during the project generation process, no need to specify it explicitly.
 
    <details>
       <summary>Example output</summary>
@@ -68,7 +68,7 @@ is `origin`.
    rmk config init
    ```
 
-   > The default cluster provider is K3D.
+   > The [default cluster provider](http://localhost:8000/rmk/commands/#init-i) is `k3d`.
 
    <details>
       <summary>Example output</summary>
@@ -89,7 +89,7 @@ is `origin`.
    rmk cluster k3d create
    ```
 
-   > Ensure that Docker is **running**.
+   > Ensure that [Docker](https://www.docker.com/) is **running**.
 
    <details>
       <summary>Example output</summary>
@@ -123,7 +123,7 @@ is `origin`.
    </details>
 
 4. [Generate and encrypt secrets](configuration/secrets-management/secrets-management.md#batch-secrets-management) for
-   the Helmfile releases, including Nginx:
+   the Helmfile releases, including [Nginx](https://nginx.org/):
 
    ```shell
    rmk secret manager generate --scope rmk-test --environment develop
@@ -186,7 +186,7 @@ Then, open your browser and visit [http://localhost:8080](http://localhost:8080)
 open http://localhost:8080
 ```
 
-You should see the Nginx welcome page.
+You should see the **Nginx welcome page**.
 
 <details>
    <summary>Example page</summary>
@@ -216,7 +216,7 @@ kubectl --namespace rmk-test get pod
 
 ## Collaborating with other team members
 
-To allow other team members to use an existing project, the initial user should commit the changes and push them to
+To allow **other team members** to use an existing project, the initial user should commit the changes and push them to
 the [version control system (VCS)](https://github.com/resources/articles/software-development/what-is-version-control),
 e.g., [GitHub](https://github.com):
 
@@ -236,9 +236,8 @@ Finally, the team members should follow all the [steps](#steps) **except the 1st
 generated.
 
 > By design, SOPS Age keys ([secret keys](configuration/secrets-management/secrets-management.md#secret-keys)) are
-> **Git-ignored** and **never committed** to the repository.  
-> Therefore, when using a local K3D cluster, secret keys are **not shared** and should be **recreated** on another
-> machine **before proceeding** with the [steps](#steps):
+> Git-ignored and **never committed** to the repository. When using a local K3D cluster, secret keys are **not shared** 
+> and therefore **should be recreated** on another machine before proceeding with the [steps](#steps):
 >
 > ```shell
 > rmk secret keys create
@@ -252,6 +251,5 @@ generated.
 >   2025-01-29T16:23:00.338+0100	INFO	update SOPS config file: /home/user/rmk-test/etc/rmk-test/develop/secrets/.sops.yaml
 >   ```
 > </details>
-> If **sharing** the secret keys is required, **consider switching** from a K3D provider to a
->
-supported [cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers).
+> If sharing the secret keys is required, consider **switching from a K3D provider** to a supported 
+> [cloud provider](configuration/configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers).

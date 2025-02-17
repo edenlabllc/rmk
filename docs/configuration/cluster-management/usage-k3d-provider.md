@@ -8,7 +8,7 @@ for K3D.
 
 #### Prerequisites
 
-1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
+1. Create a separate `feature` branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
 2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-with-a-custom-root-domain)
    for this branch with the `localhost` root domain name.
 
@@ -26,6 +26,8 @@ When the Kubernetes cluster is ready, RMK **automatically switches** the Kuberne
 cluster. You can create multiple local K3D clusters by **separating** them using Git branches.
 
 #### Deleting K3D clusters
+
+Run the following command:
 
 ```shell
 rmk cluster k3d delete

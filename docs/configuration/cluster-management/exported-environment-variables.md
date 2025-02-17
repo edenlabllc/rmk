@@ -1,6 +1,7 @@
 # Exported environment variables
 
-By default, RMK exports the following environment variables to each execution of commands within the `rmk release` category:
+By default, RMK exports the following environment variables to each execution of commands within the 
+[rmk release](../../commands.md#release) category:
 
 ```shell
 # Tenant name, which is equivalent to the project name.
@@ -101,8 +102,9 @@ GCP_REGION="<google_cloud_region>"
 GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json"
 ```
 
-> To view the complete list of all possible exported variables and their values for the `rmk release` command category, 
-> run the following command in `debug` mode:
+> To view the complete list of all possible exported variables and their values for the
+> [rmk release](../../commands.md#release) command category, run the following command in `debug` mode:
+> 
 > ```shell
 > rmk --log-level=debug release list --skip-context-switch
 > ```

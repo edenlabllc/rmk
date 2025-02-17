@@ -58,6 +58,6 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will delete the previously created
-> [Cloud NAT](https://cloud.google.com/nat/docs/overview) if this resource is no longer used by other clusters in the
-> same region. Also deleting the context for the target Kubernetes cluster.
+> After the cluster is destroyed, RMK will **delete** the previously created
+> [Cloud NAT](https://cloud.google.com/nat/docs/overview) (if this resource is no longer used by other clusters in the
+> same region) together with the context for the target Kubernetes cluster.

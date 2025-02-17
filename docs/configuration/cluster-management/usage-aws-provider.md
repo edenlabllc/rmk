@@ -69,5 +69,5 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will delete the previously created SSH key and the context
+> After the cluster is destroyed, RMK will **delete** the previously created SSH key and the context
 > for the target Kubernetes cluster.

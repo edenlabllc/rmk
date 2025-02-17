@@ -6,41 +6,41 @@
 
 ### [v0.44.2](https://github.com/edenlabllc/rmk/releases/tag/v0.44.2) -> [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0)
 
-### Motivation
+#### Motivation
 
 The main change in the [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0) RMK version is the
-**replacement** of the technology stack for **cluster provisioning**, transitioning
+**replacement** of the technology stack for cluster provisioning, transitioning
 from [Terraform](https://www.terraform.io/) to [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/).
 
 This change was driven by several **key factors**:
 
 1. **Maintaining open-source integrity**:
 
-   Terraform's transition to a BSL license **conflicts** with our commitment to keeping RMK **fully open-source (OSS)**.
-   By switching to Kubernetes Cluster API, we ensure that our customers' interests remain **unaffected**.
+   Terraform's transition to a BSL license conflicts with our commitment to keeping RMK fully open-source (OSS).
+   By switching to Kubernetes Cluster API, we ensure that our customers' interests remain unaffected.
 
-   More details on the Terraform's license change are available at the [link](https://www.hashicorp.com/license-faq).
+   > More details on the Terraform's license change are available at the [link](https://www.hashicorp.com/license-faq).
 
 2. **Kubernetes-native solution**:
 
-   We needed a provisioning approach that **seamlessly integrates** with Kubernetes across various environments.
+   We needed a provisioning approach that seamlessly integrates with Kubernetes across various environments.
 
-   With the new `v0.45.0` version, we now support
+   With the new version, we now support
    [AWS](configuration/configuration-management/init-aws-provider.md),
    [Azure](configuration/configuration-management/init-azure-provider.md),
    [GCP](configuration/configuration-management/init-gcp-provider.md),
    [K3D](configuration/configuration-management/init-k3d-provider.md) (local installation).
 
-   > **On-premise** support expected in **upcoming releases**.
+   > **On-premise** support is expected in [upcoming releases](index.md#roadmap).
 
 3. **Simplified configuration management**:
 
    Cluster configurations are now stored in [Helm charts](https://helm.sh/docs/topics/charts/), aligning with the way
-   installed components are managed. This ensures a **unified format** for all declarations.
+   installed components are managed. This ensures a unified format for all declarations.
 
 4. **Seamless cluster upgrades**:
 
-   Our new approach makes cluster updates **Kubernetes-native** with
+   Our new approach makes cluster updates Kubernetes-native with
    [pod status awareness](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) and
    [zero-downtime upgrades](https://en.wikipedia.org/wiki/Downtime#Service_levels).
 
@@ -48,7 +48,7 @@ This change was driven by several **key factors**:
 > scalability, openness, and ease of management. [Stay tuned](index.md#roadmap) for more updates in upcoming releases!
 > 🚀
 
-### Deprecated features
+#### Deprecated features
 
 For the [rmk config init](commands.md#init-i) command:
 
@@ -76,21 +76,22 @@ For the [rmk cluster](commands.md#cluster) command category:
 - **provision**: removed the command along with all flags (Terraform is no longer in use).
 - **state**: removed the command along with all flags (Terraform is no longer in use).
 
-### Steps to migrate
+#### Steps to migrate
 
-#### Newly created project repositories
+##### Newly created project repositories
 
-Before performing actions via RMK with this project repository, **simply update** to `v0.45.0` version.
+Before performing actions via RMK with this project repository, **simply update** to the
+[v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0) version.
 
 ```shell
 rmk update
 ```
 
-#### Previously created project repositories for the AWS cluster provider
+##### Previously created project repositories for the AWS cluster provider
 
-> To ensure a successful migration, strictly follow the steps in the **specified order**.
+To ensure a successful migration, the following the steps should be executed in the **specified order**:
 
-1. Download private [SOPS Age keys](configuration/secrets-management/secrets-management.md#secret-keys) of the current
+1. **Download** private [SOPS Age keys](configuration/secrets-management/secrets-management.md#secret-keys) of the current
    RMK version if you haven't done it earlier.
 
    ```shell
@@ -99,7 +100,7 @@ rmk update
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-2. Save the path to the private SOPS Age keys storage directory to an environment variable.
+2. **Save** the path to the private SOPS Age keys storage directory to an environment variable.
 
    ```shell
    export RMK_SOPS_AGE_KEYS_PATH_OLD="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
@@ -107,13 +108,13 @@ rmk update
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-3. Update your current version to `v0.45.0`.
+3. **Update** your current version to `v0.45.0`.
 
    ```shell
    rmk update
    ```
 
-4. Add root domain specification
+4. **Add** root domain specification
    in [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) for project
    repository.
 
@@ -156,7 +157,7 @@ rmk update
        --github-token=<github_personal_access_token>
    ```
 
-6. Copy private SOPS Age keys from the old path
+6. **Copy** private SOPS Age keys from the old path
    to the new directory.
 
    ```shell
@@ -166,7 +167,7 @@ rmk update
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-7. Upload the old private SOPS Age keys to [AWS Secret Manager](https://aws.amazon.com/secrets-manager/).
+7. **Upload** the old private SOPS Age keys to [AWS Secret Manager](https://aws.amazon.com/secrets-manager/).
 
    ```shell
    rmk secret keys upload
