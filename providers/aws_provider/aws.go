@@ -55,6 +55,7 @@ aws_session_token = {{ .AwsCredentialsProfile.SessionToken }}
 `
 
 	apiErrorAccessDeniedException = "AccessDeniedException"
+	apiErrorKeyPairDuplicate      = "InvalidKeyPair.Duplicate"
 )
 
 type AwsConfigure struct {
@@ -458,7 +459,7 @@ func (a *AwsConfigure) CreateAWSEC2SSHKey(clusterName string) error {
 	client := ec2.NewFromConfig(cfg)
 	sshKey, err := client.CreateKeyPair(a.Ctx, params)
 	if err != nil {
-		if errors.As(err, &respError) && respError.ErrorCode() != "InvalidKeyPair.Duplicate" {
+		if errors.As(err, &respError) && respError.ErrorCode() != apiErrorKeyPairDuplicate {
 			return err
 		}
 	}
