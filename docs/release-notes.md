@@ -1,6 +1,7 @@
 - #29 - Added support for AWS Secrets Manager to store SOPS Age keys.
 - #29 - Added support for GCP Secrets Manager to store SOPS Age keys.
 - #29 - Added support for Azure Key Vault to store SOPS Age keys.
+- #29 - Added support for Azure Key Vault resource group name definition.
 - #29 - Added support for the AWS provider in Cluster API.
 - #29 - Added support for the GCP provider in Cluster API.
 - #29 - Added support for the Azure provider in Cluster API.

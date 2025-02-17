@@ -63,6 +63,15 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"azp"},
 			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", "AZURE_CLIENT_SECRET"},
 		},
+		altsrc.NewStringFlag(
+			&cli.StringFlag{
+				Category: azureFlagsCategory,
+				Name:     "azure-key-vault-resource-group-name",
+				Usage:    "Azure Key Vault custom resource group name",
+				Aliases:  []string{"azkvrg"},
+				EnvVars:  []string{"RMK_AZURE_KEY_VAULT_RESOURCE_GROUP_NAME", "AZURE_KEY_VAULT_RESOURCE_GROUP_NAME"},
+			},
+		),
 		&cli.StringFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-location",

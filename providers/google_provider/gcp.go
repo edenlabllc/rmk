@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -230,7 +231,7 @@ func (gcp *GCPConfigure) CreateGCPCloudNATGateway(region string) error {
 	_, err = client.Routers.Insert(gcp.ProjectID, region, router).Context(gcp.Ctx).Do()
 	if err != nil {
 		var respError *googleapi.Error
-		if errors.As(err, &respError) && respError.Code == 409 && respError.Errors[0].Reason == apiErrorAlreadyExists {
+		if errors.As(err, &respError) && respError.Code == http.StatusConflict && respError.Errors[0].Reason == apiErrorAlreadyExists {
 			zap.S().Infof("GCP router %s with router NAT %s already exists for region %s",
 				router.Name, routerNat.Name, region)
 			return nil
@@ -274,7 +275,7 @@ func (gcp *GCPConfigure) DeleteGCPCloudNATGateway(region string) error {
 	_, err = computeClient.Routers.Delete(gcp.ProjectID, region, "default-router-"+region).Context(gcp.Ctx).Do()
 	if err != nil {
 		var respError *googleapi.Error
-		if errors.As(err, &respError) && respError.Code == 404 && respError.Errors[0].Reason == apiErrorNotFound {
+		if errors.As(err, &respError) && respError.Code == http.StatusNotFound && respError.Errors[0].Reason == apiErrorNotFound {
 			return nil
 		}
 
