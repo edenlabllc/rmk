@@ -82,6 +82,33 @@ If environment variables were set before running the command, RMK will create an
 their values. If flags are specified, RMK will prioritize them over environment variables, as **CLI flags take
 precedence**.
 
+### Definition resource group name for Key Vault
+
+By default, RMK generates the following Key Vault resource group name: 
+[<tenant_name>-sops-age-keys](../project-management/requirement-for-project-repository.md#requirement-for-project-repository).
+If the service principal used for authorization has the [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer) 
+role with a custom scope:
+
+```shell
+/subscriptions/<subscription-id>/resourceGroups/<resource_group>
+```
+
+pointing to a custom Key Vault resource group, RMK can automatically determine its name based on this scope.
+Additionally, you can manually specify the custom Key Vault resource group name when initializing RMK configuration 
+for the current environment using: `--azure-key-vault-resource-group-name=<key_vault_resource_group>`.
+
+```shell
+rmk config init --cluster-provider=azure \ 
+    --azure-client-id=<azure_client_id> \
+    --azure-client-secret=<azure_client_secret> \
+    --azure-location=eastus \
+    --azure-subscription-id=<azure_subscription_id> \ 
+    --azure-tenant-id=<azure_tenant_id> \
+    --azure-key-vault-resource-group-name=<key_vault_resource_group> # Optional
+```
+
+> Configuration via flag takes the highest priority.
+
 ### Reconfiguration of the Azure service principal attributes if wrong credentials has been input
 
 Modify the value of a specific flag if changes are needed:

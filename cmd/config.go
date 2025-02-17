@@ -369,6 +369,15 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 		return err
 	}
 
+	if c.IsSet("azure-key-vault-resource-group-name") {
+		conf.AzureKeyVaultResourceGroup = c.String("azure-key-vault-resource-group-name")
+		ac.ResourceGroupName = c.String("azure-key-vault-resource-group-name")
+	} else {
+		if err := ac.DefineAzureKeyVaultResourceGroup(conf.Tenant); err != nil {
+			return err
+		}
+	}
+
 	ok, err := ac.GetAzureKeyVault(conf.Tenant)
 	if err != nil {
 		return err
