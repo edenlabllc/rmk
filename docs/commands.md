@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** bfb86cc <br />
-**Date:** 2025-01-29T15:23:57Z <br />
+**Commit:** 5f64a94 <br />
+**Date:** 2025-02-17T14:26:45Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -140,6 +140,8 @@ Initialize configuration for current tenant and selected environment
 **--azure-client-id, --azid**="": Azure client ID for Service Principal
 
 **--azure-client-secret, --azp**="": Azure client secret for Service Principal
+
+**--azure-key-vault-resource-group-name, --azkvrg**="": Azure Key Vault custom resource group name
 
 **--azure-location, --azl**="": Azure location
 
