@@ -1,163 +1,391 @@
 # Secrets management
 
-RMK uses [SOPS](https://github.com/mozilla/sops) and [Age](https://github.com/mozilla/sops#encrypting-using-age)
-for secrets management.
-All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret) command category.
+## Overview
 
-In a project repository, all secrets files are stored in the `etc/<scope>/<env>/secrets/` directories.
+RMK utilizes [SOPS](https://github.com/mozilla/sops) and [Age](https://github.com/mozilla/sops#encrypting-using-age)
+for secrets management, ensuring **secure encryption, storage, and access to sensitive data**. The tool ensures
+seamless and automated secret management, reducing manual effort while maintaining **security best practices**.
+
+The functionality in RMK is divided into two key areas:
+
+1. **Working with secret keys**: Managing encryption keys used for encrypting and decrypting secrets.
+2. **Working with secret files**: Handling encrypted YAML files that store sensitive configuration data.
+
+### Secret keys
+
+This area focuses on integration with cloud providers, ensuring **secure storage, retrieval, and local access to secrets
+**.
+Once the keys are generated, RMK **automatically provisions** all necessary cloud resources, securely stores the keys in
+the
+provider’s Secrets Manager service, and downloads them to the local machine upon first use.
+
+For each supported cloud provider, RMK integrates with the respective secrets management service:
+
+- **AWS**: Integrates with [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/).
+- **Azure**: Integrates with [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault).
+- **GCP**: Integrates
+  with [Google Cloud Secret Manager](https://cloud.google.com/security/products/secret-manager?hl=en).
+
+Locally, secret keys are stored in a secure file within the user's home directory:
+
+```shell
+${HOME}/.rmk/sops-age-keys/<project_name>/
+```
+
+For example, the directory for the `rmk-test` project:
+
+```shell
+${HOME}/.rmk/sops-age-keys/rmk-test/
+```
+
+might have the following content:
+
+- `.keys.txt`: the main merged file of all secret keys that SOPS uses.
+- `rmk-test-deps.txt`: secret key for the `deps` scope.
+- `rmk-test-rmk-test.txt`: secret key for the `rmk-test` scope.
+
+A secret key will look like this:
+
+```shell
+# created: 2025-01-23T20:47:30+01:00
+# public key: age1rq0gx9zuwphw8kjx6ams84rgysqk5kdmhnysxs28r0x955xnzsdsslgtn0
+AGE-SECRET-KEY-15K8LZB3MT0QWJ4N7X90H2A9C5L6E7FYZ3XGKP1DRN8SWV2QXT90H2A9C5L
+```
+
+By design, **each project and scope has its own key**, ensuring isolated key storage.
+
+> Secret keys are **not separated by environment name**. This allows secrets to be managed independently of the branch
+> or environment currently in use.
+
+### Secret files
+
+This area focuses on integration with Helmfile, Helm, and Kubernetes, ensuring **automated and seamless secrets
+management**
+throughout the deployment process.
+
+Normally, the secret files can be **committed to Git** because they are encrypted with secret keys
+using [symmetric-key algorithms](https://en.wikipedia.org/wiki/Symmetric-key_algorithm).
+
+In a project repository, all secret files are stored in the `etc/<scope>/<environment>/secrets/` directories.
 For example:
 
+```shell
+etc/deps/develop/secrets/postgres.yaml
+etc/rmk-test/develop/secrets/app.yaml
 ```
-etc/deps/develop/secrets/mongodb.yaml
-etc/kodjin/develop/secrets/kodjin-minio-config-buckets.yaml
+
+> Similar to the [releases.yaml](../project-management/requirement-for-project-repository.md#requirement-for-releasesyaml)
+> files, secrets files are **never inherited by projects**, in contrast to the Helmfile values. Each project
+> **should have its own** unique set of secrets for all deployed releases.
+
+In the encrypted secret file, only the values are encrypted, while the object keys remain in plaintext. This approach
+allows teams to easily review changes
+in [pull requests (PRs)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
+without exposing sensitive information.
+
+<details>
+  <summary>Example of an encrypted secret file, where sensitive values are encrypted using <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" target="_blank">AES256-GCM</a></summary>
+
+  ```yaml
+  username: ENC[AES256_GCM,data:A0jb1wU=,iv:RM8V1IOHvCrBv7f9f/GKobaBYyjcX9jcNQp6XPopNcU=,tag:T79VY3/yqlIffdbvYDwukQ==,type:str]
+  password: ENC[AES256_GCM,data:Kjo5hDSb+VmhdLLuq48oVg==,iv:5wpJBsiA5B82RRaguW8/TcKgGYbiZhihdIhXnPwyRG8=,tag:yQ5Chi949jBB1cSaFDVlOQ==,type:str]
+  sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+      - recipient: age1rq0gx9zuwphw8kjx6ams84rgysqk5kdmhnysxs28r0x955xnzsdsslgtn0
+        enc: |
+          -----BEGIN AGE ENCRYPTED FILE-----
+          YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1ZnBDR1pLNWt3TGVOVDlI
+          TGdNOEdDZmEzQjFzaWZuWXVqN0RZMWxBcjN3CnZvdDRtSDZIaTlyenF4bG9wRzg3
+          ZURpTGUrd3JIZGV6clpwTkVKeDT5ekkKLS0tIHUwMGVvWnFDY2FQWm8rcmg4Wnl3
+          YlJtb1dIczAvbnRNZWtqZlJLdXB5K1EKZHC1YAnMnRJdXfin1KYsbBZBViSysroo
+          8wLK53RXN4dgyLsLMmESAWqEqIGOgkns7gbP8N7efakI1aI239SlVg==
+          -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-01-25T09:40:29Z"
+    mac: ENC[AES256_GCM,data:ytSnoJOi6eIzWjETgJo8/ppttKbHiSDcxQRJfocW0SWC2kQhyXtM0Y9R/d9JXbJrupqEcFH3yS4NJQz4uFyButI78pOrFxuhxNIhL3YSghTrBZKZ71IpjTe6W/oqz4UUhio5r1VU6KKFcKRKIvZZIUUnlqhJToOLB/VcLxqIQgw=,iv:Gufcas0JD7RVCTPIycN46EUq8V5OzYu++qmtolFu7hA=,tag:46k/pE546i4h18sXudp6Qw==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.7.1
+  ```
+
+</details>
+
+The decrypted file will look like this:
+
+```yaml
+username: user1
+password: password1
 ```
 
-Normally, the files are committed to Git because they are encrypted using SOPS age keys and symmetric-key algorithms.
-The keys are stored remotely in an encrypted bucket of AWS S3, downloaded locally when first using RMK
-on that machine.
+This is the human-readable version of the secrets after RMK decrypts them using the appropriate secret key.
 
-> The secrets are never inherited by projects, in contrast to values. Each project should have its own unique set 
-> of secrets for all deployed releases.
+## Secret keys management
 
-## SOPS age keys management
+### Creating secret keys
 
-Initially, a Kubernetes cluster admin creates the keys using the following command:
+Initially, a Kubernetes cluster admin generates the required secret keys using the following command:
 
 ```shell
 rmk secret keys create
 ```
 
-This command will create a set of `Age` private keys for each scope in the user's home directory 
-at `$HOME/.rmk/sops-age-keys/<project_name>-sops-age-keys-<short_AWS_account_id>/*.txt`. 
-The command will create a `Age` private key for the scope for which an empty 
-SOPS configuration file `etc/<scope>/<env>/secrets/.sops.yaml` was created. 
-Additionally, `creation_rules` containing the public key and regex for filtering secrets will be automatically added to this file. 
-Example of a `.sops.yaml` file:
+Alternatively, the keys for all secret scopes can be generated using the following command:
+
+```shell
+rmk project generate --create-sops-age-keys
+```
+
+This command will:
+
+- Generate a set of Age private keys for each scope.
+- Store them in the user’s home directory at:
+  ```shell
+  ${HOME}/.rmk/sops-age-keys/<project_name>/
+  ```
+- Create an Age private key for each scope where an empty SOPS configuration file exists at:
+  ```shell
+  etc/<scope>/<environment>/secrets/.sops.yaml
+  ```
+- Automatically add `creation_rules` containing the public key and a `regex` for filtering secrets into
+  the `.sops.yaml` file.
+
+Example `.sops.yaml` configuration:
 
 ```yaml
 creation_rules:
   - path_regex: .+\.yaml$
-    age: 'age12ugnsdhxd44fa56q5w22mvf09e93p66xrcrnxmxla4dnqpyugpwqs2swag'
+    age: 'age1rq0gx9zuwphw8kjx6ams84rgysqk5kdmhnysxs28r0x955xnzsdsslgtn0'
 ```
 
-> The SOPS configuration files for all secret scopes can be generated using the `rmk project generate` command.
+### Uploading secret keys to a remote storage
 
-Then the generated keys might be uploaded explicitly to S3:
+After generating the keys, they can be explicitly uploaded to a remote secrets storage supported by the cloud
+provider:
 
 ```shell
 rmk secret keys upload
 ```
 
-> AWS users must have the `AdministratorAccess` permissions to be able to upload the SOPS age keys to S3.
+> Users must have the necessary **[permissions to upload](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers)** 
+> secret keys to the configured secrets storage service.
 
-After the keys have been created by the cluster admin, they can be downloaded from S3:
+### Downloading secret keys from a remote storage
+
+If the keys have already been created by another person (e.g., a cluster admin) and uploaded to the remote storage,
+users can download them to their local environment using the following command:
 
 ```shell
 rmk secret keys download
 ```
 
-> AWS users must have read permissions for downloading keys from S3,
-> otherwise they won't be able to encode/decode secrets and release services using RMK.
+> Users must have **read permissions** to download keys. Without proper permissions, users won't be able to
+> encode/decode secrets or release services using RMK.
 
-After that the `$HOME/.rmk/sops-age-keys/<project_name>-sops-age-keys-<short_AWS_account_id>` directory will have all the needed keys
-needed for secrets encryption or decryption.
+Once downloaded, the directory:
 
-## Generating all secrets from scratch in a batch manner using the RMK secrets manager
-
-In case of a creating tenant from scratch all the needed directories, such as `etc/<scope>/<env>/secrets/` should first
-be populated with an empty `.sops.yaml` file (acts as an indicator that this scope and environment will have the secrets).
-Also, before generating the secret files, you must create or complete a secret `.spec.yaml.gotmpl` file per each scope.
-`.spec.yaml.gotmpl` is a template that runs the [sprig](https://masterminds.github.io/sprig) engine with additional functions.
-
-The additional functions which included in the template functions are:
-
-- **{{\`{{ requiredEnv "ENV_NAME" }}\`}}:** The function requires an input of the specified mandatory variable.
-- **{{\`{{ prompt "password" }}\`}}:** The function asks for interactive input. Useful for entering sensitive data.
-
-
-Example of the files needed for the generation:
-
-```yaml
-etc/deps/develop/secrets/.sops.yaml
-etc/deps/develop/secrets/.spec.yaml.gotmpl
+```shell
+${HOME}/.rmk/sops-age-keys/<project_name>/
 ```
 
-An example of `.spec.yaml.gotmpl` for the deps scope:
+will contain all the necessary keys for secrets encryption and decryption.
 
-```gotemplate
-{{- $minioSecretKey := randAlphaNum 16 -}}
-generation-rules:
-  - name: ecr-token-refresh-operator
+## Batch secrets management
+
+### Overview
+
+RMK secrets manager automates secret management in Kubernetes in batch mode.
+
+Key features include:
+
+- Batch secret generation and encryption using [Golang templates](https://pkg.go.dev/text/template)
+  and [Sprig](https://masterminds.github.io/sprig).
+- Flexible configuration and process separation for **project**, **scope**, and **environment levels**.
+
+### Generating all secrets from scratch
+
+When creating a new project from scratch, all required directories, such as:
+
+```shell
+etc/<scope>/<environment>/secrets/
+```
+
+must first include an empty `.sops.yaml` file with no content.
+This file acts as an indicator that secrets will be managed by RMK for this scope and environment.
+
+To create an empty file in the specified directory, the
+following commands can be utilized:
+
+```shell
+mkdir -p etc/<scope>/<environment>/secrets
+touch etc/<scope>/<environment>/secrets/.spec.yaml.gotmpl
+
+```
+
+For example:
+
+```shell
+mkdir -p etc/deps/develop/secrets
+touch etc/deps/develop/secrets/.spec.yaml.gotmpl
+```
+
+This ensures that the required directory structure exists before generating secrets.
+
+After that, each scope requires a `.spec.yaml.gotmpl` template file to define the structure of the generated secrets.
+This file is processed using the [Sprig](https://masterminds.github.io/sprig) templating engine. In addition to the
+standard functions provided by the engine, RMK extends `.spec.yaml.gotmpl` with the following extra
+template functions:
+
+- `{{ requiredEnv "VAR_NAME" }}` – requires the specified environment variable as input.
+- `{{ prompt "VAR_NAME" }}` – prompts the user for interactive input.
+
+<details>
+  <summary>Example <code>.spec.yaml.gotmpl</code> file</summary>
+
+  ```yaml
+  generation-rules:
+    - name: email-sender
       template: |
         envSecret:
-          AWS_ACCESS_KEY_ID: {{`{{ requiredEnv "AWS_ACCESS_KEY_ID" }}`}}
-          AWS_SECRET_ACCESS_KEY: {{`{{ requiredEnv "AWS_SECRET_ACCESS_KEY" }}`}}
-  - name: elastic
+          EMAIL_API_KEY: {{ requiredEnv "EMAIL_API_KEY" }}
+          EMAIL_SENDER: {{ prompt "EMAIL_SENDER" }}
+    - name: postgres
       template: |
-        esUserName: admin
-        esPassword: {{ randAlphaNum 16 }}
-  # ...
-  - name: minio
-      template: |
-        rootUser: minio
-        rootPassword: {{ $minioSecretKey }}
-  - name: redis
+        rootUsername: root
+        rootPassword: {{ randAlphaNum 16 }}
+        appUsername: {{ requiredEnv "POSTGRES_USERNAME" }}
+        appPassword: {{ prompt "POSTGRES_PASSWORD" }}
+    - name: redis
       template: |
         auth:
           password: {{ randAlphaNum 16 }}
-  # ...
+        cacheTTL: {{ requiredEnv "REDIS_TTL" }}
+  ```
+
+In this example:
+  <ul>
+    <li>The <code>name</code> field corresponds to a Helmfile/Helm release name, such as <code>email-sender</code>, <code>postgres</code>, or <code>redis</code>.</li>
+    <li><code>EMAIL_API_KEY</code>, <code>POSTGRES_USER</code>, and <code>REDIS_TTL</code> must be set as environment variables before running the generation process.</li>
+    <li>The user is prompted to enter the email sender address (<code>EMAIL_SENDER</code>) and the PostgreSQL application password (<code>POSTGRES_PASSWORD</code>) interactively.</li>
+  </ul>
+</details>
+
+All variables defined in the template using the `requiredEnv` function must be exported before executing
+the `rmk secret manager generate` command.
+
+In our example, the required variables are (`EMAIL_API_KEY`, `POSTGRES_USER`, `REDIS_TTL`). They can be exported as
+follows:
+
+```shell
+export EMAIL_API_KEY="dummy-email-api-key-XXX"
+export POSTGRES_USER="user1"
+export REDIS_TTL="3600"
 ```
 
-Then run the following command to generate all the secrets is a batch manner:
+After exporting the variables, run the following command to generate all
+secret files in batch mode:
 
 ```shell
 rmk secret manager generate
 ```
 
-After that the directories with the secret files will be generated. 
-The files will have the plain unencrypted YAML content.
-After that, review the content of the new files and run the following command to encode them:
+For the example above, secret files will be created for each of the three releases (`email-sender`, `postgres`,
+and `redis`). These files will be generated in the `etc/deps/develop/secrets` directory with the following naming
+pattern:
+
+```shell
+etc/deps/develop/secrets/email-sender.yaml
+etc/deps/develop/secrets/postgres.yaml
+etc/deps/develop/secrets/redis.yaml
+```
+
+The secrets generation process runs in an **idempotent** mode, skipping previously generated files and logging
+a warning if they already exist.
+
+> Each secret file will be generated in **plaintext YAML** format and **should be reviewed** before encryption and
+> committing to Git.
+
+### Encrypt all the generated secrets
+
+Once the secrets have been verified, encrypt them using:
 
 ```shell
 rmk secret manager encrypt
 ```
 
-> The directories without the `.sops.yaml` or `.spec.yaml.gotmpl` files will be ignored.
+> Directories that do not contain a `.sops.yaml` or `.spec.yaml.gotmpl` file **will be ignored**.
 
-Also, each of the `.sops.yaml` files will be updated automatically with the correct paths and public keys of the SOPS age keys
-used for encryption.
+Additionally, each `.sops.yaml` file will be automatically updated with the correct paths  
+and the public keys of the secret keys used for encryption.
 
-## Generating a single secret from scratch using the RMK secrets manager
+> Manual editing of the encrypted secrets files is **strictly forbidden**, because SOPS automatically controls the
+> checksums of the secret files. To safely modify encrypted secrets, always use the
+> specialized [edit](#creating-or-editing-a-secret) command.
 
-To create a single secret from scratch (e.g., when a new service (release) is added), add a template of the new secret 
-to `.spec.yaml.gotmpl`. For example:
+### Create a new secret later
 
-```gotemplate
+To generate and encode a new secret in addition to the previously generated ones (e.g., when a new service (release) is
+added), a template for the new secret should be added to `.spec.yaml.gotmpl`.
+
+For example, for a new `new-app` release:
+
+```yaml
+generation-rules:
   # ...
-  - name: new-release
+  - name: new-app
     template: |
-      envSecret:
-        USERNAME: user
-        PASSWORD: {{ randAlphaNum 16 }}
-  # ...
+      username: {{ requiredEnv "APP_USERNAME" }}
+      password: {{ requiredEnv "APP_PASSWORD" }}
+# ...
 ```
 
-Then generate the new secret as the plain YAML and encrypt it using RMK for the needed scope and environment.
-For example:
+Then, generate the new secret as a plain YAML file and encrypt it using RMK for the required scope and environment.
+
+For example, for the `rmk-test` scope and `develop` environment:
 
 ```shell
-rmk secret manager generate --scope kodjin --environment develop
-rmk secret manager encrypt --scope kodjin --environment develop
+export APP_USERNAME="user1"
+export APP_PASSWORD="password1"
+rmk secret manager generate --scope rmk-test --environment develop
+rmk secret manager encrypt --scope rmk-test --environment develop
 ```
 
-> At this moment, the `.sops.yaml` files has already been populated and therefor need no manual changes.
-> The secrets generation process works in an idempotent, declarative mode, which means it will skip previously generated secret files.
+Finally, a secret file will be created for the `new-app` release in the `etc/deps/develop/secrets` directory:
 
-## Editing a single secret
+```shell
+etc/deps/develop/secrets/new-app.yaml
+```
 
-For some environments where the `.spec.yaml.gotmpl` file and the manager commands were not used for some legacy reasons,
-the `rmk secret edit` command can be executed. The command works in an idempotent mode, which means that it can be used
-for both creating a new secret (e.g., when adding a new release/service) and editing an existing one:
+### Rotating all the secrets for a specific scope and environment
+
+To regenerate all the secrets for a specific scope and environment (e.g., when existing secrets have been compromised
+and
+need to be replaced) based on the `.spec.yaml.gotmpl` file, use the `--force` flag. This ensures that previously
+generated secret files are **overwritten**.
+
+For example, to rotate secrets for the `rmk-test` scope in the `production` environment, run:
+
+```shell
+# Export all required environment variables before generating
+rmk secret manager generate --scope rmk-test --environment production --force
+rmk secret manager encrypt --scope rmk-test --environment production
+```
+
+This process ensures that all secrets are freshly generated and securely encrypted before deployment.
+
+## Working with a single secret
+
+> All RMK commands related to the secrets management can be found under the [rmk secret](../../commands.md#secret)
+> command category.
+
+### Creating or editing a secret
+
+The `rmk secret edit` command operates in an **idempotent** mode, meaning it can be used for both **creating** new
+secrets (e.g., when adding a new release) and **modifying** existing ones.
+
+To create or edit a secret, run:
 
 ```shell
 rmk secret edit <path_to_new_file_or_existing_secret>
@@ -166,44 +394,28 @@ rmk secret edit <path_to_new_file_or_existing_secret>
 For example:
 
 ```shell
-rmk secret edit etc/deps/develop/secrets/mongodb.yaml
+rmk secret edit etc/deps/develop/secrets/postgres.yaml
 ```
 
-An CLI editor will be displayed (e.g., [vim](https://www.vim.org/)). After the required changes are performed, 
-save and exit the editor. This will result in an encrypted and edited secret file (no need to encode it explicitly).
+This command will open a CLI text editor (e.g., [vim](https://www.vim.org/)). After making the necessary changes, save
+and exit the editor. The updated secret will be **automatically encrypted**, so no additional encoding is required.
 
-> Manual editing of the encrypted secrets files is strictly forbidden,
-> because SOPS automatically controls the checksums of the secret files.
+> Manual editing of the encrypted secrets files is **strictly forbidden**, because SOPS automatically controls the
+> checksums of the secret files.
 
-## Viewing an existing secret
+### Viewing an existing secret
 
-To view the content of an existing secrets content, use the following command:
+To view the decrypted content of an existing secret, use:
 
 ```shell
-rmk secret view <file>
+rmk secret view <path_to_existing_secret>
 ```
 
 For example:
 
 ```shell
-rmk secret view etc/deps/develop/secrets/minio.yaml
+rmk secret view etc/deps/develop/secrets/postgres.yaml
 ```
 
-> This might be useful when viewing credentials of the deployed services, e.g., a database or a web UI.
-
-## Rotate secrets for specific scope and environment
-
-To force a new generation of the secrets for a specific scope and environment according to the `.spec.yaml.gotmpl` file,
-run the following command (in this example, the scope is `kodjin`, the environment is `production`):
-
-```shell
-rmk secret manager generate --scope kodjin --environment production --force
-```
-
-> You might need to provide the required environment variables
-
-To encode the generated secrets, run:
-
-```shell
-rmk secret manager encrypt --scope kodjin --environment production
-```
+This is useful for **inspecting credentials** of deployed services, such as database access details or authentication
+credentials for a web UI.

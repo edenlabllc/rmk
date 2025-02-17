@@ -1,0 +1,7 @@
+nav:
+  - configuration-management.md
+  - init-aws-provider.md
+  - init-azure-provider.md
+  - init-gcp-provider.md
+  - init-k3d-provider.md
+collapse: false

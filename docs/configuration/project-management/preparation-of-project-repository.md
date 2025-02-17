@@ -1,33 +1,55 @@
 # Preparation of the project repository
 
-> Prerequisites:
-> 
-> - Create a remote repository in your Version Control System (GitHub) according to the following [requirements](requirement-for-project-repository.md#requirement-for-project-repository).
-> - Clone the project repository. For example: **project.bootstrap.infra** OR `git init && git remote add && git commit -m "init commit"`
-> - Checkout the needed branch. For example: `develop|staging|production`.
-> - Make sure there is a file in the root of the repository named [project.yaml](#projectyaml), which contains the project configuration.
-> - [Initialize the configuration](../configuration-management.md#initialization-of-rmk-configuration).
+## Prerequisites
+
+- Create a remote repository (Git) for a project in your Version Control System (e.g., [GitHub](https://github.com))
+  according to the [requirements](requirement-for-project-repository.md#requirement-for-project-repository). For
+  example: `rmk-test.bootstrap.infra`
+- Clone the existing project repository:
+
+  ```shell
+  git clone <repo_url>
+  ```
+
+  Alternatively, initialize a new repository manually:
+
+  ```shell
+  git init
+  git remote add <repo_name> <repo_url>
+  git commit --allow-empty --message "Initial commit"
+  ```
+
+  > RMK requires a Git branch with at least one commit and a configured `origin` remote  
+  > to correctly resolve the project name and environment.
+
+- Checkout the required branch. For example: `develop`.
 
 ## Automatic generation of the project structure from scratch
 
-RMK supports automatic generation of the project structure from scratch, according to the presented project specification described in [project.yaml](#projectyaml) file.
+RMK supports automatic generation of the project structure from scratch, according to the presented project
+specification described in [project.yaml](#projectyaml) file.
 
 Use the following command:
 
 ```shell
-rmk project generate
+rmk project generate --environment="develop.root-domain=<custom_root_domain_name>" \
+  --owner=gh_user --scope=<upstream_project_name> \
+  --scope=<downstream_project_name> 
 ```
 
 > Add the `--create-sops-age-keys` flag if you want to create the project structure along with SOPS age private keys.
 
-This will create a default project structure and prepare an example release based on [Nginx](https://nginx.org/).
+This will create a default project structure and set up an example release based on [Nginx](https://nginx.org/).
+
+> If the `project.yaml` file is missing, it will be automatically created by the command.
 
 ## project.yaml
 
 The `project.yaml` file is the main configuration file of the repository, the file is used by RMK
 and contains the following main sections:
 
-* `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project specification.
+* `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project
+  specification.
 
   ```yaml
   project:
@@ -41,18 +63,20 @@ and contains the following main sections:
         url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}    
     # Optional, needed if you want automatic generation of the project structure from scratch.
     spec:
-      # Required, list of available environments of the project (Git branches). 
+      # Required, list of available environments with specific root domain name (Git branches). 
       environments:
-        - develop
-        - staging
-        - production
+        - develop:
+            root-domain: <custom_name>.example.com
+        - production:
+            root-domain: <custom_name>.example.com
+        - staging:
+            root-domain: <custom_name>.example.com
       # Optional, list of owners of the project.
       owners:
         - <owner_1>
         - <owner_2>
       # Required, list of available scope of the project.
       scopes:
-        - clusters
         - <upstream_project_name>
         - <downstream_project_name>
   # ... 
@@ -62,15 +86,6 @@ and contains the following main sections:
 
   ```yaml
   inventory:
-    # Optional, contains a map of the cluster provider repositories with Terraform manifests or other provisioning configurations.  
-    clusters:
-      # Optional, cluster provider repository name.
-      aws.provisioner.infra:
-        # Required, cluster provider repository version in the `SemVer2` format.
-        version: <SemVer2>
-        # Required, cluster provider repository URL.
-        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
-      # ...
     # Optional, contains a map of the Helm plugins repositories.
     helm-plugins:
       # Optional, Helm plugin name.
@@ -91,67 +106,66 @@ and contains the following main sections:
     # Optional, contains a map of the sources of binary file tools.
     tools:
       # Optional, tool name.
-      terraform:
+      clusterctl:
         # Required, tool version in `SemVer2` format.
         version: <SemVer2>
         # Required, tool source URL.
-        url: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64.zip
-        # Optional, tool checksum source URL.
-        checksum: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_SHA256SUMS
+        url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
         # Optional, specific key overrides for the described OS name.
         os-linux: linux
         os-mac: darwin
+        # Optional, an option that allows to rename the downloaded binary file by the tool name.
+        rename: true
       # ...
   ```
+
 <details>
-  <summary>Example of the full <code>project.yaml</code> file.</summary>
+  <summary>Example of the full <code>project.yaml</code> file</summary>
 
 ```yaml
 project:
   dependencies:
-    - name: deps.bootstrap.infra
-      version: v2.17.0
+    - name: cluster-deps.bootstrap.infra
+      version: v0.1.0
       url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
   spec:
     environments:
-      - develop
-      - staging
-      - production
+      - develop:
+          root-domain: localhost
+      - production:
+          root-domain: localhost
+      - staging:
+          root-domain: localhost
     owners:
       - owner1
       - owner2
     scopes:
-      - clusters
       - deps
       - project1
 inventory:
-  clusters:
-    aws.provisioner.infra:
-      version: v1.5.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
-    k3d.provisioner.infra:
-      version: v0.2.0
-      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
   helm-plugins:
     diff:
       version: v3.8.1
       url: https://github.com/databus23/helm-diff
+    helm-git:
+      version: v0.15.1
+      url: https://github.com/aslafy-z/helm-git
     secrets:
       version: v4.5.0
       url: https://github.com/jkroepke/helm-secrets
   hooks:
     helmfile.hooks.infra:
-      version: v1.18.0
+      version: v1.29.1
       url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
   tools:
-    terraform:
-      version: 1.0.2
-      url: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64.zip
-      checksum: https://releases.hashicorp.com/{{.Name}}/{{.Version}}/{{.Name}}_{{.Version}}_SHA256SUMS
+    clusterctl:
+      version: 1.7.4
+      url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
       os-linux: linux
       os-mac: darwin
+      rename: true
     kubectl:
-      version: 1.27.6
+      version: 1.28.13
       url: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}
       checksum: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}.sha256
       os-linux: linux
@@ -168,12 +182,6 @@ inventory:
       checksum: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_checksums.txt
       os-linux: linux
       os-mac: darwin
-    jq:
-      version: 1.7
-      url: https://github.com/jqlang/{{.Name}}/releases/download/{{.Name}}-{{.Version}}/{{.Name}}-{{.Os}}
-      os-linux: linux-amd64
-      os-mac: macos-amd64
-      rename: true
     sops:
       version: 3.8.1
       url: https://github.com/getsops/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}.{{.Os}}
@@ -186,7 +194,7 @@ inventory:
       os-linux: linux
       os-mac: darwin
     k3d:
-      version: 5.6.0
+      version: 5.7.3
       url: https://github.com/k3d-io/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
       os-linux: linux
       os-mac: darwin
@@ -197,20 +205,33 @@ inventory:
       os-linux: linux
       os-mac: darwin
       rename: true
+    aws-iam-authenticator:
+      version: 0.6.27
+      url: https://github.com/kubernetes-sigs/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64
+      os-linux: linux
+      os-mac: darwin
+      rename: true
+    gke-auth-plugin:
+      version: 0.1.1
+      url: https://github.com/traviswt/{{.Name}}/releases/download/{{.Version}}/{{.Name}}_{{.Os}}_x86_64.tar.gz
+      os-linux: Linux
+      os-mac: Darwin
 ```
 
 </details>
 
-The project file supports placeholders, they are required for correct URL formation.
+The project file's `inventory` section supports placeholders, they are required for correct URL formation.
 
-* **{{.Name}}:** Replaced with the `name` field.
+* **{{.Name}}:** Replaced with the key's value.
 * **{{.Version}}:** Replaced with the `version` field.
-* **{{.HelmfileTenant}}:** Replaced with the tenant name for the Helmfile selected from the list.
-* **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system, where RMK is run.
+* **{{.HelmfileTenant}}:** Replaced with the tenant (project) name for the Helmfile selected from the list.
+* **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system,
+  where RMK is run.
 
 > The field `rename` of the boolean type is required to correct the name of the binary file of the downloaded tool
-> according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the archive.
+> according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the
+> archive.
 > For example:
-> 
+>
 > - The initial file name after the download: `helmfile_darwin_amd64`.
 > - After applying the `rename` instruction it gets a value of the `name` field: `helmfile`.
