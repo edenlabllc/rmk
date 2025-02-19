@@ -154,13 +154,13 @@ func (sc *SecretCommands) CreateKeys() error {
 }
 
 func (sc *SecretCommands) WriteKeysInRootDir(secrets map[string][]byte, logOutput string) error {
+	if err := os.MkdirAll(sc.Conf.SopsAgeKeys, 0775); err != nil {
+		return err
+	}
+
 	if len(secrets) == 0 {
 		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
 			sc.Conf.Tenant, logOutput)
-	} else {
-		if err := os.MkdirAll(sc.Conf.SopsAgeKeys, 0775); err != nil {
-			return err
-		}
 	}
 
 	for key, val := range secrets {
