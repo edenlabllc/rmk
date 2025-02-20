@@ -186,7 +186,7 @@ func flagsConfigList() []cli.Flag {
 	return append(flagsHidden(),
 		&cli.BoolFlag{
 			Name:    "all",
-			Usage:   "list all tenant configurations",
+			Usage:   "list all project configurations",
 			Aliases: []string{"a"},
 		},
 	)

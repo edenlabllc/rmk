@@ -1,28 +1,27 @@
 # Requirement for project repository
 
+## Overview
+
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
-   For example: `kodjin.bootstrap.infra` or `kodjin.infra`.
-2. The project's repository exists within [GitLabFlow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
-   and therefor supports the following set of static branches:
+   For example: `rmk-test.bootstrap.infra` or `rmk-test.infra`.
+2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
+   and therefore supports the following set of static branches:
 
    - `develop`
    - `staging`
    - `production`
    
-   Each branch corresponds to its own environment with a separately deployed K8S cluster. RMK supports these branches 
-   as well as the feature or release branches:
+   Each branch corresponds to its own environment with a separately deployed Kubernetes cluster. RMK supports these 
+   branches as well as the feature or release branches:
 
    - A feature branch should have the following naming: `feature/<issue_key>-<issue_number>-<issue_description>`.
-     For example: `feature/FFS-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
+     For example: `feature/RMK-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
    - A release branch should have the following naming: `release/<SemVer2>-rc` or `release/<SemVer2>`
      For example: `release/v1.0.0`. RMK will use the project name and the `<SemVer2>` tag as the release cluster name.
 
 ## Expected repository structure:
 
 ```yaml
-etc/clusters/<provider>/<environment>/values/
-  variables.auto.tfvars # Core variables for the AWS EKS cluster provider.
-  worker-groups.auto.tfvars # Variables describing the resources of the AWS EKS cluster.
 etc/<upstream_project_name>/<environment>/secrets/
   .sops.yaml # The public key for the current set of secrets.
   .spec.yaml.gotmpl # The secrets template for generating new or rotating current secrets.
@@ -43,15 +42,15 @@ etc/<downstream_project_name>/<environment>/secrets/
   <release name>.yaml.gotmpl # -//-
 etc/<downstream_project_name>/<environment>/
   releases.yaml # -//-
-  globals.yaml # - // -
-  globals.yaml.gotmpl # - // -
+  globals.yaml # -//-
+  globals.yaml.gotmpl # -//-
 helmfile.yaml.gotmpl # Helmfile describing the release process for specific project releases using the Golang templates.
 project.yaml # Project specification for the dependencies and inventory installed via RMK.
 ```
 
 ## Files for managing releases and their values at the scope level
 
-### Requirement for `release.yaml`
+### Requirement for `releases.yaml`
 
 ```yaml
 <release_name_foo>: # Required, release name from helmfile.yaml.gotmpl.
@@ -64,7 +63,7 @@ project.yaml # Project specification for the dependencies and inventory installe
 # ...
 ```
 
-> releases.yaml cannot be used as a template, all the values must be defined.
+> `releases.yaml` cannot be used as a template, all the values must be defined explicitly.
 
 ### Requirement for `globals.yaml.gotmpl`
 
@@ -96,12 +95,15 @@ hooks:
 
 > globals.yaml.gotmpl is used in two cases:
 > 
-> 1. When values, configurations or environment variables need to be declared globally for multiple releases. 
-> 2. When the current project is planned to be inherited by a downstream project and the overrides should be supported.
+> 1. When values, configurations or environment variables need to be **declared globally** for multiple releases. 
+> 2. When the current project is planned to be **inherited** by a downstream project and the overrides should be supported.
 
 ### Requirement for `helmfile.yaml.gotmpl`
 
-The list of the `helmfile.yaml.gotmpl` sections that must be defined and remained unchanged for working with RMK correctly is:
+All sections in `helmfile.yaml.gotmpl` must be properly defined for RMK to function correctly.
+
+<details>
+  <summary>Example of the <code>helmfile.yaml.gotmpl</code> file</summary>
 
 ```gotemplate
 environments:
@@ -112,29 +114,51 @@ environments:
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
+  production: 
+    missingFileHandler: Warn
+    values:
+      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
+      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl 
+      - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}                        
   staging:
     missingFileHandler: Warn
     values:
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}                     
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
-  production:
-    missingFileHandler: Warn
-    values:
-      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml
-      - etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
-      - etc/<project_name>/{{ .Environment.Name }}/releases.yaml
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/globals.yaml.gotmpl
-      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/releases.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/<project_name>/{{ .Environment.Name }}/values/k3d/releases.yaml
+      {{- end }}
 ---
-
+helmDefaults:
+wait: true
+waitForJobs: true
+timeout: 3600
+                                                                        
 # The set of paths for the inherited Helmfiles is controlled through the project.yaml file using RMK.
 # DO NOT EDIT the "helmfiles" field's values.
 helmfiles: {{ env "HELMFILE_<project_name>_PATHS" }}
@@ -154,8 +178,16 @@ templates:
     values:
       - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
       - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
+      - etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- end }}
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- if eq (env "K3D_CLUSTER") "true" }}
+      - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml.gotmpl
+      - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/values/k3d/values/{{`{{ .Release.Name }}`}}.yaml
+      {{- end }}
     secrets:
       - {{ requiredEnv "PWD" }}/etc/{{`{{ .Release.Labels.scope }}`}}/{{`{{ .Environment.Name }}`}}/secrets/{{`{{ .Release.Name }}`}}.yaml
 
@@ -163,5 +195,7 @@ releases:
   - name: <release_name_foo>
     installed: {{ .Values | get (print " <release_name_foo>" ".enabled") false }}
 ```
+</details>
 
-> You can use the `rmk project generate` command to view the full example of the contents of all the project files.
+> You can use the [rmk project generate](../../commands.md#generate-g-1) 
+> command to view the full example of the contents of all the project files.

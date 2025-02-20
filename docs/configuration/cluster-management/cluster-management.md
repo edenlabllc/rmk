@@ -1,202 +1,181 @@
 # Cluster management
 
-RMK uses [Terraform](https://www.terraform.io/) and [K3D](https://k3d.io) for cluster management.
+## Overview
 
-RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through native Helmfile functionality.
+RMK uses [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/introduction) and [K3D](https://k3d.io) for cluster
+management.
+
+RMK is suitable for both simple and complex Kubernetes deployments, enabling multi-level project inheritance through
+native [Helmfile](https://helmfile.readthedocs.io/en/latest/) functionality.
 
 The 2 scenarios are:
 
-- **A cluster has already been provisioned via a 3rd-party tool/service:** An existing Kubernetes context will be used by RMK.
-- **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as AWS, K3D, etc. will be utilized.
+- **A cluster has already been provisioned using third-party tools/services**: An existing Kubernetes context will be
+  used
+  by RMK.
+- **A cluster will be provisioned from scratch using RMK**: Any of the supported cluster providers for RMK, such as
+  [AWS](../configuration-management/init-aws-provider.md),
+  [Azure](../configuration-management/init-azure-provider.md),
+  [GCP](../configuration-management/init-gcp-provider.md),
+  [K3D](../configuration-management/init-k3d-provider.md) (local installation)
+  will be utilized.
 
-## Switch the context to an existing Kubernetes cluster
+## Switching the context to an existing Kubernetes cluster
 
 Switching to an existing Kubernetes cluster depends on how it has been provisioned:
 
-* **Using a 3rd party tool:**
+* **Using third-party tools/services**:
   
-  Create a context with the name matching the pattern:
+  Create a context with the name strictly matching the following:
   
   ```
-  \b<project_name>-<environment>\b
+  <project_name>-<environment>
   ```
   
-  > The matching is **case-insensitive**. \
-  > `\b` means the **ASCII word boundary** (`\w` on one side and `\W`, `\A`, or `\z` on the other).
-  
-  For example, if you are in the `project1` repository in the `develop` branch, any of the following Kubernetes contexts will be accepted:
+  For example, if you are in
+  the [`project1` repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository)
+  in the `develop` branch, any of the following Kubernetes context will be accepted:
   
   ```
   project1-develop
-  Project1-Develop
-  PROJECT1-DEVELOP
-  project1-develop-cluster
-  Project1-Develop-Cluster
-  PROJECT1-DEVELOP-CLUSTER
-  k3d-project1-develop
-  arn:aws:eks:us-east-1:123456789000:cluster/PROJECT1-DEVELOP-CLUSTER
   ```
+
+* **Using RMK cluster providers**:
   
-  > If there are **more than one** Kubernetes context which match the regular expression **simultaneously**, 
-  > an **error** will be thrown indicating a conflict. For example, the following names will conflict:
-  > 
-  > ```shell
-  > project1-develop
-  > k3d-project1-develop
-  > ```
-
-* **Using RMK cluster provider**:
-
-  Checkout to the branch from which the K8S cluster was previously created. 
-
-  An [initialization](../configuration-management.md#initialization-of-rmk-configuration) might be required,
-  if the RMK configuration for this cluster has not been created before:
+  Checkout to the branch from which the Kubernetes cluster was previously created.
+  
+  An [initialization](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers)
+  might be required, if the RMK configuration for this cluster has not been created before:
   
   ```shell
-  rmk config init
+  rmk config init --cluster-provider=<aws|azure|gcp|k3d>
   ```
-   
-  The next command depends on whether a remote cluster provider (e.g., AWS) or a local one (e.g., K3D) has been used:
-
-  * **AWS:**
-
+  
+  > The default value for the `--cluster-provider` argument is `k3d`.
+  
+  The next command depends on whether a remote Kubernetes cluster provider
+  (e.g., [AWS](../configuration-management/init-aws-provider.md),
+  [Azure](../configuration-management/init-azure-provider.md),
+  [GCP](../configuration-management/init-gcp-provider.md))
+  or a local one (e.g., [K3D](../configuration-management/init-k3d-provider.md)) has been used:
+  
+  * **AWS, Azure, GCP**:
+    
     ```shell
-    # --force might required to refresh the credentials after a long period of inactivity
+    # --force might be required to refresh the credentials after a long period of inactivity
     rmk cluster switch --force
     ```
   
-  * **K3D:**
+  * **K3D**:
+    
+    Explicit switching to the Kubernetes context is not required, if a K3D cluster has been created already.
+    RMK will switch implicitly, when running any of the [rmk release](../../commands.md#release) commands.
 
-    Explicit switching to the Kubernetes context is not required, if a K3D cluster has been created already. 
-    RMK will switch implicitly, when running any of the `rmk release` commands.
-  
 Finally, run an RMK release command to verify the preparation of the Kubernetes context, e.g.:
 
 ```shell
 rmk release list
 ```
 
-## Use RMK cluster providers to provision and destroy Kubernetes clusters
+## Using RMK to prepare CAPI management cluster
+
+Before running provisioning and destroying of cloud provider target Kubernetes clusters, a local Kubernetes Cluster API
+(CAPI) management cluster must be created:
+
+```shell
+rmk cluster capi create
+```
+
+> **Only one** local CAPI management cluster can exist on the cluster administrator machine.
+> The cluster can contain all cloud cluster providers at once and work with them independently.
+
+At the time of creation of the local CAPI management cluster, a Kubernetes K3D cluster with a specially
+[lightweight configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/capi-cluster.yaml.gotmpl)
+will be created.
+
+After creating the CAPI management cluster, RMK will run the
+[clusterctl](https://cluster-api.sigs.k8s.io/clusterctl/overview) tool that initializes the installation
+of the cloud provider selected at the [rmk config init](../../commands.md#init-i) stage.
+It will add specific credentials for the
+[selected provider](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers).
+
+The cloud provider version is fixed in the `clusterctl` initialization
+[configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/clusterctl-config.yaml.gotmpl)
+file, however it can be changed on demand.
+
+**RMK supports the following key operations for the CAPI management cluster**:
+
+- **Creating** a CAPI management cluster based on the cloud provider initialization configuration and provided
+  credentials:
+  
+  ```shell
+  rmk cluster capi create 
+  ```
+
+- **Updating**
+  the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/clusterctl-config.yaml.gotmpl)
+  of the installed provider, credentials, installing an additional cloud provider:
+  
+  ```shell
+  rmk cluster capi update
+  ```
+  
+  > RMK allows changing the provider for the same target Kubernetes cluster simply by changing the cloud provider
+  > at the [rmk config init](../../commands.md#init-i) stage and update the provider initialization configuration via
+  > [rmk cluster capi update](../../commands.md#update-u) command.
+  > However, it is not recommended for `production` environments, only for `development` and `staging` or during
+  > testing.
+
+- **Deleting** an existing CAPI management cluster:
+  
+  ```shell
+  rmk cluster capi delete
+  ```
+  
+  > Important, deleting the CAPI management cluster **will not delete** the target Kubernetes cluster of the cloud
+  > provider.
+
+A full list of available commands for working with CAPI management clusters
+and for provisioning target Kubernetes clusters can be found at the [link](../../commands.md#capi-c).
+
+## Using RMK cluster providers to provision and destroy target Kubernetes clusters
 
 Currently, the following cluster providers are supported by RMK:
 
-- [aws.provisioner.infra](https://github.com/edenlabllc/aws.provisioner.infra): Configuration for managing AWS EKS
-  clusters using Terraform. Kubernetes clusters can be provisioned from scratch and destroyed 
-  via the `rmk cluster provision`, `rmk cluster destroy` commands.
-- [k3d.provisioner.infra](https://github.com/edenlabllc/k3d.provisioner.infra): Configuration for managing
-  single-machine clusters using K3D (suitable for both local development and minimal cloud deployments). 
-  Kubernetes clusters can be created from scratch and deleted via the `rmk cluster k3d create`, `rmk cluster k3d delete` commands.
-
-Support for other cloud providers such as GCP, Azure will be implemented in the future.
-This enhancement will include the introduction of new RMK commands and cluster providers, as well as the addition of _*.provisioner.infra_ repositories.
-
-### Provision or destroy AWS EKS Kubernetes clusters
-
-> AWS users must have the `AdministratorAccess` permissions to be able to provision and destroy EKS clusters.
-
-Before provisioning the K8S cluster, modify the core configurations for the on-demand cluster. 
-The core configurations are divided into two types:
-
-- **variables** (common AWS cluster management):
-
-  _Path:_ `etc/clusters/aws/<environment>/values/variables.auto.tfvars`
-
-  _Frequently changed values:_
-
-  ```terraform
-  # k8s user list
-  k8s_master_usernames = [] # list of AWS IAM users for K8S cluster management
-  k8s_cluster_version  = "1.27" # current version of K8S (EKS) control plane
-  # ...
-  ```
-
-  > Full list of input Terraform variables: `.PROJECT/inventory/clusters/aws.provisioner.infra-<version>/terraform/variables.tf`
-
-- **worker-groups** (resources for AWS worker nodes):
-
-  _Path:_ `etc/clusters/aws/<environment>/values/worker-groups.auto.tfvars`
-
-  _Frequently changed values:_
-
-  ```terraform
-  worker_groups = [
-    {
-      instance_type        = "t3.xlarge"
-      additional_userdata  = "t3.xlarge"
-      asg_desired_capacity = 1
-      asg_max_size         = 1
-      asg_min_size         = 1
-      ami_id               = "ami-0dd8af8522cf16846"
-    },
-    # ...
-  ]
-  ```
+- **[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**:
   
-  - `instance_type`: [AWS EC2 instance type](https://aws.amazon.com/ec2/instance-types)
-  - `asg_desired_capacity`: Number of nodes of a specific group.
-  - `ami_id`: Identifier of AWS AMI image for EKS.
-    > Each AWS region requires its own AMI image ID. To determine the appropriate ID for a specific region, run the following command:
-    > 
-    > ```shell
-    > AWS_PROFILE=$(rmk --lf=json config view | yq '.config.Profile') \
-    > AWS_CONFIG_FILE="${HOME}/.aws/config_$(rmk --lf=json config view | yq '.config.Profile')" \
-    > AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_$(rmk --lf=json config view | yq '.config.Profile')" \
-    > AWS_PAGER= \
-    > aws ssm get-parameter \
-    >   --name /aws/service/eks/optimized-ami/<eks_control_plane_version>/amazon-linux-2/recommended/image_id \
-    >   --region "$(rmk --lf=json config view | yq '.config.Region')" \
-    >   --output text \
-    >   --query Parameter.Value
-    > ```
-    > > Replace `<eks_control_plane_version>` with a correct version.
+  Configuration for managing remote clusters using Kubernetes Cluster API.
+  
+  Such Kubernetes clusters can be provisioned from scratch
+  and destroyed via the [rmk cluster capi provision](../../commands.md#provision-p) and
+  [rmk cluster capi destroy](../../commands.md#destroy) commands. All configurations of the description of the provided
+  target Kubernetes clusters are described in the values of the [Helmfile](https://helmfile.readthedocs.io/en/latest/)
+  [releases](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/tree/develop/etc/deps/develop/values),
+  which in turn use the Helm charts we provide for each individual cloud provider.
+  
+  > The Kubernetes Cluster API provider is
+  > a [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/), meaning all configuration
+  > changes are applied **declaratively**. Unlike Terraform, it **does not store** the state of managed resources but
+  > instead uses a **resource scanner** to match the current configuration. If a previously created target Kubernetes
+  > cluster needs to be destroyed, but the CAPI management cluster has no record of it, you must first run
+  > [rmk cluster capi provision](../../commands.md#provision-p) before executing
+  > [rmk cluster capi destroy](../../commands.md#destroy).
 
-To start provisioning a Kubernetes cluster, run the commands:
+- **[K3D](usage-k3d-provider.md)**:
+  
+  Configuration for managing single-machine clusters using K3D (suitable for both local development and minimal cloud
+  deployments).
+  
+  Such Kubernetes clusters can be created from scratch and deleted via the
+  [rmk cluster k3d create](../../commands.md#create-c) and
+  [rmk cluster k3d delete](../../commands.md#delete-d) commands.
 
-```shell
-# prepare only plan
-rmk cluster provision --plan
-# prepare plan and launch it
-rmk cluster provision
-```
+When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the
+Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
-> When the K8S cluster is ready, RMK automatically switches the kubectl context to the newly created K8S cluster.
-
-To destroy a Kubernetes cluster, run the command:
-
-```shell
-rmk cluster destroy
-```
-
-### Create or delete K3D Kubernetes clusters
-
-RMK supports managing single-node Kubernetes clusters using [K3D](https://k3d.io).
-
-The CLI will create a cluster according to the declarative instruction for K3D: 
-`.PROJECT/inventory/clusters/k3d.provisioner.infra-<version>/k3d.yaml`.
-
-> Prerequisites:
-> 
-> 1. Create a separate feature branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
-> 2. [Initialize configuration](../configuration-management.md#initialization-of-rmk-configuration) for this branch with the `localhost` root domain name:
-> 
-> ```shell
-> rmk config init --root-domain=localhost
-> ```
-
-#### Create K3D clusters
-
-> By default, RMK will use `volume-host-path` as the current directory:
-
-Run the following command:
-
-```shell
-rmk cluster k3d create
-```
-
-> When the Kubernetes cluster is ready, RMK automatically switches the kubectl context to the newly created Kubernetes cluster.
-
-#### Delete K3D clusters
-
-```shell
-rmk cluster k3d delete
-```
+> **On-premise** support is expected in [upcoming releases](../../index.md#roadmap). This enhancement might include the 
+> introduction of additional Kubernetes Cluster API providers and
+> [Kubernetes operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). 
+>
+> The main infrastructure configuration can always be checked in the 
+> [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.

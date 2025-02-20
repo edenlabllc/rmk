@@ -67,7 +67,7 @@ func Commands() []*cli.Command {
 			Subcommands: []*cli.Command{
 				{
 					Name:     "init",
-					Usage:    "Initialize configuration for current tenant and selected environment",
+					Usage:    "Initialize configuration for current project and selected environment",
 					Aliases:  []string{"i"},
 					Before:   initInputSourceWithContext(gitSpec, flags["config"]),
 					Flags:    flags["config"],
@@ -86,7 +86,7 @@ func Commands() []*cli.Command {
 				},
 				{
 					Name:         "list",
-					Usage:        "List available configurations for current tenant",
+					Usage:        "List available configurations for current project",
 					Aliases:      []string{"l"},
 					Flags:        flags["configList"],
 					Category:     "config",
@@ -119,8 +119,8 @@ func Commands() []*cli.Command {
 							Name:         "create",
 							Usage:        "Create CAPI management cluster",
 							Aliases:      []string{"c"},
-							Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterK3DCreate"]),
-							Flags:        flags["clusterK3DCreate"],
+							Before:       readInputSourceWithContext(gitSpec, conf, flags["hidden"]),
+							Flags:        flags["hidden"],
 							Category:     "capi",
 							BashComplete: util.ShellCompleteCustomOutput,
 							Action:       K3DCreateAction(conf),
@@ -246,7 +246,7 @@ func Commands() []*cli.Command {
 				},
 				{
 					Name:         "switch",
-					Usage:        "Switch Kubernetes context for tenant cluster",
+					Usage:        "Switch Kubernetes context to project cluster",
 					Aliases:      []string{"s"},
 					Before:       readInputSourceWithContext(gitSpec, conf, flags["clusterSwitch"]),
 					Flags:        flags["clusterSwitch"],

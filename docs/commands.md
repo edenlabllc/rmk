@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 6e0a217 <br />
-**Date:** 2024-12-19T09:18:59Z <br />
+**Commit:** 465411b <br />
+**Date:** 2025-02-20T09:36:59Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -52,8 +52,6 @@ CAPI cluster management
 ##### create, c
 
 Create CAPI management cluster
-
-**--k3d-volume-host-path, --kv**="": host local directory path for mount into K3D cluster (default: present working directory)
 
 ##### delete, d
 
@@ -93,7 +91,7 @@ Delete K3D cluster
 
 Import images from docker to K3D cluster
 
-**--k3d-import-image, --ki**="": list images for import into K3D cluster
+**--k3d-import-image, --ki**="": list of images to import into running K3D cluster
 
 ##### list, l
 
@@ -109,7 +107,7 @@ Stop K3D cluster
 
 #### switch, s
 
-Switch Kubernetes context for tenant cluster
+Switch Kubernetes context to project cluster
 
 **--force, -f**: force update Kubernetes context from remote cluster
 
@@ -127,7 +125,7 @@ Configuration management
 
 #### init, i
 
-Initialize configuration for current tenant and selected environment
+Initialize configuration for current project and selected environment
 
 **--aws-access-key-id, --awid**="": AWS access key ID for IAM user
 
@@ -140,6 +138,8 @@ Initialize configuration for current tenant and selected environment
 **--azure-client-id, --azid**="": Azure client ID for Service Principal
 
 **--azure-client-secret, --azp**="": Azure client secret for Service Principal
+
+**--azure-key-vault-resource-group-name, --azkvrg**="": Azure Key Vault custom resource group name
 
 **--azure-location, --azl**="": Azure location
 
@@ -161,7 +161,7 @@ Initialize configuration for current tenant and selected environment
 
 **--slack-channel, --sc**="": channel name for Slack notifications
 
-**--slack-message-details, --smd**="": additional information for body of Slack messages
+**--slack-message-details, --smd**="": additional details for Slack message body
 
 **--slack-notifications, -n**: enable Slack notifications
 
@@ -173,9 +173,9 @@ Delete configuration for selected environment
 
 #### list, l
 
-List available configurations for current tenant
+List available configurations for current project
 
-**--all, -a**: list all tenant configurations
+**--all, -a**: list all project configurations
 
 #### view, v
 
@@ -211,11 +211,11 @@ Generate project directories and files structure
 
 **--create-sops-age-keys, -c**: create SOPS age keys for generated project structure
 
-**--environments, -e**="": list project environments. Root domain can take form of <environment>.root-domain=<domain-name>
+**--environment, -e**="": list of project environments, root-domain config option must be provided: <environment>.root-domain=<domain-name>
 
-**--owners, -o**="": list project owners
+**--owner, -o**="": list of project owners
 
-**--scopes, -s**="": list project scopes
+**--scope, -s**="": list of project scopes
 
 #### update, u
 
@@ -241,7 +241,7 @@ Build releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -253,7 +253,7 @@ Destroy releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -267,7 +267,7 @@ List releases
 
 **--output, -o**="": output format, available: short, yaml (default: "short")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -287,7 +287,7 @@ Sync releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -299,7 +299,7 @@ Template releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -331,27 +331,27 @@ batch secrets management
 
 Decrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### encrypt, e
 
 Encrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### generate, g
 
 Generate secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
 **--force, -f**: force overwriting current secrets after generating new
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 #### keys, k
 
@@ -391,7 +391,7 @@ Update RMK CLI to a new version
 
 **--release-candidate, -r**: force update RMK to latest release candidate version
 
-**--version, -v**="": RMK special version. (default: empty value corresponds latest version)
+**--version, -v**="": RMK special version (default: empty value corresponds latest version)
 
 ### help, h
 

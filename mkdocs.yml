@@ -3,7 +3,7 @@ site_name: RMK
 site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC
 site_url: https://edenlabllc.github.io/rmk
 
-copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2024
+copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2025
 
 # Repo Information
 repo_name: edenlabllc/rmk
@@ -14,6 +14,8 @@ theme:
   name: material
   language: en
   features:
+    # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
+    - content.code.copy
     # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/
     - search.highlight
     - search.share
