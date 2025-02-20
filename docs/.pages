@@ -1,6 +1,7 @@
 nav:
   - Overview: index.md
   - quickstart.md
+  - backward-compatibility.md
   - Configuration and management: configuration
   - Commands: commands.md
   - development-and-release.md

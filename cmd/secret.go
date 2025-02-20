@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"bytes"
@@ -13,7 +13,10 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"rmk/config"
-	"rmk/system"
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
+	"rmk/util"
 )
 
 type SecretRunner interface {
@@ -40,8 +43,8 @@ func newSecretCommands(conf *config.Config, ctx *cli.Context, workDir string) *S
 	return &SecretCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
 }
 
-func (sc *SecretCommands) ageKeygen(args ...string) *system.SpecCMD {
-	return &system.SpecCMD{
+func (sc *SecretCommands) ageKeygen(args ...string) *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:    args,
 		Command: "age-keygen",
 		Ctx:     sc.Ctx.Context,
@@ -50,13 +53,13 @@ func (sc *SecretCommands) ageKeygen(args ...string) *system.SpecCMD {
 	}
 }
 
-func (sc *SecretCommands) helm() *system.SpecCMD {
-	return &system.SpecCMD{
+func (sc *SecretCommands) helm() *util.SpecCMD {
+	return &util.SpecCMD{
 		Args:          []string{"secrets"},
 		Command:       "helm",
 		Ctx:           sc.Ctx.Context,
 		Dir:           sc.WorkDir,
-		Envs:          []string{"SOPS_AGE_KEY_FILE=" + filepath.Join(sc.Conf.SopsAgeKeys, system.SopsAgeKeyFile)},
+		Envs:          []string{"SOPS_AGE_KEY_FILE=" + filepath.Join(sc.Conf.SopsAgeKeys, util.SopsAgeKeyFile)},
 		Debug:         true,
 		DisableStdOut: true,
 	}
@@ -65,29 +68,29 @@ func (sc *SecretCommands) helm() *system.SpecCMD {
 func (sc *SecretCommands) createAgeKey(scope string) error {
 	keyPath := filepath.Join(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"-"+scope+".txt")
 
-	if system.IsExists(keyPath, true) {
+	if util.IsExists(keyPath, true) {
 		return fmt.Errorf("key for scope %s exists, if you want to recreate, delete this file %s "+
 			"and run the command again", scope, keyPath)
 	}
 
 	sc.SpecCMD = sc.ageKeygen("-o", keyPath)
 	sc.SpecCMD.DisableStdOut = true
-	if err := runner(sc).runCMD(); err != nil {
+	if err := releaseRunner(sc).runCMD(); err != nil {
 		return err
 	}
 
 	sc.SpecCMD = sc.ageKeygen("-y", keyPath)
 	sc.SpecCMD.DisableStdOut = true
-	return runner(sc).runCMD()
+	return releaseRunner(sc).runCMD()
 }
 
 func (sc *SecretCommands) CreateKeys() error {
-	if !system.IsExists(system.GetPwdPath(system.TenantValuesDIR), false) {
+	if !util.IsExists(util.GetPwdPath(util.TenantValuesDIR), false) {
 		return fmt.Errorf("'%s' directory not exist in project structure, please generate structure "+
-			"by running command: 'rmk project generate'", system.TenantValuesDIR)
+			"by running command: 'rmk project generate'", util.TenantValuesDIR)
 	}
 
-	scopes, err := os.ReadDir(system.GetPwdPath(system.TenantValuesDIR))
+	scopes, err := os.ReadDir(util.GetPwdPath(util.TenantValuesDIR))
 	if err != nil {
 		return err
 	}
@@ -104,22 +107,22 @@ func (sc *SecretCommands) CreateKeys() error {
 
 			zap.S().Infof("generate age key for scope: %s", scope.Name())
 
-			sopsConfigFiles, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR, scope.Name()),
-				"secrets", system.SopsConfigFile)
+			sopsConfigFiles, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR, scope.Name()),
+				"secrets", util.SopsConfigFile)
 			if err != nil {
 				return err
 			}
 
 			if len(sopsConfigFiles) == 0 {
-				secretSpecFiles, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR, scope.Name()),
-					"secrets", system.SecretSpecFile)
+				secretSpecFiles, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR, scope.Name()),
+					"secrets", util.SecretSpecFile)
 				if err != nil {
 					return err
 				}
 
 				for _, specFile := range secretSpecFiles {
 					dirSpecFile, _ := filepath.Split(specFile)
-					sopsConfigFiles = append(sopsConfigFiles, filepath.Join(dirSpecFile, system.SopsConfigFile))
+					sopsConfigFiles = append(sopsConfigFiles, filepath.Join(dirSpecFile, util.SopsConfigFile))
 				}
 			}
 
@@ -150,6 +153,137 @@ func (sc *SecretCommands) CreateKeys() error {
 	return nil
 }
 
+func (sc *SecretCommands) WriteKeysInRootDir(secrets map[string][]byte, logOutput string) error {
+	if err := os.MkdirAll(sc.Conf.SopsAgeKeys, 0775); err != nil {
+		return err
+	}
+
+	if len(secrets) == 0 {
+		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+			sc.Conf.Tenant, logOutput)
+	}
+
+	for key, val := range secrets {
+		zap.S().Infof("download %s secret %s to %s",
+			logOutput, key, filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt))
+		if err := os.WriteFile(filepath.Join(sc.Conf.SopsAgeKeys, key+util.SopsAgeKeyExt), val, 0644); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (sc *SecretCommands) DownloadKeys() error {
+	switch sc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		secrets, err := aws_provider.NewAwsConfigure(sc.Ctx.Context, sc.Conf.Profile).GetAWSSecrets(sc.Conf.Tenant)
+		if err != nil {
+			return err
+		}
+
+		return sc.WriteKeysInRootDir(secrets, "AWS Secrets Manager")
+	case azure_provider.AzureClusterProvider:
+		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
+			return err
+		}
+
+		secrets, err := sc.Conf.GetAzureSecrets()
+		if err != nil {
+			return err
+		}
+
+		return sc.WriteKeysInRootDir(secrets, "Azure Key Vault")
+	case google_provider.GoogleClusterProvider:
+		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
+
+		secrets, err := gcp.GetGCPSecrets(sc.Conf.Tenant)
+		if err != nil {
+			return err
+		}
+
+		return sc.WriteKeysInRootDir(secrets, "GCP Secrets Manager")
+	default:
+		return nil
+	}
+}
+
+func (sc *SecretCommands) UploadKeys() error {
+	switch sc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		a := aws_provider.NewAwsConfigure(sc.Ctx.Context, sc.Conf.Profile)
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+			if err := a.SetAWSSecret(sc.Conf.Tenant, keyName, file); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	case azure_provider.AzureClusterProvider:
+		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
+			return err
+		}
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+			value := string(file)
+
+			if err := sc.Conf.SetAzureSecret(keyName, value); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	case google_provider.GoogleClusterProvider:
+		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
+
+		walkMatch, err := util.WalkMatch(sc.Conf.SopsAgeKeys, sc.Conf.Tenant+"*"+util.SopsAgeKeyExt)
+		if err != nil {
+			return err
+		}
+
+		for _, val := range walkMatch {
+			file, err := os.ReadFile(val)
+			if err != nil {
+				return err
+			}
+
+			keyName := strings.TrimSuffix(filepath.Base(val), util.SopsAgeKeyExt)
+
+			if err := gcp.SetGCPSecret(sc.Conf.Tenant, sc.Conf.GCPRegion, keyName, file); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	default:
+		return nil
+	}
+}
+
 func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 	var optionFiles, optionPaths []string
 	var check int
@@ -157,14 +291,14 @@ func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 	switch {
 	case !sc.Ctx.IsSet("scope") && !sc.Ctx.IsSet("environment"):
 		var err error
-		optionFiles, err = system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR, filepath.Join(optionPaths...)),
+		optionFiles, err = util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR, filepath.Join(optionPaths...)),
 			"secrets", option)
 		if err != nil {
 			return nil, err
 		}
 	case sc.Ctx.IsSet("scope") && !sc.Ctx.IsSet("environment"):
 		for _, scope := range sc.Ctx.StringSlice("scope") {
-			sopsFiles, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR, scope),
+			sopsFiles, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR, scope),
 				"secrets", option)
 			if err != nil {
 				return nil, err
@@ -174,7 +308,7 @@ func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 		}
 	case !sc.Ctx.IsSet("scope") && sc.Ctx.IsSet("environment"):
 		for _, environment := range sc.Ctx.StringSlice("environment") {
-			for _, env := range sc.Conf.Project.Spec.Environments {
+			for env := range sc.Conf.Project.Spec.Environments {
 				if environment == env {
 					check++
 				}
@@ -184,7 +318,7 @@ func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 				return nil, fmt.Errorf("environment %s do not exist in project.spec.environments", environment)
 			}
 
-			sopsFiles, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR),
+			sopsFiles, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR),
 				environment, filepath.Join("secrets", option))
 			if err != nil {
 				return nil, err
@@ -196,7 +330,7 @@ func (sc *SecretCommands) getOptionFiles(option string) ([]string, error) {
 		for _, scope := range sc.Ctx.StringSlice("scope") {
 			for _, environment := range sc.Ctx.StringSlice("environment") {
 				optionPaths = append(optionPaths, scope, environment)
-				sopsFiles, err := system.WalkInDir(system.GetPwdPath(system.TenantValuesDIR, filepath.Join(optionPaths...)),
+				sopsFiles, err := util.WalkInDir(util.GetPwdPath(util.TenantValuesDIR, filepath.Join(optionPaths...)),
 					"secrets", option)
 				if err != nil {
 					return nil, err
@@ -220,14 +354,14 @@ func (sc *SecretCommands) getSecretPaths(optionFiles []string) ([]string, error)
 	}
 
 	for _, tempPath := range tempPaths {
-		secrets, err := system.WalkMatch(tempPath, "*.yaml")
+		secrets, err := util.WalkMatch(tempPath, "*.yaml")
 		if err != nil {
 			return nil, err
 		}
 
 		for _, secretPath := range secrets {
 			_, file := filepath.Split(secretPath)
-			if file != system.SopsConfigFile && file != system.SecretSpecFile {
+			if file != util.SopsConfigFile && file != util.SecretSpecFile {
 				secretPaths = append(secretPaths, secretPath)
 			}
 		}
@@ -255,7 +389,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 		return err
 	}
 
-	if err := system.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
@@ -265,9 +399,9 @@ func (sc *SecretCommands) SecretManager(option string) error {
 		switch sc.Ctx.Command.Name {
 		case "decrypt":
 			sc.SpecCMD.Args = append(sc.SpecCMD.Args, sc.Ctx.Command.Name, "-i", secret)
-			if err := runner(sc).runCMD(); err != nil {
-				if strings.Contains(sc.SpecCMD.StderrBuf.String(), system.HelmSecretsIsNotEncrypted+secret) {
-					zap.S().Warnf(strings.ToLower(system.HelmSecretsIsNotEncrypted)+"%s", secret)
+			if err := releaseRunner(sc).runCMD(); err != nil {
+				if strings.Contains(sc.SpecCMD.StderrBuf.String(), util.HelmSecretsIsNotEncrypted+secret) {
+					zap.S().Warnf(strings.ToLower(util.HelmSecretsIsNotEncrypted)+"%s", secret)
 					continue
 				} else {
 					return fmt.Errorf(sc.SpecCMD.StderrBuf.String())
@@ -277,9 +411,9 @@ func (sc *SecretCommands) SecretManager(option string) error {
 			zap.S().Infof("decrypting: %s", secret)
 		case "encrypt":
 			sc.SpecCMD.Args = append(sc.SpecCMD.Args, sc.Ctx.Command.Name, "-i", secret)
-			if err := runner(sc).runCMD(); err != nil {
-				if strings.Contains(sc.SpecCMD.StderrBuf.String(), system.HelmSecretsAlreadyEncrypted+filepath.Base(secret)) {
-					zap.S().Warnf(strings.ToLower(system.HelmSecretsAlreadyEncrypted)+"%s", secret)
+			if err := releaseRunner(sc).runCMD(); err != nil {
+				if strings.Contains(sc.SpecCMD.StderrBuf.String(), util.HelmSecretsAlreadyEncrypted+filepath.Base(secret)) {
+					zap.S().Warnf(strings.ToLower(util.HelmSecretsAlreadyEncrypted)+"%s", secret)
 					continue
 				} else {
 					return fmt.Errorf(sc.SpecCMD.StderrBuf.String())
@@ -294,7 +428,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 }
 
 func (sc *SecretCommands) helmSecretsEncrypt() error {
-	if err := system.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
@@ -305,7 +439,7 @@ func (sc *SecretCommands) helmSecretsEncrypt() error {
 }
 
 func (sc *SecretCommands) helmSecretsDecrypt() error {
-	if err := system.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
@@ -316,7 +450,7 @@ func (sc *SecretCommands) helmSecretsDecrypt() error {
 }
 
 func (sc *SecretCommands) helmSecretsView() error {
-	if err := system.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
@@ -333,7 +467,7 @@ func (sc *SecretCommands) helmSecretsView() error {
 }
 
 func (sc *SecretCommands) helmSecretsEdit() error {
-	if err := system.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
+	if err := util.MergeAgeKeys(sc.Conf.SopsAgeKeys); err != nil {
 		return err
 	}
 
@@ -345,11 +479,11 @@ func (sc *SecretCommands) helmSecretsEdit() error {
 }
 
 func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDError bool) error {
-	if !system.IsExists(secretFilePath, true) {
+	if !util.IsExists(secretFilePath, true) {
 		return fmt.Errorf("file does not exist: %s", secretFilePath)
 	}
 
-	if err := runner(sc).runCMD(); err != nil {
+	if err := releaseRunner(sc).runCMD(); err != nil {
 		if returnCMDError {
 			return err
 		}
@@ -357,13 +491,13 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 		out := sc.SpecCMD.StderrBuf.String()
 
 		// suppress help message of helm secrets
-		if strings.Contains(out, system.HelpFlagFull) {
-			return fmt.Errorf(system.UnknownErrorText, "Helm secrets")
+		if strings.Contains(out, util.HelpFlagFull) {
+			return fmt.Errorf(util.UnknownErrorText, "Helm secrets")
 		}
 
 		// remove unneeded text from helm secrets
-		out = strings.ReplaceAll(out, system.HelmSecretsOutputPrefix, "")
-		out = strings.ReplaceAll(out, system.HelmSecretsError, "")
+		out = strings.ReplaceAll(out, util.HelmSecretsOutputPrefix, "")
+		out = strings.ReplaceAll(out, util.HelmSecretsError, "")
 		out = strings.TrimSpace(out)
 
 		// make the first letter lowercase
@@ -379,83 +513,71 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 
 func secretMgrEncryptDecryptAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
-			return err
-		}
-
-		return newSecretCommands(conf, c, system.GetPwdPath("")).SecretManager(system.SopsConfigFile)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).SecretManager(util.SopsConfigFile)
 	}
 }
 
 func secretMgrGenerateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return newSecretCommands(conf, c, system.GetPwdPath("")).SecretManager(system.SecretSpecFile)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).SecretManager(util.SecretSpecFile)
 	}
 }
 func secretKeysCreateAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
-			return err
-		}
-
-		return newSecretCommands(conf, c, system.GetPwdPath("")).CreateKeys()
+		return newSecretCommands(conf, c, util.GetPwdPath("")).CreateKeys()
 	}
 }
 
 func secretKeysDownloadAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return conf.DownloadFromBucket("", conf.SopsBucketName, conf.SopsAgeKeys, conf.Tenant)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).DownloadKeys()
 	}
 }
 
 func secretKeysUploadAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateNArg(c, 0); err != nil {
+		if err := util.ValidateNArg(c, 0); err != nil {
 			return err
 		}
 
-		return conf.UploadToBucket(conf.SopsBucketName, conf.SopsAgeKeys, "*"+system.SopsAgeKeyExt)
+		return newSecretCommands(conf, c, util.GetPwdPath("")).UploadKeys()
 	}
 }
 
 func secretAction(conf *config.Config, action func(secretRunner SecretRunner) error) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		if err := system.ValidateArtifactModeDefault(c, ""); err != nil {
+		if err := util.ValidateNArg(c, 1); err != nil {
 			return err
 		}
 
-		if err := system.ValidateNArg(c, 1); err != nil {
+		if err := resolveDependencies(conf.InitConfig(), c, false); err != nil {
 			return err
 		}
 
-		if err := resolveDependencies(conf.InitConfig(false), c, false); err != nil {
-			return err
-		}
-
-		return action(newSecretCommands(conf, c, system.GetPwdPath("")))
+		return action(newSecretCommands(conf, c, util.GetPwdPath("")))
 	}
 }

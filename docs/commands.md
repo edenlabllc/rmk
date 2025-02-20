@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 7a0f199 <br />
-**Date:** 2024-09-04T07:46:16Z <br />
+**Commit:** 465411b <br />
+**Date:** 2025-02-20T09:36:59Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -45,27 +45,33 @@ rmk [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
 
 Cluster management
 
-#### container-registry, c
+#### capi, c
 
-Container registry management
+CAPI cluster management
 
-##### login
+##### create, c
 
-Log in to container registry
+Create CAPI management cluster
 
-**--get-token, -g**: get ECR token for authentication
+##### delete, d
 
-##### logout
+Delete CAPI management cluster
 
-Log out from container registry
+##### destroy
 
-#### destroy, d
+Destroy K8S target (workload) cluster
 
-Destroy AWS cluster using Terraform
+##### list, l
 
-#### list, l
+List CAPI management clusters
 
-List all Terraform available workspaces
+##### provision, p
+
+Provision K8S target (workload) cluster
+
+##### update, u
+
+Update CAPI management cluster
 
 #### k3d, k
 
@@ -85,7 +91,7 @@ Delete K3D cluster
 
 Import images from docker to K3D cluster
 
-**--k3d-import-image, --ki**="": list images for import into K3D cluster
+**--k3d-import-image, --ki**="": list of images to import into running K3D cluster
 
 ##### list, l
 
@@ -99,33 +105,9 @@ Start K3D cluster
 
 Stop K3D cluster
 
-#### provision, p
-
-Provision AWS cluster using Terraform
-
-**--plan, -p**: creates an execution Terraform plan
-
-#### state, t
-
-State cluster management using Terraform
-
-##### delete, d
-
-Delete resource from Terraform state
-
-**--resource-address, --ra**="": resource address for delete from Terraform state
-
-##### list, l
-
-List resources from Terraform state
-
-##### refresh, r
-
-Update state file for AWS cluster using Terraform
-
 #### switch, s
 
-Switch Kubernetes context for tenant cluster
+Switch Kubernetes context to project cluster
 
 **--force, -f**: force update Kubernetes context from remote cluster
 
@@ -143,39 +125,43 @@ Configuration management
 
 #### init, i
 
-Initialize configuration for current tenant and selected environment
+Initialize configuration for current project and selected environment
 
-**--artifact-mode, --am**="": choice of artifact usage model, available: none, online (default: "none")
+**--aws-access-key-id, --awid**="": AWS access key ID for IAM user
 
-**--aws-ecr-host, --aeh**="": AWS ECR host (default: "288509344804.dkr.ecr.eu-north-1.amazonaws.com")
+**--aws-region, --awr**="": AWS region for current AWS account
 
-**--aws-ecr-region, --aer**="": AWS region for specific ECR host (default: "eu-north-1")
+**--aws-secret-access-key, --awsk**="": AWS secret access key for IAM user
 
-**--aws-ecr-user-name, --aeun**="": AWS ECR user name (default: "AWS")
+**--aws-session-token, --awst**="": AWS session token for IAM user
 
-**--aws-reconfigure, -r**: force AWS profile creation
+**--azure-client-id, --azid**="": Azure client ID for Service Principal
 
-**--aws-reconfigure-artifact-license, -l**: force AWS profile creation for artifact license, used only if RMK config option artifact-mode has values: online, offline
+**--azure-client-secret, --azp**="": Azure client secret for Service Principal
 
-**--cloudflare-token, --cft**="": Cloudflare API token for provision NS records
+**--azure-key-vault-resource-group-name, --azkvrg**="": Azure Key Vault custom resource group name
 
-**--cluster-provider, --cp**="": select cluster provider to provision clusters (default: "aws")
+**--azure-location, --azl**="": Azure location
 
-**--cluster-provisioner-state-locking, -c**: disable or enable cluster provisioner state locking
+**--azure-service-principle, --azsp**: Azure service principal STDIN content
 
-**--config-from-environment, --cfe**="": inheritance of RMK config credentials from environments: develop, staging, production
+**--azure-subscription-id, --azs**="": Azure subscription ID for current platform domain
 
-**--github-token, --ght**="": personal access token for download GitHub artifacts
+**--azure-tenant-id, --azt**="": Azure tenant ID for Service Principal
+
+**--cluster-provider, --cp**="": cluster provider for provisioning (default: "k3d")
+
+**--gcp-region, --gr**="": GCP region
+
+**--github-token, --ght**="": GitHub personal access token, required when using private repositories
+
+**--google-application-credentials, --gac**="": path to GCP service account credentials JSON file
 
 **--progress-bar, -p**: globally disable or enable progress bar for download process
 
-**--root-domain, --rd**="": domain name for external access to app services via ingress controller
+**--slack-channel, --sc**="": channel name for Slack notifications
 
-**--s3-charts-repo-region, --scrr**="": location constraint region of S3 charts repo (default: "eu-north-1")
-
-**--slack-channel, --sc**="": channel name for Slack notification
-
-**--slack-message-details, --smd**="": additional information for body of Slack message
+**--slack-message-details, --smd**="": additional details for Slack message body
 
 **--slack-notifications, -n**: enable Slack notifications
 
@@ -187,9 +173,9 @@ Delete configuration for selected environment
 
 #### list, l
 
-List available configurations for current tenant
+List available configurations for current project
 
-**--all, -a**: list all tenant configurations
+**--all, -a**: list all project configurations
 
 #### view, v
 
@@ -225,6 +211,12 @@ Generate project directories and files structure
 
 **--create-sops-age-keys, -c**: create SOPS age keys for generated project structure
 
+**--environment, -e**="": list of project environments, root-domain config option must be provided: <environment>.root-domain=<domain-name>
+
+**--owner, -o**="": list of project owners
+
+**--scope, -s**="": list of project scopes
+
 #### update, u
 
 Update project file with specific dependencies version
@@ -249,7 +241,7 @@ Build releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -261,9 +253,7 @@ Destroy releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--output, -o**="": output format, available: short, yaml (default: "short")
-
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -277,7 +267,7 @@ List releases
 
 **--output, -o**="": output format, available: short, yaml (default: "short")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -297,7 +287,7 @@ Sync releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -309,7 +299,7 @@ Template releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--selector, -l**="": only run using releases that match labels. Labels can take form of foo=bar or foo!=bar
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
@@ -341,27 +331,27 @@ batch secrets management
 
 Decrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### encrypt, e
 
 Encrypt secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 ##### generate, g
 
 Generate secrets batch for selected scope and environment
 
-**--environment, -e**="": specific environments for selected secrets
+**--environment, -e**="": list of secret environments, used as selector
 
 **--force, -f**: force overwriting current secrets after generating new
 
-**--scope, -s**="": specific scopes for selected secrets
+**--scope, -s**="": list of secret scopes, used as selector
 
 #### keys, k
 
@@ -401,7 +391,7 @@ Update RMK CLI to a new version
 
 **--release-candidate, -r**: force update RMK to latest release candidate version
 
-**--version, -v**="": RMK special version. (default: empty value corresponds latest version)
+**--version, -v**="": RMK special version (default: empty value corresponds latest version)
 
 ### help, h
 

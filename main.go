@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
-	"rmk/commands"
+	"rmk/cmd"
 	"rmk/logger"
 )
 
@@ -27,7 +27,7 @@ var (
 func init() {
 	var output string
 
-	for _, val := range commands.FlagsGlobal() {
+	for _, val := range cmd.FlagsGlobal() {
 		output += fmt.Sprintf("   %s\n", val.String())
 	}
 
@@ -95,7 +95,7 @@ func runCLI() *cli.App {
 		"version":    version,
 	}
 
-	app.Flags = commands.FlagsGlobal()
+	app.Flags = cmd.FlagsGlobal()
 	app.Before = func(c *cli.Context) error {
 		logger.Init(c.String("log-format"), c.String("log-level"))
 		return nil
@@ -107,7 +107,7 @@ func runCLI() *cli.App {
 	// Enable flag and command suggestions
 	app.Suggest = true
 
-	app.Commands = commands.Commands()
+	app.Commands = cmd.Commands()
 	sort.Sort(cli.CommandsByName(app.Commands))
 
 	return app
