@@ -16,7 +16,8 @@ This change was driven by several **key factors**:
 
 1. **Maintaining open-source integrity**:
 
-   Terraform's transition to a BSL license conflicts with our commitment to keeping RMK fully open-source (OSS).
+   Terraform's transition to a [BSL license](https://en.wikipedia.org/wiki/Business_Source_License) conflicts with our 
+   commitment to keeping RMK fully [open-source (OSS)](https://en.wikipedia.org/wiki/Open-source_software). 
    By switching to Kubernetes Cluster API, we ensure that our customers' interests remain unaffected.
 
    > More details on the Terraform's license change are available at the [link](https://www.hashicorp.com/license-faq).
@@ -45,8 +46,9 @@ This change was driven by several **key factors**:
    [zero-downtime upgrades](https://en.wikipedia.org/wiki/Downtime#Service_levels).
 
 > This transition marks a **significant step** in enhancing RMK’s provisioning capabilities, ensuring better
-> scalability, openness, and ease of management. [Stay tuned](index.md#roadmap) for more updates in upcoming releases!
-> 🚀
+> scalability, openness, and ease of management. 
+> 
+> **Stay tuned** for more updates in [upcoming releases](index.md#roadmap)! 🚀
 
 #### Deprecated features
 
@@ -100,15 +102,15 @@ To ensure a successful migration, the following the steps should be executed in 
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-2. **Save** the path to the private SOPS Age keys storage directory to an environment variable.
+2. **Save** the old path to the private SOPS Age keys storage directory to an environment variable.
 
    ```shell
-   export RMK_SOPS_AGE_KEYS_PATH_OLD="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
+   RMK_SOPS_AGE_KEYS_PATH_OLD="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
    ```
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-3. **Update** your current version to `v0.45.0`.
+3. **Update** your current version to [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0).
 
    ```shell
    rmk update
@@ -124,27 +126,28 @@ To ensure a successful migration, the following the steps should be executed in 
      spec:
        environments:
          develop:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
+           root-domain: <custom_root_domain_name> # or "*.edenlab.dev" for the Edenlab team
          production:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
+           root-domain: <custom_root_domain_name> # or "*.edenlab.dev" for the Edenlab team
          staging:
-           root-domain: <custom_root_domain_name> # or <*.edenlab.dev> for the Edenlab team
+           root-domain: <custom_root_domain_name> # or "*.edenlab.dev" for the Edenlab team
    ```
 
-   If the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file has
-   the `spec.environments` section already:
-
-   ```yaml
-   project:
-     # ...
-     spec:
-       environments:
-         - develop # removed
-         - production # removed
-         - staging # removed
-   ```
-
-   be sure to replace it with `spec.environments` with the root domains.
+   > If the [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) file has
+   > the `spec.environments` section of a deprecated format already, e.g.:
+   > 
+   > ```yaml
+   > project:
+   >  # ...
+   >  spec:
+   >    environments:
+   >      - develop # deprecated
+   >      - production # deprecated
+   >      - staging # deprecated
+   > ```
+   >
+   > be sure to replace the scalar strings with the new `spec.environments` objects containing the respective root 
+   > domains.
 
 5. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration
    specifying the AWS cluster provider.
@@ -161,7 +164,7 @@ To ensure a successful migration, the following the steps should be executed in 
    to the new directory.
 
    ```shell
-   cp -f "${RMK_SOPS_AGE_KEYS_PATH_OLD}"/* $(rmk --log-format=json config view | yq '.config.SopsAgeKeys')
+   cp -f "${RMK_SOPS_AGE_KEYS_PATH_OLD}"/* "$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
    unset RMK_SOPS_AGE_KEYS_PATH_OLD
    ```
 

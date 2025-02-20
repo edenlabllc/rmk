@@ -123,7 +123,7 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - Single-machine [K3D](https://k3d.io/) clusters
 
-> Check the [Roadmap](#roadmap) section for more information.
+> Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
 ### Provisioned using third-party tools and services
 
@@ -283,7 +283,7 @@ rmk update --version vX.X.X
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
   pull requests (PRs).
 
-> Check [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
+> Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
 ## Development and release
 
