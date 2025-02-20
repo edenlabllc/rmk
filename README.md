@@ -81,7 +81,7 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - Single-machine [K3D](https://k3d.io/) clusters
 
-> Check the [Roadmap](#roadmap) section for more information.
+> Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
 ### Provisioned using third-party tools and services
 
@@ -175,6 +175,19 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   A publicly accessible, [S3-based](https://aws.amazon.com/s3/)
   [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) used by Kodjin, or any other project, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
+
+## Roadmap
+
+- **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
+  values and secrets management.
+- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
+  support for provisioning and destroy of on-premise Kubernetes clusters.
+- **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
+  errors or regressions during the CI/CD across all cluster providers.
+- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
+  pull requests (PRs).
+
+> Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
 ## Development and release
 
