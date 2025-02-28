@@ -89,8 +89,8 @@ func getTagStructName(i interface{}, name string) error {
 	}
 }
 
-func generateKeyVaultName(tenant string) string {
-	return "kv-" + fmt.Sprintf("%x", sha1.Sum([]byte(tenant)))[0:16]
+func generateKeyVaultName(tenant, subscriptionID string) string {
+	return "kv-" + fmt.Sprintf("%x", sha1.Sum([]byte(tenant+subscriptionID)))[0:16]
 }
 
 func (ac *AzureConfigure) ValidateSPCredentials() error {
@@ -247,7 +247,7 @@ func (ac *AzureConfigure) CreateAzureKeyVault(tenant string) error {
 		return err
 	}
 
-	ac.KeyVaultName = generateKeyVaultName(tenant)
+	ac.KeyVaultName = generateKeyVaultName(tenant, ac.SubscriptionID)
 
 	params := armkeyvault.VaultCreateOrUpdateParameters{
 		Location: to.Ptr(ac.Location),
@@ -365,7 +365,7 @@ func (ac *AzureConfigure) GetAzureKeyVault(tenant string) (bool, error) {
 		return false, nil
 	}
 
-	ac.KeyVaultName = generateKeyVaultName(tenant)
+	ac.KeyVaultName = generateKeyVaultName(tenant, ac.SubscriptionID)
 
 	resp, err := ac.VaultsClient.Get(ac.Ctx, ac.ResourceGroupName, ac.KeyVaultName, nil)
 	if err != nil {
