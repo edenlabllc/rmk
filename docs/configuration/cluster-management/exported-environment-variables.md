@@ -74,6 +74,7 @@ K3D_VOLUME_HOST_PATH="${PWD}"
 # AWS_CONFIG_FILE=/home/user/.aws/config_rmk-test-develop
 # AWS_SHARED_CREDENTIALS_FILE=/home/user/.aws/credentials_rmk-test-develop
 AWS_ACCOUNT_ID="<aws_account_id>"
+AWS_CLUSTER=true
 AWS_REGION="<aws_region>"
 AWS_PROFILE="<project_name>-<project_branch>"
 AWS_CONFIG_FILE="${HOME}/.aws/config_<project_name>-<project_branch>"
@@ -86,6 +87,7 @@ AWS_SHARED_CREDENTIALS_FILE="${HOME}/.aws/credentials_<project_name>-<project_br
 # For example:
 # AZURE_LOCATION=eastus
 # AZURE_SUBSCRIPTION_ID=abcdef12-3456-7890-abcd-ef1234567890
+AZURE_CLUSTER=true
 AZURE_LOCATION="<azure_location>"
 AZURE_SUBSCRIPTION_ID="<azure_subscription_id>"
 
@@ -97,6 +99,7 @@ AZURE_SUBSCRIPTION_ID="<azure_subscription_id>"
 # GCP_PROJECT_ID=rmk-test
 # GCP_REGION=us-east1
 # GOOGLE_APPLICATION_CREDENTIALS=/home/user/.config/gcloud/gcp-credentials-rmk-test-develop.json
+GCP_CLUSTER=true
 GCP_PROJECT_ID="<google_cloud_project_id>"
 GCP_REGION="<google_cloud_region>"
 GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json"

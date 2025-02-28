@@ -329,7 +329,7 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 			}
 
 			if foundDeps == 0 {
-				conf.Dependencies = append(projectFile.Dependencies, val)
+				conf.Dependencies = append(conf.Dependencies, projectFile.Dependencies...)
 				if err := updateDependencies(conf, ctx, silent); err != nil {
 					return err
 				}
