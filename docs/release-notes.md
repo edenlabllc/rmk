@@ -1,3 +1,3 @@
-- Fixed project dependencies behavior.
-- Fixed generation process Azure Key Vault name.
-- Added specific environment variables for each cluster provider detection.
+- Fixed handling of project dependencies.
+- Fixed generation of Azure Key Vault names.
+- Added provider-specific environment variables for simple cluster detection.
