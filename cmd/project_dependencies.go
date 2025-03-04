@@ -359,11 +359,12 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 		return err
 	}
 
-	if err := newConfigCommands(conf, ctx, util.GetPwdPath("")).configHelmPlugins(); err != nil {
+	// Installation of tools should be done before installation of Helm plugins as some tools are required
+	if err := updateTools(conf, ctx, silent); err != nil {
 		return err
 	}
 
-	if err := updateTools(conf, ctx, silent); err != nil {
+	if err := newConfigCommands(conf, ctx, util.GetPwdPath("")).configHelmPlugins(); err != nil {
 		return err
 	}
 

@@ -1,3 +1,1 @@
-- Fixed handling of project dependencies.
-- Fixed generation of Azure Key Vault names.
-- Added provider-specific environment variables for simple cluster detection.
+- Fixed installation sequence of tools and Helm plugins.
