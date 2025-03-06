@@ -1,1 +1,2 @@
+- Improved the Backward Compatibility documentation for migrating existing AWS clusters to Kubernetes Cluster API (CAPI).
 - Fixed Kubernetes context switch when the recommended home directory (~/.kube) does not exist.
