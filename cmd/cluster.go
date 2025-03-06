@@ -206,6 +206,10 @@ func (cc *ClusterCommands) mergeKubeConfigs(clusterContext []byte) error {
 		return err
 	}
 
+	if err := os.MkdirAll(util.GetHomePath(clientcmd.RecommendedHomeDir), 0755); err != nil {
+		return err
+	}
+
 	if err := os.WriteFile(clientcmd.NewDefaultPathOptions().GlobalFile, kubeConfig, 0644); err != nil {
 		return err
 	}
