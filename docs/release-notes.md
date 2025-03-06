@@ -1,1 +1,1 @@
-- Fixed installation sequence of tools and Helm plugins.
+- Fixed Kubernetes context switch when the recommended home directory (~/.kube) does not exist.
