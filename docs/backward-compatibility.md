@@ -93,7 +93,13 @@ rmk update
 
 To ensure a successful migration, the following the steps should be executed in the **specified order**:
 
-1. **Download** private [SOPS Age keys](configuration/secrets-management/secrets-management.md#secret-keys) of the current
+1. **Ensure** you are using the previous [v0.44.2](https://github.com/edenlabllc/rmk/releases/tag/v0.44.2) RMK version.
+   
+   ```shell
+   rmk update -v v0.44.2
+   ```
+
+2. **Download** private [SOPS Age keys](configuration/secrets-management/secrets-management.md#secret-keys) of the current
    RMK version if you haven't done it earlier.
 
    ```shell
@@ -102,7 +108,7 @@ To ensure a successful migration, the following the steps should be executed in 
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-2. **Save** the old path to the private SOPS Age keys storage directory to an environment variable.
+3. **Save** the old path to the private SOPS Age keys storage directory to an environment variable.
 
    ```shell
    RMK_SOPS_AGE_KEYS_PATH_OLD="$(rmk --log-format=json config view | yq '.config.SopsAgeKeys')"
@@ -110,13 +116,13 @@ To ensure a successful migration, the following the steps should be executed in 
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-3. **Update** your current version to [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0).
+4. **Update** your current version to [v0.45.0](https://github.com/edenlabllc/rmk/releases/tag/v0.45.0).
 
    ```shell
    rmk update
    ```
 
-4. **Add** root domain specification
+5. **Add** root domain specification
    in [project.yaml](configuration/project-management/preparation-of-project-repository.md#projectyaml) for project
    repository.
 
@@ -149,7 +155,7 @@ To ensure a successful migration, the following the steps should be executed in 
    > be sure to replace the scalar strings with the new `spec.environments` objects containing the respective root 
    > domains.
 
-5. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration
+6. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration
    specifying the AWS cluster provider.
 
    ```shell
@@ -160,7 +166,7 @@ To ensure a successful migration, the following the steps should be executed in 
        --github-token=<github_personal_access_token>
    ```
 
-6. **Copy** private SOPS Age keys from the old path
+7. **Copy** private SOPS Age keys from the old path
    to the new directory.
 
    ```shell
@@ -170,10 +176,13 @@ To ensure a successful migration, the following the steps should be executed in 
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
 
-7. **Upload** the old private SOPS Age keys to [AWS Secret Manager](https://aws.amazon.com/secrets-manager/).
+8. **Upload** the old private SOPS Age keys to [AWS Secret Manager](https://aws.amazon.com/secrets-manager/).
 
    ```shell
    rmk secret keys upload
    ```
 
    > Skip this step if you lack **administrator permissions** for the selected AWS account.
+
+9. **Migrate** the code to the new repository structure, for example, compatible with cluster provisioning using  
+   [Kubernetes Cluster API Provider AWS](configuration/cluster-management/usage-aws-provider.md).
