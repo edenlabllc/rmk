@@ -96,11 +96,23 @@ func (c *ConfigCommands) configAws(profile string) error {
 }
 
 func (c *ConfigCommands) configAwsMFA() error {
-	var tokenExpiration time.Time
+	var (
+		tokenExpiration                 time.Time
+		regularProfile                  string
+		regularProfileConfigSource      string
+		regularProfileCredentialsSource string
+	)
 	currentTime := time.Now()
-	regularProfile := c.Conf.Profile
-	regularProfileConfigSource := c.Conf.ConfigSource
-	regularProfileCredentialsSource := c.Conf.CredentialsSource
+
+	if strings.HasSuffix(c.Conf.Profile, "-mfa") {
+		regularProfile = strings.TrimSuffix(c.Conf.Profile, "-mfa")
+		regularProfileConfigSource = strings.TrimSuffix(c.Conf.ConfigSource, "-mfa")
+		regularProfileCredentialsSource = strings.TrimSuffix(c.Conf.CredentialsSource, "-mfa")
+	} else {
+		regularProfile = c.Conf.Profile
+		regularProfileConfigSource = c.Conf.ConfigSource
+		regularProfileCredentialsSource = c.Conf.CredentialsSource
+	}
 
 	if len(c.Conf.AWSMFATokenExpiration) > 0 {
 		unixTime, err := strconv.ParseInt(c.Conf.AWSMFATokenExpiration, 10, 64)
