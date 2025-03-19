@@ -90,7 +90,7 @@ func rmkURLFormation(paths ...string) string {
 
 func updateRMK(pkgName, version string, silent, progressBar bool, ctx *cli.Context) error {
 	zap.S().Infof("starting package download: %s", pkgName)
-	pkgDst := util.GetHomePath(filepath.Join(".local", util.ToolsBinDir))
+	pkgDst := util.GetHomePath(util.ToolsLocalDir, util.ToolsBinDir)
 	if err := util.DownloadArtifact(
 		rmkURLFormation(util.RMKBin, version, pkgName),
 		pkgDst,

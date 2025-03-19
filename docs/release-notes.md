@@ -1,1 +1,2 @@
 - Fixed AWS MFA config and credential files suffix after refreshing credentials multiple times.
+- Fixed path to auth tools for Kubernetes context.

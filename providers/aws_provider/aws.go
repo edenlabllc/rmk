@@ -383,8 +383,10 @@ func (a *AwsConfigure) generateUserKubeconfig(cluster *eksType.Cluster) ([]byte,
 			"-i",
 			clusterName,
 		},
-		Command: "aws-iam-authenticator",
-		Env:     execEnvVars,
+		Command:            util.GetHomePath(util.ToolsLocalDir, util.ToolsBinDir, "aws-iam-authenticator"),
+		Env:                execEnvVars,
+		ProvideClusterInfo: true,
+		InteractiveMode:    api.NeverExecInteractiveMode,
 	}
 
 	cfg.AuthInfos = map[string]*api.AuthInfo{
