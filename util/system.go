@@ -35,7 +35,7 @@ type SpecCMD struct {
 func (s *SpecCMD) AddOSEnv() error {
 	path, exists := os.LookupEnv("PATH")
 	if exists {
-		if err := os.Setenv("PATH", GetHomePath(".local", "bin")+":"+path); err != nil {
+		if err := os.Setenv("PATH", GetHomePath(ToolsLocalDir, ToolsBinDir)+":"+path); err != nil {
 			return err
 		}
 	}

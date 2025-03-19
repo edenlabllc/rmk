@@ -339,7 +339,7 @@ func (gcp *GCPConfigure) generateUserKubeconfig(cluster *container.Cluster) ([]b
 	execConfig := &api.ExecConfig{
 		APIVersion:         "client.authentication.k8s.io/v1beta1",
 		Args:               []string{},
-		Command:            "gke-auth-plugin",
+		Command:            util.GetHomePath(util.ToolsLocalDir, util.ToolsBinDir, "gke-auth-plugin"),
 		Env:                execEnvVars,
 		ProvideClusterInfo: true,
 		InteractiveMode:    api.NeverExecInteractiveMode,
