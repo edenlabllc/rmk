@@ -581,7 +581,7 @@ func (a *AwsConfigure) SetAWSSecret(tenant, keyName string, value []byte) error 
 				return err
 			}
 
-			zap.S().Infof("created AWS secret: %s, %s", keyName, aws.ToString(updateSecret.ARN))
+			zap.S().Infof("created AWS Secrets Manager secret: %s, %s", keyName, aws.ToString(updateSecret.ARN))
 
 			return nil
 		} else if errors.As(err, &respError) && respError.ErrorCode() == apiErrorAccessDeniedException {
