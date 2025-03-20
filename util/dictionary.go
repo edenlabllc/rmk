@@ -31,6 +31,7 @@ const (
 	TenantProjectGitIgn     = ".gitignore"
 	TenantValuesDIR         = "etc"
 	ToolsBinDir             = "bin"
+	ToolsLocalDir           = ".local"
 	ToolsTmpDir             = "tmp"
 	ToolsVersionDir         = "version"
 

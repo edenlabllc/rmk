@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	rawjson "encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"os"
 	"strings"
 
 	yaml2 "github.com/ghodss/yaml"
 	"github.com/urfave/cli/v2"
+	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/json"
@@ -36,6 +37,12 @@ type ClusterCTLConfig struct {
 	Kind       string
 	Metadata   map[string]string
 	Spec       interface{}
+}
+
+type CAPIManagementCluster struct {
+	Name           string `json:"name,omitempty"`
+	ServersRunning int    `json:"serversRunning,omitempty"`
+	ServersCount   int    `json:"serversCount,omitempty"`
 }
 
 func newClusterCommands(conf *config.Config, ctx *cli.Context, workDir string) *ClusterCommands {
@@ -270,6 +277,8 @@ func (cc *ClusterCommands) switchKubeContext() error {
 			return cc.manageKubeConfigItem("use-context", util.CAPIContextName)
 		} else if ok && currentContextName == util.CAPIContextName {
 			return nil
+		} else if !ok {
+			return fmt.Errorf("kubernetes context %s for CAPI management cluster not found", util.CAPIContextName)
 		}
 	}
 
@@ -312,6 +321,38 @@ func (cc *ClusterCommands) switchKubeContext() error {
 
 		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
+		}
+	}
+
+	return nil
+}
+
+func (cc *ClusterCommands) checkCAPIManagementCluster() error {
+	var cMC []CAPIManagementCluster
+
+	k := &K3DCommands{cc.ReleaseCommands}
+	if err := k.prepareK3D("cluster", "list", util.CAPI, "--output", "json"); err != nil {
+		return err
+	}
+
+	k.SpecCMD.DisableStdOut = true
+	if err := releaseRunner(k).runCMD(); err != nil {
+		if strings.Contains(k.SpecCMD.StderrBuf.String(), "No nodes found for given cluster") {
+			return fmt.Errorf("%s management cluster not found", strings.ToUpper(util.CAPI))
+		} else {
+			return fmt.Errorf("%s", k.SpecCMD.StderrBuf.String())
+		}
+	}
+
+	data := k.SpecCMD.StdoutBuf.Bytes()
+	src := (*rawjson.RawMessage)(&data)
+	if err := json.Unmarshal(*src, &cMC); err != nil {
+		return err
+	}
+
+	if len(cMC) > 0 {
+		if cMC[0].Name == util.CAPI && (cMC[0].ServersCount != 1 || cMC[0].ServersRunning != 1) {
+			return fmt.Errorf("%s management cluster not running", strings.ToUpper(util.CAPI))
 		}
 	}
 
@@ -492,6 +533,10 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 		}
 
 		cc := newClusterCommands(conf, c, util.GetPwdPath())
+		if err := cc.checkCAPIManagementCluster(); err != nil {
+			return err
+		}
+
 		if err := cc.switchKubeContext(); err != nil {
 			return err
 		}
@@ -524,6 +569,10 @@ func CAPIProvisionDestroyAction(conf *config.Config) cli.ActionFunc {
 		}
 
 		cc := newClusterCommands(conf, c, util.GetPwdPath())
+		if err := cc.checkCAPIManagementCluster(); err != nil {
+			return err
+		}
+
 		if err := cc.switchKubeContext(); err != nil {
 			return err
 		}

@@ -512,7 +512,7 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 
 	toolsVersionPath := util.GetHomePath(util.RMKDir, util.RMKToolsDir, util.ToolsVersionDir)
 	toolsTmpPath := util.GetHomePath(util.RMKDir, util.RMKToolsDir, util.ToolsTmpDir)
-	toolsBinPath := util.GetHomePath(".local", util.ToolsBinDir)
+	toolsBinPath := util.GetHomePath(util.ToolsLocalDir, util.ToolsBinDir)
 
 	if err := os.MkdirAll(toolsVersionPath, 0755); err != nil {
 		return err
