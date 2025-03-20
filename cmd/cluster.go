@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	rJson "encoding/json"
+	rawjson "encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -345,7 +345,7 @@ func (cc *ClusterCommands) checkCAPIManagementCluster() error {
 	}
 
 	data := k.SpecCMD.StdoutBuf.Bytes()
-	src := (*rJson.RawMessage)(&data)
+	src := (*rawjson.RawMessage)(&data)
 	if err := json.Unmarshal(*src, &cMC); err != nil {
 		return err
 	}
