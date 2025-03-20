@@ -1,2 +1,4 @@
+- Added a validation to ensure the presence of the CAPI management cluster before executing capi commands: destroy, provision, and update.
 - Fixed AWS MFA config and credential files suffix after refreshing credentials multiple times.
 - Fixed path to auth tools for Kubernetes context.
+- Refactored template for Slack messages.
