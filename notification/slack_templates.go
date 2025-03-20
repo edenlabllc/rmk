@@ -31,7 +31,7 @@ func (t *TmpUpdate) TmpProjectUpdateMsg() string {
 		"\t*Affected tenant:* %s\n"+
 		"\t*Affected environment:* %s\n"+
 		"\t*Affected file:* %s\n",
-		strings.Join(t.ChangesList, " "),
+		strings.Join(t.ChangesList, ", "),
 		t.Context.String("version"),
 		t.Tenant,
 		t.Environment,
@@ -42,8 +42,8 @@ func (t *TmpUpdate) TmpProjectUpdateMsg() string {
 func (t *TmpUpdate) TmpReleaseUpdateSuccessMsg() string {
 	return fmt.Sprintf("*Success deployed releases:* _%s_\n"+
 		"*For cluster:* %s\n",
-		strings.Join(t.ChangesList, " "),
-		t.RootDomain,
+		strings.Join(t.ChangesList, ", "),
+		t.Name,
 	) + t.TmpUpdateMsgDetails()
 }
 
@@ -51,8 +51,8 @@ func (t *TmpUpdate) TmpReleaseUpdateFailedMsg(err error) string {
 	return fmt.Sprintf("*Fail deployed releases:* _%s_\n"+
 		"*For cluster:* %s\n"+
 		"*Error:* %s\n",
-		strings.Join(t.ChangesList, " "),
-		t.RootDomain,
+		strings.Join(t.ChangesList, ", "),
+		t.Name,
 		err,
 	) + t.TmpUpdateMsgDetails()
 }
@@ -65,7 +65,7 @@ func (t *TmpUpdate) TmpReleaseUpdateMsg() string {
 		"\t*Affected tenant:* %s\n"+
 		"\t*Affected environment:* %s\n"+
 		"\t*Affected scope:* %s\n",
-		strings.Join(t.ChangesList, " "),
+		strings.Join(t.ChangesList, ", "),
 		t.Context.String("tag"),
 		t.Tenant,
 		t.Environment,
