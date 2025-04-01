@@ -68,13 +68,15 @@ func (k *K3DCommands) selectCluster() {
 }
 
 func (k *K3DCommands) createDeleteK3DCluster() error {
+	var labelSelector = fmt.Sprintf("%s=%s", labelKeyCluster, k.Ctx.Command.Category)
+
 	k.selectCluster()
 
 	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
 
-	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "-l", "cluster="+k.Ctx.Command.Category, "template")
+	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "template")
 	k.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(k).runCMD(); err != nil {
 		return fmt.Errorf("Helmfile failed to render template by label release: cluster=%s\n%s",

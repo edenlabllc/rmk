@@ -68,6 +68,15 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 					Selector      *metav1.LabelSelector
 				}{
 					NamespaceList: []string{azureClusterIdentityNamespace},
+					Selector: &metav1.LabelSelector{
+						MatchExpressions: []metav1.LabelSelectorRequirement{
+							metav1.LabelSelectorRequirement{
+								Key:      "name",
+								Operator: metav1.LabelSelectorOpExists,
+								Values:   nil,
+							},
+						},
+					},
 				}),
 				ClientID: ac.ClientID,
 				ClientSecret: corev1.SecretReference{

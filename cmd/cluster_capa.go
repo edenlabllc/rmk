@@ -76,6 +76,15 @@ func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSCluste
 					Selector      *metav1.LabelSelector
 				}{
 					NamespaceList: []string{awsClusterStaticIdentityNamespace},
+					Selector: &metav1.LabelSelector{
+						MatchExpressions: []metav1.LabelSelectorRequirement{
+							metav1.LabelSelectorRequirement{
+								Key:      "name",
+								Operator: metav1.LabelSelectorOpExists,
+								Values:   nil,
+							},
+						},
+					},
 				}),
 				SecretRef: awsClusterStaticIdentitySecret,
 			},
