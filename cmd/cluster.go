@@ -23,6 +23,13 @@ import (
 	"rmk/util"
 )
 
+const (
+	labelKeyCluster    = "cluster"
+	labelKeyConfig     = "config"
+	labelValClusterCTL = "clusterctl"
+	labelValExtension  = "extension"
+)
+
 type clusterRunner interface {
 	getKubeContext() (string, string, error)
 	switchKubeContext() error
@@ -43,6 +50,11 @@ type CAPIManagementCluster struct {
 	Name           string `json:"name,omitempty"`
 	ServersRunning int    `json:"serversRunning,omitempty"`
 	ServersCount   int    `json:"serversCount,omitempty"`
+}
+
+type ConfigExtension struct {
+	Name      string `json:"name,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 func newClusterCommands(conf *config.Config, ctx *cli.Context, workDir string) *ClusterCommands {
@@ -119,6 +131,8 @@ func createClusterCTLConfigFile(output []byte) (string, error) {
 }
 
 func (cc *ClusterCommands) getClusterCTLConfig() (string, string, error) {
+	var labelSelector = fmt.Sprintf("%s=%s", labelKeyConfig, labelValClusterCTL)
+
 	if cc.Ctx.Command.Category == util.CAPI {
 		cc.APICluster = true
 	}
@@ -128,11 +142,11 @@ func (cc *ClusterCommands) getClusterCTLConfig() (string, string, error) {
 		return "", "", err
 	}
 
-	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "config=clusterctl", "template")
+	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "template")
 	cc.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(cc).runCMD(); err != nil {
-		return "", "", fmt.Errorf("Helmfile failed to render template by release label: config=clusterctl\n%s",
-			cc.SpecCMD.StderrBuf.String())
+		return "", "", fmt.Errorf("Helmfile failed to render template by release label: %s\n%s",
+			labelSelector, cc.SpecCMD.StderrBuf.String())
 	}
 
 	fileName, err := createClusterCTLConfigFile(cc.SpecCMD.StdoutBuf.Bytes())
@@ -161,6 +175,42 @@ func (cc *ClusterCommands) initClusterCTLConfig() error {
 	}
 
 	return os.RemoveAll(clusterCTLConfig)
+}
+
+func (cc *ClusterCommands) initConfigExtensions() error {
+	var (
+		configExtensions []ConfigExtension
+		labelSelector    = fmt.Sprintf("%s=%s,%s=%s",
+			labelKeyConfig, labelValExtension, labelKeyCluster, cc.Conf.ClusterProvider)
+	)
+
+	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "list", "--output", "json")
+	cc.SpecCMD.DisableStdOut = true
+	if err := releaseRunner(cc).runCMD(); err != nil {
+		return fmt.Errorf("failed to list config extensions: %s", cc.SpecCMD.StderrBuf.String())
+	}
+
+	data := cc.SpecCMD.StdoutBuf.Bytes()
+	src := (*rawjson.RawMessage)(&data)
+	if err := json.Unmarshal(*src, &configExtensions); err != nil {
+		return fmt.Errorf("failed to parse config extensions JSON: %w", err)
+	}
+
+	if len(configExtensions) == 0 {
+		return nil
+	}
+
+	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "sync")
+	cc.SpecCMD.DisableStdOut = true
+	if err := releaseRunner(cc).runCMD(); err != nil {
+		return fmt.Errorf("failed to sync config extensions: %s", cc.SpecCMD.StderrBuf.String())
+	}
+
+	for _, val := range configExtensions {
+		zap.S().Info("installed config extension: name: " + val.Name + ", namespace: " + val.Namespace)
+	}
+
+	return nil
 }
 
 func (cc *ClusterCommands) manageKubeConfigItem(itemType, itemName string) error {
@@ -360,6 +410,9 @@ func (cc *ClusterCommands) checkCAPIManagementCluster() error {
 }
 
 func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
+	var labelSelector = fmt.Sprintf("%s=%s,%s!=%s",
+		labelKeyCluster, cc.Conf.ClusterProvider, labelKeyConfig, labelValExtension)
+
 	if cc.Ctx.Command.Category == util.CAPI {
 		cc.APICluster = true
 	}
@@ -394,7 +447,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			}
 		}
 
-		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "sync")
+		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "sync")
 		if err := releaseRunner(cc).runCMD(); err != nil {
 			return err
 		}
@@ -429,7 +482,7 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			}
 		}
 	case "destroy":
-		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "-l", "cluster="+cc.Conf.ClusterProvider, "destroy")
+		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "destroy")
 		if err := releaseRunner(cc).runCMD(); err != nil {
 			return err
 		}
@@ -511,14 +564,20 @@ func CAPIInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.After
 
 		switch cc.Conf.ClusterProvider {
 		case aws_provider.AWSClusterProvider:
-			return cc.applyAWSClusterIdentity()
+			if err := cc.applyAWSClusterIdentity(); err != nil {
+				return err
+			}
 		case azure_provider.AzureClusterProvider:
-			return cc.applyAzureClusterIdentity()
+			if err := cc.applyAzureClusterIdentity(); err != nil {
+				return err
+			}
 		case google_provider.GoogleClusterProvider:
-			return cc.applyGCPClusterIdentitySecret()
+			if err := cc.applyGCPClusterIdentitySecret(); err != nil {
+				return err
+			}
 		}
 
-		return nil
+		return cc.initConfigExtensions()
 	}
 }
 
@@ -547,14 +606,20 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 
 		switch cc.Conf.ClusterProvider {
 		case aws_provider.AWSClusterProvider:
-			return cc.applyAWSClusterIdentity()
+			if err := cc.applyAWSClusterIdentity(); err != nil {
+				return err
+			}
 		case azure_provider.AzureClusterProvider:
-			return cc.applyAzureClusterIdentity()
+			if err := cc.applyAzureClusterIdentity(); err != nil {
+				return err
+			}
 		case google_provider.GoogleClusterProvider:
-			return cc.applyGCPClusterIdentitySecret()
+			if err := cc.applyGCPClusterIdentitySecret(); err != nil {
+				return err
+			}
 		}
 
-		return nil
+		return cc.initConfigExtensions()
 	}
 }
 
