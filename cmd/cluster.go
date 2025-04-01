@@ -52,7 +52,7 @@ type CAPIManagementCluster struct {
 	ServersCount   int    `json:"serversCount,omitempty"`
 }
 
-type ConfigExtensions struct {
+type ConfigExtension struct {
 	Name      string `json:"name,omitempty"`
 	Namespace string `json:"namespace,omitempty"`
 }
@@ -177,9 +177,9 @@ func (cc *ClusterCommands) initClusterCTLConfig() error {
 	return os.RemoveAll(clusterCTLConfig)
 }
 
-func (cc *ClusterCommands) initConfigExtension() error {
+func (cc *ClusterCommands) initConfigExtensions() error {
 	var (
-		configExtensions []ConfigExtensions
+		configExtensions []ConfigExtension
 		labelSelector    = fmt.Sprintf("%s=%s,%s=%s",
 			labelKeyConfig, labelValExtension, labelKeyCluster, cc.Conf.ClusterProvider)
 	)
@@ -577,7 +577,7 @@ func CAPIInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.After
 			}
 		}
 
-		return cc.initConfigExtension()
+		return cc.initConfigExtensions()
 	}
 }
 
@@ -619,7 +619,7 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 			}
 		}
 
-		return cc.initConfigExtension()
+		return cc.initConfigExtensions()
 	}
 }
 
