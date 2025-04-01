@@ -83,6 +83,11 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 			k.Ctx.Command.Category, k.SpecCMD.StderrBuf.String())
 	}
 
+	if len(k.SpecCMD.StdoutBuf.String()) == 0 {
+		return fmt.Errorf("no Helmfile releases matched the selector '%s'. "+
+			"Make sure the cluster '%s' is defined in helmfile.yaml", labelSelector, k.Ctx.Command.Category)
+	}
+
 	k3dConfig, err := util.CreateTempYAMLFile(os.TempDir(), k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())
 	if err != nil {
 		return err
