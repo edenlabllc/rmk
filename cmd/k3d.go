@@ -31,7 +31,7 @@ func (k *K3DCommands) k3d(args ...string) *util.SpecCMD {
 		Args:          append([]string{}, args...),
 		Command:       "k3d",
 		Dir:           k.WorkDir,
-		Ctx:           k.Ctx.Context,
+		Ctx:           k.Ctx,
 		DisableStdOut: false,
 		Debug:         false,
 	}

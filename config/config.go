@@ -12,7 +12,6 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/semver"
-	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
@@ -147,11 +146,11 @@ func (conf *Config) GetConfigs(all bool) error {
 			fmt.Printf("- %s\n", rmkConfig)
 		} else {
 			switch {
-			case patternBranch.MatchString(rmkConfig):
+			case patternBranch != nil && patternBranch.MatchString(rmkConfig):
 				fmt.Printf("- %s\n", rmkConfig)
-			case patternSemVer.MatchString(rmkConfig):
+			case patternSemVer != nil && patternSemVer.MatchString(rmkConfig):
 				fmt.Printf("- %s\n", rmkConfig)
-			case patternTaskNum.MatchString(rmkConfig):
+			case patternTaskNum != nil && patternTaskNum.MatchString(rmkConfig):
 				fmt.Printf("- %s\n", rmkConfig)
 			}
 		}
@@ -160,7 +159,7 @@ func (conf *Config) GetConfigs(all bool) error {
 	return nil
 }
 
-func (conf *Config) SetRootDomain(c *cli.Context, gitSpecID string) error {
+func (conf *Config) SetRootDomain(gitSpecID string) error {
 	for env, val := range conf.Spec.Environments {
 		check := strings.Split(val.RootDomain, "*.")
 		if len(check) > 2 {

@@ -14,9 +14,10 @@ import (
 )
 
 const (
-	awsFlagsCategory = "AWS authentication"
-
-	awsIAMControllerCredentialsTemplate = `[default]
+	awsClusterStaticIdentityNamespacePrefix = "capa"
+	awsClusterStaticIdentityNamespace       = "capa-system"
+	awsFlagsCategory                        = "AWS authentication"
+	awsIAMControllerCredentialsTemplate     = `[default]
 aws_access_key_id = {{ .AwsCredentialsProfile.AccessKeyID }}
 aws_secret_access_key = {{ .AwsCredentialsProfile.SecretAccessKey }}
 region = {{ .Region }}
@@ -24,10 +25,7 @@ region = {{ .Region }}
 aws_session_token = {{ .AwsCredentialsProfile.SessionToken }}
 {{- end }}
 `
-	awsIAMControllerSecret            = "aws-iam-controller-secret"
-	awsClusterStaticIdentityName      = "aws-cluster-identity"
-	awsClusterStaticIdentityNamespace = "capa-system"
-	awsClusterStaticIdentitySecret    = "aws-cluster-identity-secret"
+	awsIAMControllerSecret = "aws-iam-controller-secret"
 )
 
 var awsClusterStaticIdentitySecretType = corev1.SecretTypeOpaque
@@ -55,7 +53,7 @@ type AWSClusterStaticIdentitySpec struct {
 	SecretRef string `json:"secretRef"`
 }
 
-func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSClusterStaticIdentityConfig {
+func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure, identity *IdentityName) *AWSClusterStaticIdentityConfig {
 	acic := &AWSClusterStaticIdentityConfig{
 		AWSClusterStaticIdentity: &AWSClusterStaticIdentity{
 			TypeMeta: metav1.TypeMeta{
@@ -63,7 +61,7 @@ func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSCluste
 				APIVersion: "infrastructure.cluster.x-k8s.io/v1beta2",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      awsClusterStaticIdentityName,
+				Name:      identity.generateObjectName(objectIdentityName),
 				Namespace: awsClusterStaticIdentityNamespace,
 				Labels:    map[string]string{"clusterctl.cluster.x-k8s.io/move-hierarchy": "true"},
 			},
@@ -75,23 +73,14 @@ func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSCluste
 					NamespaceList []string
 					Selector      *metav1.LabelSelector
 				}{
-					NamespaceList: []string{awsClusterStaticIdentityNamespace},
-					Selector: &metav1.LabelSelector{
-						MatchExpressions: []metav1.LabelSelectorRequirement{
-							metav1.LabelSelectorRequirement{
-								Key:      "name",
-								Operator: metav1.LabelSelectorOpExists,
-								Values:   nil,
-							},
-						},
-					},
+					NamespaceList: []string{identity.generateObjectName(objectNamespace)},
 				}),
-				SecretRef: awsClusterStaticIdentitySecret,
+				SecretRef: identity.generateObjectName(objectIdentitySecret),
 			},
 		},
 		AWSIAMControllerSecret:   v1.Secret(awsIAMControllerSecret, awsClusterStaticIdentityNamespace),
-		SecretApplyConfiguration: v1.Secret(awsClusterStaticIdentitySecret, awsClusterStaticIdentityNamespace),
-		ManifestFilesDir:         filepath.Join(os.TempDir(), awsClusterStaticIdentityName),
+		SecretApplyConfiguration: v1.Secret(identity.generateObjectName(objectIdentitySecret), awsClusterStaticIdentityNamespace),
+		ManifestFilesDir:         filepath.Join(os.TempDir(), identity.generateObjectName(objectIdentityName)),
 	}
 
 	profile, err := ac.RenderAWSConfigProfile(awsIAMControllerCredentialsTemplate)
@@ -115,31 +104,30 @@ func NewAWSClusterStaticIdentityConfig(ac *aws_provider.AwsConfigure) *AWSCluste
 	return acic
 }
 
-func (acic *AWSClusterStaticIdentityConfig) createAWSClusterIdentityManifestFiles() error {
+func (acic *AWSClusterStaticIdentityConfig) createAWSClusterIdentityManifestFiles(identity *IdentityName) error {
 	if err := os.MkdirAll(acic.ManifestFilesDir, 0775); err != nil {
 		return err
 	}
 
-	fileCR, err := createManifestFile(acic.AWSClusterStaticIdentity, acic.ManifestFilesDir, awsClusterStaticIdentityName)
+	fileIAMControllerSecret, err := createManifestFile(acic.AWSIAMControllerSecret, acic.ManifestFilesDir,
+		awsIAMControllerSecret)
 	if err != nil {
 		return err
 	}
 
-	acic.ManifestFiles = append(acic.ManifestFiles, fileCR)
-
-	fileCRSecret, err := createManifestFile(acic.SecretApplyConfiguration, acic.ManifestFilesDir, awsClusterStaticIdentitySecret)
+	fileCR, err := createManifestFile(acic.AWSClusterStaticIdentity, acic.ManifestFilesDir,
+		identity.generateObjectName(objectIdentityName))
 	if err != nil {
 		return err
 	}
 
-	acic.ManifestFiles = append(acic.ManifestFiles, fileCRSecret)
-
-	fileIAMControllerSecret, err := createManifestFile(acic.AWSIAMControllerSecret, acic.ManifestFilesDir, awsIAMControllerSecret)
+	fileSecret, err := createManifestFile(acic.SecretApplyConfiguration, acic.ManifestFilesDir,
+		identity.generateObjectName(objectIdentitySecret))
 	if err != nil {
 		return err
 	}
 
-	acic.ManifestFiles = append(acic.ManifestFiles, fileIAMControllerSecret)
+	acic.ManifestFiles = append(acic.ManifestFiles, fileCR, fileSecret, fileIAMControllerSecret)
 
 	return nil
 }
@@ -152,8 +140,23 @@ func (cc *ClusterCommands) applyAWSClusterIdentity() error {
 		return err
 	}
 
-	acic := NewAWSClusterStaticIdentityConfig(ac)
-	if err := acic.createAWSClusterIdentityManifestFiles(); err != nil {
+	identityName := newIdentityName(map[string]IdentityNameSpec{
+		objectIdentityName: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentityNameSuffix,
+		},
+		objectIdentitySecret: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentitySecretSuffix,
+		},
+		objectNamespace: {
+			ClusterName: cc.Conf.Name,
+			Prefix:      awsClusterStaticIdentityNamespacePrefix,
+		},
+	})
+
+	acic := NewAWSClusterStaticIdentityConfig(ac, identityName)
+	if err := acic.createAWSClusterIdentityManifestFiles(identityName); err != nil {
 		return err
 	}
 

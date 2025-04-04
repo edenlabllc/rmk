@@ -201,7 +201,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:         append(defaultArgs, args...),
 		Command:      "helmfile",
-		Ctx:          rc.Ctx.Context,
+		Ctx:          rc.Ctx,
 		Dir:          rc.WorkDir,
 		Envs:         envs,
 		Debug:        true,
@@ -411,7 +411,7 @@ func (rc *ReleaseCommands) helmCommands(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:          args,
 		Command:       "helm",
-		Ctx:           rc.Ctx.Context,
+		Ctx:           rc.Ctx,
 		Dir:           rc.WorkDir,
 		Debug:         true,
 		DisableStdOut: true,
