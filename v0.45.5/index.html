@@ -1,0 +1,1932 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="RMK CLI - Reduced Management for Kubernetes by Edenlab LLC">
+      
+      
+      
+        <link rel="canonical" href="https://edenlabllc.github.io/rmk/v0.45.5/">
+      
+      
+      
+        <link rel="next" href="quickstart/">
+      
+      
+      <link rel="icon" href="https://edenlab.io/favicon.ico">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.6">
+    
+    
+      
+        <title>RMK</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.35e1ed30.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rmk-cli-reduced-management-for-kubernetes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="RMK" class="md-header__button md-logo" aria-label="RMK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RMK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/edenlabllc/rmk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    edenlabllc/rmk
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="quickstart/" class="md-tabs__link">
+        
+  
+    
+  
+  Quickstart
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="backward-compatibility/" class="md-tabs__link">
+        
+  
+    
+  
+  Backward compatibility
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="configuration/cluster-management/cluster-management/" class="md-tabs__link">
+          
+  
+    
+  
+  Configuration and management
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="commands/" class="md-tabs__link">
+        
+  
+    
+  
+  Commands
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="development-and-release/" class="md-tabs__link">
+        
+  
+    
+  
+  Development and release
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="RMK" class="md-nav__button md-logo" aria-label="RMK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    RMK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/edenlabllc/rmk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    edenlabllc/rmk
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advantages" class="md-nav__link">
+    Advantages
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-kubernetes-cluster-providers" class="md-nav__link">
+    Supported Kubernetes cluster providers
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported Kubernetes cluster providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provisioned-by-rmk" class="md-nav__link">
+    Provisioned by RMK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provisioned-using-third-party-tools-and-services" class="md-nav__link">
+    Provisioned using third-party tools and services
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edenlab-llc-use-cases" class="md-nav__link">
+    Edenlab LLC use cases
+  </a>
+  
+    <nav class="md-nav" aria-label="Edenlab LLC use cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#efficiency-in-numbers" class="md-nav__link">
+    Efficiency in numbers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-clusters" class="md-nav__link">
+    Managing clusters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-repositories" class="md-nav__link">
+    Related repositories
+  </a>
+  
+    <nav class="md-nav" aria-label="Related repositories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    GitHub
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helm-charts" class="md-nav__link">
+    Helm charts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-systems-os" class="md-nav__link">
+    Operating systems (OS)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    Software
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    Update
+  </a>
+  
+    <nav class="md-nav" aria-label="Update">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-update-process" class="md-nav__link">
+    General update process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-to-specific-version" class="md-nav__link">
+    Updating to specific version
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roadmap" class="md-nav__link">
+    Roadmap
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-and-release" class="md-nav__link">
+    Development and release
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    License
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    Code of Conduct
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="quickstart/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quickstart
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="backward-compatibility/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Backward compatibility
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Configuration and management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration and management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Cluster management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Cluster management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/cluster-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cluster management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/exported-environment-variables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exported environment variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/usage-aws-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using AWS cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/usage-azure-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using Azure cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/usage-gcp-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using GCP cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/cluster-management/usage-k3d-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using K3D cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Configuration management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/configuration-management/configuration-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/configuration-management/init-aws-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Initialization of AWS cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/configuration-management/init-azure-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Initialization of Azure cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/configuration-management/init-gcp-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Initialization of GCP cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/configuration-management/init-k3d-provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Initialization of K3D cluster provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Project management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Project management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/project-management/dependencies-management-and-project-inheritance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dependencies management and project inheritance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/project-management/preparation-of-project-repository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Preparation of the project repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/project-management/requirement-for-project-repository/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Requirement for project repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Release management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Release management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/release-management/release-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Secrets management
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            Secrets management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/secrets-management/secrets-management/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Secrets management
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="commands/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Commands
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development-and-release/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Development and release
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advantages" class="md-nav__link">
+    Advantages
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-kubernetes-cluster-providers" class="md-nav__link">
+    Supported Kubernetes cluster providers
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported Kubernetes cluster providers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provisioned-by-rmk" class="md-nav__link">
+    Provisioned by RMK
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provisioned-using-third-party-tools-and-services" class="md-nav__link">
+    Provisioned using third-party tools and services
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edenlab-llc-use-cases" class="md-nav__link">
+    Edenlab LLC use cases
+  </a>
+  
+    <nav class="md-nav" aria-label="Edenlab LLC use cases">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#efficiency-in-numbers" class="md-nav__link">
+    Efficiency in numbers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-clusters" class="md-nav__link">
+    Managing clusters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-repositories" class="md-nav__link">
+    Related repositories
+  </a>
+  
+    <nav class="md-nav" aria-label="Related repositories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github" class="md-nav__link">
+    GitHub
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helm-charts" class="md-nav__link">
+    Helm charts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+    <nav class="md-nav" aria-label="Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-systems-os" class="md-nav__link">
+    Operating systems (OS)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    Software
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#update" class="md-nav__link">
+    Update
+  </a>
+  
+    <nav class="md-nav" aria-label="Update">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-update-process" class="md-nav__link">
+    General update process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-to-specific-version" class="md-nav__link">
+    Updating to specific version
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roadmap" class="md-nav__link">
+    Roadmap
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-and-release" class="md-nav__link">
+    Development and release
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    License
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    Code of Conduct
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="rmk-cli-reduced-management-for-kubernetes">RMK CLI - Reduced Management for Kubernetes<a class="headerlink" href="#rmk-cli-reduced-management-for-kubernetes" title="Permanent link">&para;</a></h1>
+<p><a href="https://github.com/edenlabllc/rmk/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/edenlabllc/rmk.svg?style=for-the-badge" /></a>
+<a href="https://github.com/edenlabllc/rmk/blob/master/LICENSE"><img alt="Software License" src="https://img.shields.io/github/license/edenlabllc/rmk.svg?style=for-the-badge" /></a>
+<a href="https://edenlab.io"><img alt="Powered By: Edenlab" src="https://img.shields.io/badge/powered%20by-edenlab-8A2BE2.svg?style=for-the-badge" /></a></p>
+<p>Command-line tool for simplified management and provisioning of <a href="https://kubernetes.io/">Kubernetes</a> clusters and
+environments,
+<a href="https://helm.sh/">Helm</a> secrets and releases, built according to best practices
+in <a href="https://www.redhat.com/en/topics/devops/what-is-ci-cd">CI/CD</a> and <a href="https://www.atlassian.com/devops">DevOps</a>.</p>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#advantages">Advantages</a></li>
+<li><a href="#supported-kubernetes-cluster-providers">Supported Kubernetes cluster providers</a><ul>
+<li><a href="#provisioned-by-rmk">Provisioned by RMK</a></li>
+<li><a href="#provisioned-using-third-party-tools-and-services">Provisioned using third-party tools and services</a></li>
+</ul>
+</li>
+<li><a href="#edenlab-llc-use-cases">Edenlab LLC use cases</a><ul>
+<li><a href="#efficiency-in-numbers">Efficiency in numbers</a></li>
+<li><a href="#managing-clusters">Managing clusters</a></li>
+<li><a href="#related-repositories">Related repositories</a><ul>
+<li><a href="#github">GitHub</a></li>
+<li><a href="#helm-charts">Helm charts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#requirements">Requirements</a><ul>
+<li><a href="#operating-systems-os">Operating systems (OS)</a></li>
+<li><a href="#software">Software</a></li>
+</ul>
+</li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#update">Update</a><ul>
+<li><a href="#general-update-process">General update process</a></li>
+<li><a href="#update-to-specific-version">Updating to specific version</a></li>
+</ul>
+</li>
+<li><a href="quickstart/">Quickstart</a></li>
+<li><a href="backward-compatibility/">Backward compatibility</a></li>
+<li>Configuration<ul>
+<li><a href="configuration/configuration-management/configuration-management/">Configuration management</a><ul>
+<li><a href="configuration/configuration-management/init-aws-provider/">Initialization of AWS cluster provider</a></li>
+<li><a href="configuration/configuration-management/init-azure-provider/">Initialization of Azure cluster provider</a></li>
+<li><a href="configuration/configuration-management/init-azure-provider/">Initialization of GCP cluster provider</a></li>
+<li><a href="configuration/configuration-management/init-k3d-provider/">Initialization of K3D cluster provider</a></li>
+</ul>
+</li>
+<li>Project management<ul>
+<li><a href="configuration/project-management/requirement-for-project-repository/">Requirement for project repository</a></li>
+<li><a href="configuration/project-management/preparation-of-project-repository/">Preparation of project repository</a></li>
+<li><a href="configuration/project-management/dependencies-management-and-project-inheritance/">Dependencies management and project inheritance</a></li>
+</ul>
+</li>
+<li><a href="configuration/cluster-management/cluster-management/">Cluster management</a><ul>
+<li><a href="configuration/cluster-management/exported-environment-variables/">Exported environment variables</a></li>
+<li><a href="configuration/cluster-management/usage-aws-provider/">Using AWS cluster provider</a></li>
+<li><a href="configuration/cluster-management/usage-azure-provider/">Using Azure cluster provider</a></li>
+<li><a href="configuration/cluster-management/usage-azure-provider/">Using GCP cluster provider</a></li>
+<li><a href="configuration/cluster-management/usage-k3d-provider/">Using K3D cluster provider</a></li>
+</ul>
+</li>
+<li><a href="configuration/release-management/release-management/">Release management</a></li>
+<li><a href="configuration/secrets-management/secrets-management/">Secrets management</a></li>
+</ul>
+</li>
+<li><a href="commands/">Commands</a></li>
+<li><a href="#roadmap">Roadmap</a></li>
+<li><a href="development-and-release/">Development and release</a></li>
+<li><a href="#license">License</a></li>
+<li><a href="#code-of-conduct">Code of Conduct</a></li>
+</ul>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><strong>RMK</strong> stands for &ldquo;<strong>R</strong>educed <strong>M</strong>anagement for <strong>K</strong>ubernetes&rdquo;.</p>
+<p>The main goal of the <a href="https://en.wikipedia.org/wiki/Command-line_interface">CLI</a> tool is to simplify (<strong>reduce</strong>) the
+management of Kubernetes clusters and releases, serving as a &ldquo;Swiss knife&rdquo; for daily CI/CD and DevOps tasks while 
+allowing <strong>efficient control</strong> with a minimal set of CLI commands.</p>
+<p>RMK serves as a <strong>wrapper</strong> for various popular CI/CD and DevOps CLI tools, including:</p>
+<ul>
+<li><a href="https://helmfile.readthedocs.io/en/latest/">Helmfile</a></li>
+<li><a href="https://helm.sh/">Helm</a></li>
+<li><a href="https://kubernetes.io/docs/reference/kubectl/">kubectl</a></li>
+<li><a href="https://cluster-api.sigs.k8s.io/clusterctl/overview">clusterctl</a></li>
+<li><a href="https://k3d.io/">K3D</a></li>
+<li><a href="https://getsops.io/">SOPS</a></li>
+<li><a href="https://age-encryption.org/">Age</a></li>
+</ul>
+<p>It leverages <a href="https://cluster-api.sigs.k8s.io/">Kubernetes Cluster API</a> for cluster provisioning and management across
+different environments, such as <a href="https://en.wikipedia.org/wiki/Cloud_computing">cloud providers</a>
+and <a href="https://en.wikipedia.org/wiki/On-premises_software">on-premise</a> deployments.</p>
+<p>RMK has been designed to be <strong>used by different IT specialists</strong>, among them are DevOps engineers, software developers,
+SREs,
+cloud architects, system analytics, software testers and even managers with minimal technical background.</p>
+<h2 id="advantages">Advantages<a class="headerlink" href="#advantages" title="Permanent link">&para;</a></h2>
+<p>RMK <strong>simplifies</strong> the setup and management of Kubernetes-based projects of any complexity due to the following advantages:</p>
+<ul>
+<li><strong><a href="#efficiency-in-numbers">Time-proven</a> CI/CD solution</strong>: Tested and validated across multiple cloud providers and 
+  real customers, RMK leverages <a href="https://cluster-api.sigs.k8s.io/">Kubernetes Cluster API</a> for cluster provisioning
+  and <a href="https://helmfile.readthedocs.io/en/latest/">Helmfile</a>/<a href="https://helm.sh/">Helm</a> for efficient release and secrets
+  management.</li>
+<li><strong>Seamless integration with <a href="https://www.redhat.com/en/topics/devops/what-is-ci-cd">CI/CD</a> platforms</strong>: A
+  self-sufficient, portable binary that follows the <a href="https://12factor.net/">12-factor app</a> methodology and can
+  easily be integrated with any CI/CD solution.</li>
+<li><strong>Built-in <a href="https://en.wikipedia.org/wiki/Software_versioning">versioning</a> for CI/CD pipelines</strong>: Supports static and
+  dynamic tags (e.g., <a href="https://semver.org/">SemVer2</a>) for project and releases to guarantee stable, well-tested, and
+  predictable deployments.</li>
+<li><strong>Transparent <a href="configuration/project-management/preparation-of-project-repository/">project structure</a> and
+  <a href="configuration/project-management/dependencies-management-and-project-inheritance/">dependency management</a></strong>:
+  Enables rapid project setup and hierarchical project inheritance, e.g., &ldquo;parent-child&rdquo; or &ldquo;upstream-downstream&rdquo;
+  relationships) between sibling projects to enable release configuration reuse.</li>
+<li><strong><a href="configuration/secrets-management/secrets-management/#generating-all-secrets-from-scratch">Batch</a> secret
+  management</strong>: Automates templating, generation, and encryption of secrets across all environments
+  in batch mode.</li>
+<li><strong>Adheres to the <a href="https://www.gitops.tech/">GitOps</a> approach</strong>: Uses Git branches as unique identifiers for
+  environments, clusters, configurations, and project management in Kubernetes.</li>
+<li><strong>Follows the <a href="https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/">GitLab Flow</a> model</strong>: Implements
+  a standard branching strategy (<code>develop</code>, <code>staging</code>, <code>production</code>) and ephemeral branches (<code>feature/*</code>, <code>release/*</code>) for
+  temporary environments.</li>
+<li><strong>Aligns with the <a href="https://www.atlassian.com/devops">DevOps</a> methodology</strong>: Enables multiple teams to develop and
+  release independently while seamlessly integrating their work into a single project.</li>
+<li><strong>Directly executes the wrapped <a href="#overview">CLI tools</a></strong>: Calls CLI tools as a user would, passing the correct
+  arguments and flags
+  based on the project configuration, ensuring RMK updates remain decoupled from CLI tool updates for continued access
+  to new features and fixes.</li>
+</ul>
+<h2 id="supported-kubernetes-cluster-providers">Supported Kubernetes cluster providers<a class="headerlink" href="#supported-kubernetes-cluster-providers" title="Permanent link">&para;</a></h2>
+<h3 id="provisioned-by-rmk">Provisioned by RMK<a class="headerlink" href="#provisioned-by-rmk" title="Permanent link">&para;</a></h3>
+<p>RMK currently supports the <strong>provisioning</strong> of the following Kubernetes clusters:</p>
+<ul>
+<li><a href="https://aws.amazon.com/eks/">Amazon Elastic Kubernetes Service (EKS)</a></li>
+<li><a href="https://azure.microsoft.com/en-us/products/kubernetes-service/">Azure Kubernetes Service (AKS)</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine (GKE)</a></li>
+<li>Single-machine <a href="https://k3d.io/">K3D</a> clusters</li>
+</ul>
+<blockquote>
+<p>Please see the <a href="#roadmap">Roadmap</a> section for more details on upcoming features.</p>
+</blockquote>
+<h3 id="provisioned-using-third-party-tools-and-services">Provisioned using third-party tools and services<a class="headerlink" href="#provisioned-using-third-party-tools-and-services" title="Permanent link">&para;</a></h3>
+<p>By design, RMK can work with <strong>any existing Kubernetes cluster</strong>, provided it has been provisioned in advance by a third
+party. The CLI tool simply requires an existing
+<a href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Kubernetes context</a>
+to connect to and manage the cluster.</p>
+<h2 id="edenlab-llc-use-cases">Edenlab LLC use cases<a class="headerlink" href="#edenlab-llc-use-cases" title="Permanent link">&para;</a></h2>
+<h3 id="efficiency-in-numbers">Efficiency in numbers<a class="headerlink" href="#efficiency-in-numbers" title="Permanent link">&para;</a></h3>
+<p>Initially, it has been developed by <a href="https://edenlab.io/">Edenlab LLC</a> as the main CLI for provisioning and managing
+<a href="https://kodjin.com">Kodjin FHIR Server</a> on Kubernetes clusters in different environments.</p>
+<p><strong>Since 2021</strong>, RMK has been an <strong>integral part</strong> of the company’s Kubernetes infrastructure, used regularly for automated
+provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and 
+automatically within CI/CD pipelines.</p>
+<p><strong><img alt="🚀" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@14.1.2/assets/svg/1f680.svg" title=":rocket:" /> Proven at scale</strong>:</p>
+<ul>
+<li><strong>220+</strong> clusters handled <strong>monthly</strong> (based on a 5-day workweek).</li>
+<li><strong>2,600+</strong> clusters handled <strong>annually</strong>.</li>
+<li><strong>10,000+</strong> clusters orchestrated <strong>since 2021</strong>.</li>
+</ul>
+<p>Beyond internal use, RMK is also leveraged by various <strong>external clients</strong> to streamline their CI/CD workflows, ensuring
+fast and
+efficient Kubernetes environment management.</p>
+<h3 id="managing-clusters">Managing clusters<a class="headerlink" href="#managing-clusters" title="Permanent link">&para;</a></h3>
+<p>At <a href="https://edenlab.io/">Edenlab LLC</a>, RMK is utilized to deploy the <a href="https://kodjin.com">Kodjin FHIR Server</a>
+across various <strong>cloud providers</strong> and <strong>on-premise</strong> environments.</p>
+<p>Examples of Kubernetes providers where Kodjin has already been deployed include:</p>
+<ul>
+<li><a href="https://aws.amazon.com/eks/">Amazon Elastic Kubernetes Service (EKS)</a></li>
+<li><a href="https://azure.microsoft.com/en-us/products/kubernetes-service/">Azure Kubernetes Service (AKS)</a></li>
+<li><a href="https://cloud.google.com/kubernetes-engine">Google Kubernetes Engine (GKE)</a></li>
+<li><a href="https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine">Open Telekom Cloud - Cloud Container Engine (CCE)</a></li>
+<li><a href="https://www.rancher.com/">Rancher Kubernetes Platform</a></li>
+<li><a href="https://www.kubermatic.com/">Kubermatic Kubernetes Platform (KKP)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/On-premises_software">On-premise</a> deployments</li>
+<li>Single-machine <a href="https://k3d.io/">K3D</a> clusters</li>
+</ul>
+<p>A standard Kodjin-based cluster follows a <strong>4-level inheritance</strong> structure:</p>
+<ul>
+<li><strong><a href="https://github.com/edenlabllc/cluster-deps.bootstrap.infra">cluster-deps</a> (upstream#1)</strong>:
+  Provides <a href="https://cluster-api.sigs.k8s.io/">Kubernetes Cluster API</a> and essential system components required by RMK
+  for provisioning Kubernetes clusters across various providers.</li>
+<li><strong>Dependencies (upstream#2)</strong>:
+  Includes core components such as databases, search engines, caches, load balancers/proxies, and operators.
+  etc., uses <a href="https://github.com/edenlabllc/cluster-deps.bootstrap.infra">cluster-deps</a> as its primary project
+  dependency.</li>
+<li><strong><a href="https://kodjin.com/">Kodjin</a> (downstream#1)</strong>:
+  A set of <a href="https://www.rust-lang.org/">Rust</a> microservices that form the Kodjin FHIR
+  API (<a href="https://en.wikipedia.org/wiki/REST">REST</a>).</li>
+<li><strong>Target project (tenant) (downstream#2)</strong>:
+  Encompasses products built on top of Kodjin, including UI components, user portals, and middleware services, such as
+  the
+  e.g., <a href="https://demo.kodjin.com/">Kodjin Demo FHIR Server</a></li>
+</ul>
+<p>Each project repository <strong>follows</strong> a
+standard <a href="https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/">GitLab Flow</a> branching model.</p>
+<h3 id="related-repositories">Related repositories<a class="headerlink" href="#related-repositories" title="Permanent link">&para;</a></h3>
+<h4 id="github">GitHub<a class="headerlink" href="#github" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong><a href="https://github.com/edenlabllc/cluster-deps.bootstrap.infra">cluster-deps.bootstrap.infra</a></strong>:
+  <a href="https://cluster-api.sigs.k8s.io/">Kubernetes Cluster API</a> and system components required for provisioning of
+  Kubernetes clusters for different providers.</li>
+<li><strong><a href="https://github.com/edenlabllc/helmfile.hooks.infra">helmfile.hooks.infra</a></strong>:
+  A collection of shell scripts used as <a href="https://helmfile.readthedocs.io/en/latest/#hooks">Helmfile hooks</a> in
+  dependencies, Kodjin, or any other project,
+  e.g.,
+  check <a href="https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16">cluster-deps global configuration</a>).</li>
+<li><strong><a href="https://github.com/edenlabllc/aws-iam-provisioner.operators.infra">aws-iam-provisioner.operators.infra</a></strong>:
+  Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
+  using <a href="https://cluster-api-aws.sigs.k8s.io/getting-started">Kubernetes Cluster API Provider AWS</a>.</li>
+<li><strong><a href="https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra">ebs-snapshot-provision.operators.infra</a></strong>:
+  Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.</li>
+<li><strong><a href="https://github.com/edenlabllc/ecr-token-refresh.operators.infra">ecr-token-refresh.operators.infra</a></strong>:
+  Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.</li>
+<li><strong><a href="https://github.com/edenlabllc/secrets-sync.operators.infra">secrets-sync.operators.infra</a></strong>:
+  Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.</li>
+</ul>
+<h4 id="helm-charts">Helm charts<a class="headerlink" href="#helm-charts" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong><a href="https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/">core-charts</a></strong>:
+  A publicly accessible, <a href="https://aws.amazon.com/s3/">S3-based</a> 
+  <a href="https://helm.sh/docs/topics/chart_repository/">Helm chart repository</a> used by Kodjin, or any other project, e.g.,
+  check <a href="https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49">cluster-deps Helmfile</a>.</li>
+</ul>
+<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<h3 id="operating-systems-os">Operating systems (OS)<a class="headerlink" href="#operating-systems-os" title="Permanent link">&para;</a></h3>
+<p>Currently, RMK only supports <a href="https://en.wikipedia.org/wiki/Unix">Unix-like</a> operating systems (OS):</p>
+<ul>
+<li><strong>MacOS</strong>: amd64, arm64 (<a href="https://en.wikipedia.org/wiki/Apple_silicon#M_series">M series</a> processors
+  require <a href="https://support.apple.com/en-us/HT211861">Rosetta</a>)</li>
+<li><strong>Linux</strong>: amd64</li>
+</ul>
+<h3 id="software">Software<a class="headerlink" href="#software" title="Permanent link">&para;</a></h3>
+<p>The following software is required to run RMK:</p>
+<ul>
+<li><strong><a href="https://git-scm.com/">Git</a></strong></li>
+<li><strong>[for <a href="configuration/configuration-management/init-k3d-provider/">local K3D clusters</a>]</strong>:
+  Version <a href="https://k3d.io/stable/#learning">v5.X.X</a>
+  requires <strong><a href="https://www.docker.com/">Docker</a></strong> &gt;=
+  v20.10.5 (<strong><a href="https://github.com/opencontainers/runc">runc</a></strong> &gt;= v1.0.0-rc93) to work properly.</li>
+</ul>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>To install RMK, run the self-installer script using the following command:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-sL<span class="w"> </span><span class="s2">&quot;https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+</code></pre></div>
+<p>Alternatively, you can go directly to the <a href="https://github.com/edenlabllc/rmk/releases">releases</a> and download the
+binary or <a href="development-and-release/#building-from-source">build from source</a>.</p>
+<h2 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h2>
+<h3 id="general-update-process">General update process<a class="headerlink" href="#general-update-process" title="Permanent link">&para;</a></h3>
+<p>To update RMK to the latest version, run the following command:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>update
+</code></pre></div>
+<h3 id="updating-to-specific-version">Updating to specific version<a class="headerlink" href="#updating-to-specific-version" title="Permanent link">&para;</a></h3>
+<p>You can update to a specific RMK version to maintain backward compatibility or when updating to the latest version is
+not possible.</p>
+<blockquote>
+<p>This may be necessary due to specific version requirements or when a bug has been detected.</p>
+</blockquote>
+<p>To update to a specific version, use the following command:</p>
+<div class="highlight"><pre><span></span><code>rmk<span class="w"> </span>update<span class="w"> </span>--version<span class="w"> </span>vX.X.X<span class="w"> </span>
+</code></pre></div>
+<h2 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Integration with Helmfile <a href="https://github.com/helmfile/vals">vals</a></strong>: Integrate RMK with <em>vals</em> for advanced
+  values and secrets management.</li>
+<li><strong>Implementation of on-premise <a href="https://cluster-api.sigs.k8s.io/">Kubernetes Cluster API</a> provider:</strong> Implement
+  support for provisioning and destroy of on-premise Kubernetes clusters.</li>
+<li><strong>Automatic testing of RMK during the CI/CD pipeline:</strong> Ensure that changes to the RMK codebase do not introduce
+  errors or regressions during the CI/CD across all cluster providers.</li>
+<li><strong>Guidelines for contributors:</strong> Create comprehensive guidelines for contributors, including instructions for creating
+  pull requests (PRs).</li>
+</ul>
+<blockquote>
+<p>Please refer to <a href="https://github.com/edenlabllc/rmk/issues">GitHub issues</a> for more information.</p>
+</blockquote>
+<h2 id="development-and-release">Development and release<a class="headerlink" href="#development-and-release" title="Permanent link">&para;</a></h2>
+<p>The guidelines are available at the <a href="development-and-release/">link</a>.</p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>RMK is open source software (OSS) licensed under
+the <a href="https://github.com/edenlabllc/rmk/blob/master/LICENSE">Apache 2.0 License</a>.</p>
+<h2 id="code-of-conduct">Code of Conduct<a class="headerlink" href="#code-of-conduct" title="Permanent link">&para;</a></h2>
+<p>This project adheres to the Contributor
+Covenant <a href="https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md">Сode of Сonduct</a>.
+By participating, you are expected to uphold this code.</p>
+<p>Please refer to our <a href="https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md">Contributing Guidelines</a> for
+further information.</p>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">February 20, 2025</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2025
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "search.highlight", "search.share", "search.suggest", "navigation.expand", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.path"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+    
+  </body>
+</html>
