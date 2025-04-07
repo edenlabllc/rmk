@@ -13,24 +13,25 @@ import (
 )
 
 const (
-	gcpClusterIdentityName      = "gcp-cluster-identity"
-	gcpClusterIdentityNamespace = "capg-system"
-	gcpClusterIdentitySecret    = "gcp-cluster-identity-secret"
-	gcpFlagsCategory            = "GCP authentication"
+	gcpClusterIdentityNamespacePrefix = "capg"
+	gcpFlagsCategory                  = "GCP authentication"
 )
 
 var gcpClusterIdentitySecretType = corev1.SecretTypeOpaque
 
 type GCPClusterIdentityConfig struct {
+	*v1.NamespaceApplyConfiguration
 	*v1.SecretApplyConfiguration
 	ManifestFiles    []string
 	ManifestFilesDir string
 }
 
-func NewGCPClusterIdentityConfig(gcp *google_provider.GCPConfigure) *GCPClusterIdentityConfig {
+func NewGCPClusterIdentityConfig(gcp *google_provider.GCPConfigure, identity *IdentityName) *GCPClusterIdentityConfig {
 	gcpcc := &GCPClusterIdentityConfig{
-		SecretApplyConfiguration: v1.Secret(gcpClusterIdentitySecret, gcpClusterIdentityNamespace),
-		ManifestFilesDir:         filepath.Join(os.TempDir(), gcpClusterIdentityName),
+		NamespaceApplyConfiguration: v1.Namespace(identity.generateObjectName(objectNamespace)),
+		SecretApplyConfiguration: v1.Secret(identity.generateObjectName(objectIdentitySecret),
+			identity.generateObjectName(objectNamespace)),
+		ManifestFilesDir: filepath.Join(os.TempDir(), identity.generateObjectName(objectIdentityName)),
 	}
 
 	gcpcc.SecretApplyConfiguration.Type = &gcpClusterIdentitySecretType
@@ -39,17 +40,24 @@ func NewGCPClusterIdentityConfig(gcp *google_provider.GCPConfigure) *GCPClusterI
 	return gcpcc
 }
 
-func (gic *GCPClusterIdentityConfig) createGCPClusterIdentitySecretManifestFiles() error {
+func (gic *GCPClusterIdentityConfig) createGCPClusterIdentitySecretManifestFiles(identity *IdentityName) error {
 	if err := os.MkdirAll(gic.ManifestFilesDir, 0775); err != nil {
 		return err
 	}
 
-	fileSecret, err := createManifestFile(gic.SecretApplyConfiguration, gic.ManifestFilesDir, gcpClusterIdentitySecret)
+	fileNamespace, err := createManifestFile(gic.NamespaceApplyConfiguration, gic.ManifestFilesDir,
+		identity.generateObjectName(objectNamespace))
 	if err != nil {
 		return err
 	}
 
-	gic.ManifestFiles = append(gic.ManifestFiles, fileSecret)
+	fileSecret, err := createManifestFile(gic.SecretApplyConfiguration, gic.ManifestFilesDir,
+		identity.generateObjectName(objectIdentitySecret))
+	if err != nil {
+		return err
+	}
+
+	gic.ManifestFiles = append(gic.ManifestFiles, fileNamespace, fileSecret)
 
 	return nil
 }
@@ -62,8 +70,23 @@ func (cc *ClusterCommands) applyGCPClusterIdentitySecret() error {
 		return err
 	}
 
-	gic := NewGCPClusterIdentityConfig(gcp)
-	if err := gic.createGCPClusterIdentitySecretManifestFiles(); err != nil {
+	identityName := newIdentityName(map[string]IdentityNameSpec{
+		objectIdentityName: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentityNameSuffix,
+		},
+		objectIdentitySecret: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentitySecretSuffix,
+		},
+		objectNamespace: {
+			ClusterName: cc.Conf.Name,
+			Prefix:      gcpClusterIdentityNamespacePrefix,
+		},
+	})
+
+	gic := NewGCPClusterIdentityConfig(gcp, identityName)
+	if err := gic.createGCPClusterIdentitySecretManifestFiles(identityName); err != nil {
 		return err
 	}
 

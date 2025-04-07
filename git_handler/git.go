@@ -15,6 +15,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
+	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
 	"rmk/util"
@@ -218,7 +219,7 @@ func (g *GitSpec) GitCommitPush(pathRF, msg, token string) error {
 		Args:          []string{"reset", "--hard", "origin/" + g.headRef.Name().Short()},
 		Command:       "git",
 		Dir:           util.GetPwdPath(""),
-		Ctx:           context.TODO(),
+		Ctx:           &cli.Context{Context: context.TODO()},
 		DisableStdOut: true,
 		Debug:         false,
 	}
@@ -227,7 +228,7 @@ func (g *GitSpec) GitCommitPush(pathRF, msg, token string) error {
 		Args:          []string{"cherry-pick", hash.String()},
 		Command:       "git",
 		Dir:           util.GetPwdPath(""),
-		Ctx:           context.TODO(),
+		Ctx:           &cli.Context{Context: context.TODO()},
 		DisableStdOut: true,
 		Debug:         false,
 	}

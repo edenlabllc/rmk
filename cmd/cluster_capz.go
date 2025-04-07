@@ -14,16 +14,15 @@ import (
 )
 
 const (
-	azureClusterIdentityName      = "azure-cluster-identity"
-	azureClusterIdentityNamespace = "capz-system"
-	azureClusterIdentitySecret    = "azure-cluster-identity-secret"
-	azureFlagsCategory            = "Azure authentication"
+	azureClusterIdentityNamespacePrefix = "capz"
+	azureFlagsCategory                  = "Azure authentication"
 )
 
 var azureClusterIdentitySecretType = corev1.SecretTypeOpaque
 
 type AzureClusterIdentityConfig struct {
 	*AzureClusterIdentity
+	*v1.NamespaceApplyConfiguration
 	*v1.SecretApplyConfiguration
 	ManifestFilesDir string
 	ManifestFiles    []string
@@ -47,7 +46,7 @@ type AzureClusterIdentitySpec struct {
 	Type         string                 `json:"type"`
 }
 
-func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClusterIdentityConfig {
+func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure, identity *IdentityName) *AzureClusterIdentityConfig {
 	acic := &AzureClusterIdentityConfig{
 		AzureClusterIdentity: &AzureClusterIdentity{
 			TypeMeta: metav1.TypeMeta{
@@ -55,8 +54,8 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 				APIVersion: "infrastructure.cluster.x-k8s.io/v1beta1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      azureClusterIdentityName,
-				Namespace: azureClusterIdentityNamespace,
+				Name:      identity.generateObjectName(objectIdentityName),
+				Namespace: identity.generateObjectName(objectNamespace),
 				Labels:    map[string]string{"clusterctl.cluster.x-k8s.io/move-hierarchy": "true"},
 			},
 			Spec: AzureClusterIdentitySpec{
@@ -67,19 +66,21 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 					NamespaceList []string
 					Selector      *metav1.LabelSelector
 				}{
-					NamespaceList: []string{azureClusterIdentityNamespace},
+					NamespaceList: []string{identity.generateObjectName(objectNamespace)},
 				}),
 				ClientID: ac.ClientID,
 				ClientSecret: corev1.SecretReference{
-					Name:      azureClusterIdentitySecret,
-					Namespace: azureClusterIdentityNamespace,
+					Name:      identity.generateObjectName(objectIdentitySecret),
+					Namespace: identity.generateObjectName(objectNamespace),
 				},
 				TenantID: ac.TenantID,
 				Type:     "ServicePrincipal",
 			},
 		},
-		SecretApplyConfiguration: v1.Secret(azureClusterIdentitySecret, azureClusterIdentityNamespace),
-		ManifestFilesDir:         filepath.Join(os.TempDir(), azureClusterIdentityName),
+		NamespaceApplyConfiguration: v1.Namespace(identity.generateObjectName(objectNamespace)),
+		SecretApplyConfiguration: v1.Secret(identity.generateObjectName(objectIdentitySecret),
+			identity.generateObjectName(objectNamespace)),
+		ManifestFilesDir: filepath.Join(os.TempDir(), identity.generateObjectName(objectIdentityName)),
 	}
 
 	acic.SecretApplyConfiguration.Type = &azureClusterIdentitySecretType
@@ -88,24 +89,30 @@ func NewAzureClusterIdentityConfig(ac *azure_provider.AzureConfigure) *AzureClus
 	return acic
 }
 
-func (acic *AzureClusterIdentityConfig) createAzureClusterIdentityManifestFiles() error {
+func (acic *AzureClusterIdentityConfig) createAzureClusterIdentityManifestFiles(identity *IdentityName) error {
 	if err := os.MkdirAll(acic.ManifestFilesDir, 0775); err != nil {
 		return err
 	}
 
-	fileCR, err := createManifestFile(acic.AzureClusterIdentity, acic.ManifestFilesDir, azureClusterIdentityName)
+	fileCR, err := createManifestFile(acic.AzureClusterIdentity, acic.ManifestFilesDir,
+		identity.generateObjectName(objectIdentityName))
 	if err != nil {
 		return err
 	}
 
-	acic.ManifestFiles = append(acic.ManifestFiles, fileCR)
-
-	fileSecret, err := createManifestFile(acic.SecretApplyConfiguration, acic.ManifestFilesDir, azureClusterIdentitySecret)
+	fileNamespace, err := createManifestFile(acic.NamespaceApplyConfiguration, acic.ManifestFilesDir,
+		identity.generateObjectName(objectNamespace))
 	if err != nil {
 		return err
 	}
 
-	acic.ManifestFiles = append(acic.ManifestFiles, fileSecret)
+	fileSecret, err := createManifestFile(acic.SecretApplyConfiguration, acic.ManifestFilesDir,
+		identity.generateObjectName(objectIdentitySecret))
+	if err != nil {
+		return err
+	}
+
+	acic.ManifestFiles = append(acic.ManifestFiles, fileNamespace, fileCR, fileSecret)
 
 	return nil
 }
@@ -118,8 +125,23 @@ func (cc *ClusterCommands) applyAzureClusterIdentity() error {
 		return err
 	}
 
-	acic := NewAzureClusterIdentityConfig(ac)
-	if err := acic.createAzureClusterIdentityManifestFiles(); err != nil {
+	identityName := newIdentityName(map[string]IdentityNameSpec{
+		objectIdentityName: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentityNameSuffix,
+		},
+		objectIdentitySecret: {
+			ClusterName: cc.Conf.Name,
+			Suffix:      clusterIdentitySecretSuffix,
+		},
+		objectNamespace: {
+			ClusterName: cc.Conf.Name,
+			Prefix:      azureClusterIdentityNamespacePrefix,
+		},
+	})
+
+	acic := NewAzureClusterIdentityConfig(ac, identityName)
+	if err := acic.createAzureClusterIdentityManifestFiles(identityName); err != nil {
 		return err
 	}
 

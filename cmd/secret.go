@@ -47,7 +47,7 @@ func (sc *SecretCommands) ageKeygen(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:    args,
 		Command: "age-keygen",
-		Ctx:     sc.Ctx.Context,
+		Ctx:     sc.Ctx,
 		Dir:     sc.WorkDir,
 		Debug:   false,
 	}
@@ -57,7 +57,7 @@ func (sc *SecretCommands) helm() *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:          []string{"secrets"},
 		Command:       "helm",
-		Ctx:           sc.Ctx.Context,
+		Ctx:           sc.Ctx,
 		Dir:           sc.WorkDir,
 		Envs:          []string{"SOPS_AGE_KEY_FILE=" + filepath.Join(sc.Conf.SopsAgeKeys, util.SopsAgeKeyFile)},
 		Debug:         true,

@@ -31,7 +31,7 @@ func (k *K3DCommands) k3d(args ...string) *util.SpecCMD {
 		Args:          append([]string{}, args...),
 		Command:       "k3d",
 		Dir:           k.WorkDir,
-		Ctx:           k.Ctx.Context,
+		Ctx:           k.Ctx,
 		DisableStdOut: false,
 		Debug:         false,
 	}
@@ -68,17 +68,29 @@ func (k *K3DCommands) selectCluster() {
 }
 
 func (k *K3DCommands) createDeleteK3DCluster() error {
+	var labelSelector = fmt.Sprintf("%s=%s", labelKeyCluster, k.Ctx.Command.Category)
+
 	k.selectCluster()
+
+	if k.K3DCluster && k.Conf.ClusterProvider != util.K3DPrefix {
+		return fmt.Errorf("cannot create or update %s cluster, invalid cluster provider %s selected for %s",
+			util.K3DPrefix, k.Conf.ClusterProvider, util.K3DPrefix)
+	}
 
 	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
 
-	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "-l", "cluster="+k.Ctx.Command.Category, "template")
+	k.SpecCMD = k.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "template")
 	k.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(k).runCMD(); err != nil {
 		return fmt.Errorf("Helmfile failed to render template by label release: cluster=%s\n%s",
 			k.Ctx.Command.Category, k.SpecCMD.StderrBuf.String())
+	}
+
+	if len(k.SpecCMD.StdoutBuf.String()) == 0 {
+		return fmt.Errorf("no Helmfile releases matched the selector '%s'. "+
+			"Make sure the cluster '%s' is defined in helmfile.yaml", labelSelector, k.Ctx.Command.Category)
 	}
 
 	k3dConfig, err := util.CreateTempYAMLFile(os.TempDir(), k.Ctx.Command.Category+"-config", k.SpecCMD.StdoutBuf.Bytes())

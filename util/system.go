@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 )
 
@@ -23,7 +23,7 @@ type SpecCMD struct {
 	Envs          []string
 	Command       string
 	Dir           string
-	Ctx           context.Context
+	Ctx           *cli.Context
 	StdoutBuf     bytes.Buffer
 	StderrBuf     bytes.Buffer
 	CommandStr    string
@@ -104,7 +104,9 @@ func (s *SpecCMD) ExecCMD() error {
 		err                error
 	)
 
-	cmd := exec.CommandContext(s.Ctx, s.Command, s.Args...)
+	s.Envs = append(s.Envs, "RMK_COMMAND_CATEGORY="+s.Ctx.Command.Category)
+
+	cmd := exec.CommandContext(s.Ctx.Context, s.Command, s.Args...)
 	cmd.Dir = s.Dir
 	cmd.Env = s.Envs
 	if stdoutIn, err = cmd.StdoutPipe(); err != nil {
@@ -398,7 +400,7 @@ func UnTar(dst, excludeRegexp string, r io.Reader) error {
 			if _, err := io.Copy(f, tr); err != nil {
 				return err
 			}
-			// manually close here after each file operation; defering would cause each file close
+			// manually close here after each file operation; deferring would cause each file close
 			// to wait until all operations have completed.
 			_ = f.Close()
 		}

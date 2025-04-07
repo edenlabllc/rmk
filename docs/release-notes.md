@@ -1,4 +1,4 @@
-- Added a validation to ensure the presence of the CAPI management cluster before executing capi commands: destroy, provision, and update.
-- Fixed AWS MFA config and credential files suffix after refreshing credentials multiple times.
-- Fixed path to auth tools for Kubernetes context.
-- Refactored template for Slack messages.
+- Added support for installing config extensions in CAPI management clusters after creation using Helmfile, filtered by labels config=extension and cluster=aws|azure|gcp.
+- Added support for multi-tenancy within a single CAPI management cluster, enabling isolated tenant environments with centralized control.
+- Added export of RMK_COMMAND_CATEGORY environment variable for all wrapped commands.
+- Documented support for multi-provider updates in CAPI management clusters via 'rmk cluster capi update'.

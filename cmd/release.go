@@ -201,7 +201,7 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:         append(defaultArgs, args...),
 		Command:      "helmfile",
-		Ctx:          rc.Ctx.Context,
+		Ctx:          rc.Ctx,
 		Dir:          rc.WorkDir,
 		Envs:         envs,
 		Debug:        true,
@@ -398,7 +398,7 @@ func (sr *SpecRelease) deployUpdatedReleases() error {
 	sr.SpecCMD = sr.prepareHelmfile()
 	for _, values := range sr.Changes.List {
 		for _, val := range values {
-			sr.SpecCMD.Args = append(sr.SpecCMD.Args, "-l", "app="+val)
+			sr.SpecCMD.Args = append(sr.SpecCMD.Args, "--selector", "app="+val)
 		}
 	}
 
@@ -411,7 +411,7 @@ func (rc *ReleaseCommands) helmCommands(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:          args,
 		Command:       "helm",
-		Ctx:           rc.Ctx.Context,
+		Ctx:           rc.Ctx,
 		Dir:           rc.WorkDir,
 		Debug:         true,
 		DisableStdOut: true,
@@ -443,7 +443,7 @@ func (sr *SpecRelease) deserializeHelmStatus() *HelmStatus {
 }
 
 func (sr *SpecRelease) getNamespaceViaHelmfileList(releaseName string) (string, error) {
-	sr.SpecCMD = sr.prepareHelmfile("-l", "name="+releaseName, "list", "--output", "json")
+	sr.SpecCMD = sr.prepareHelmfile("--selector", "name="+releaseName, "list", "--output", "json")
 	sr.SpecCMD.DisableStdOut = true
 	sr.SpecCMD.Debug = true
 	if err := sr.runCMD(); err != nil {
@@ -561,7 +561,7 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 		var args []string
 
 		for _, selector := range c.StringSlice("selector") {
-			args = append(args, "-l", selector)
+			args = append(args, "--selector", selector)
 		}
 
 		args = append(args, c.Command.Name)
