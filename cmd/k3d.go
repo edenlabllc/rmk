@@ -72,6 +72,11 @@ func (k *K3DCommands) createDeleteK3DCluster() error {
 
 	k.selectCluster()
 
+	if k.K3DCluster && k.Conf.ClusterProvider != util.K3DPrefix {
+		return fmt.Errorf("cannot create or update %s cluster, invalid cluster provider %s selected for %s",
+			util.K3DPrefix, k.Conf.ClusterProvider, util.K3DPrefix)
+	}
+
 	if _, _, err := clusterRunner(&ClusterCommands{k.ReleaseCommands}).getKubeContext(); err != nil {
 		return err
 	}
