@@ -173,36 +173,38 @@ Currently, the following cluster providers are supported by RMK:
 When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the
 Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
-> **On-premise** support is expected in [upcoming releases](../../index.md#roadmap). This enhancement might include the 
+> **On-premise** support is expected in [upcoming releases](../../index.md#roadmap). This enhancement might include the
 > introduction of additional Kubernetes Cluster API providers and
-> [Kubernetes operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). 
+> [Kubernetes operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 >
-> The main infrastructure configuration can always be checked in the 
+> The main infrastructure configuration can always be checked in the
 > [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.
 
 ## Using RMK to update CAPI management cluster configuration for different providers
 
-To manage provider controller configuration, RMK uses a single CAPI management cluster on the local administrator machine.
+To manage provider controller configuration, RMK uses a single CAPI management cluster on the local administrator
+machine.
 
-At the same time, RMK supports multi-tenancy for provisioning target clusters across different cloud providers: 
+At the same time, RMK supports multi-tenancy for provisioning target clusters across different cloud providers:
 **[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**.
 
 When a CAPI management cluster is created for a specific provider, RMK performs the following  
 [initialization steps](#using-rmk-to-prepare-capi-management-cluster) as part of the provider controller setup.
 
 > **Only one** CAPI management cluster can exist on the administrator’s machine.  
-> The `rmk cluster capi create` command is a **singleton** and can only be executed once, 
+> The `rmk cluster capi create` command is a **singleton** and can only be executed once,
 > until the existing management cluster is deleted.
 
 To work with a different cloud provider in the same CAPI management cluster for another environment,  
-you must first [initialize the RMK configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers) for that environment.  
-Then, run:
+you **must** first 
+[initialize the RMK configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers)
+for that environment. Then, run:
 
 ```shell
 rmk cluster capi update
 ```
 
-This command will initialize or update the required provider controller and install or update credentials for 
+This command will initialize or update the required provider controller and install or update credentials for
 the selected cloud provider.
 
 > If the required cloud provider is **not yet installed** in the CAPI management cluster (as per  
@@ -215,7 +217,9 @@ the selected cloud provider.
 - **Installing or updating** a provider controller.
 - **Creating or updating** credentials for the provider controller.
 - **Installing or updating** provider extensions using Helmfile labels: `cluster=<provider>,config=extension`.
-
+  
+  For example:
+  
   ```yaml
     - name: aws-iam-provision-operator
       namespace: capa-system
