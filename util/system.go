@@ -104,7 +104,9 @@ func (s *SpecCMD) ExecCMD() error {
 		err                error
 	)
 
-	s.Envs = append(s.Envs, "RMK_COMMAND_CATEGORY="+s.Ctx.Command.Category)
+	if s.Ctx.Command != nil {
+		s.Envs = append(s.Envs, "RMK_COMMAND_CATEGORY="+s.Ctx.Command.Category)
+	}
 
 	cmd := exec.CommandContext(s.Ctx.Context, s.Command, s.Args...)
 	cmd.Dir = s.Dir
