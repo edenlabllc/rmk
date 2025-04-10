@@ -1,1 +1,1 @@
-- Added support for installing config extensions in CAPI management clusters after creation using Helmfile, filtered by labels config=extension and cluster=aws|azure|gcp.
+- Fixed export of RMK_COMMAND_CATEGORY environment variable for all wrapped commands.

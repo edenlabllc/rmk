@@ -14,6 +14,12 @@ TENANT="<project_name>"
 # NAME=rmk-test-develop
 NAME="<project_name>-<project_branch>"
 
+# Category of the executed RMK command (e.g., cluster, capi, k3d, release, secret, etc).
+# Used to enable conditional logic in various cases, such as toggling Helmfile releases.
+# For example:
+# RMK_COMMAND_CATEGORY=k3d
+RMK_COMMAND_CATEGORY="<command_category>"
+
 # Root domain name for target applications in the cluster.
 # For example:
 # ROOT_DOMAIN=rmk-test-develop.edenlab.dev

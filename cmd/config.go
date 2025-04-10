@@ -34,7 +34,7 @@ func (c *ConfigCommands) helmPlugin() *util.SpecCMD {
 		Args:          []string{"plugin"},
 		Command:       "helm",
 		Dir:           c.WorkDir,
-		Ctx:           c.Ctx.Context,
+		Ctx:           c.Ctx,
 		DisableStdOut: true,
 		Debug:         false,
 	}
@@ -552,7 +552,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			conf.GCPConfigure = nil
 		}
 
-		if err := conf.InitConfig().SetRootDomain(c, gitSpec.ID); err != nil {
+		if err := conf.InitConfig().SetRootDomain(gitSpec.ID); err != nil {
 			return err
 		}
 

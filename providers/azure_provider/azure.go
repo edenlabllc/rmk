@@ -186,13 +186,27 @@ func (ac *AzureConfigure) NewAzureClient(ctx context.Context, fileName string) e
 	return nil
 }
 
-func (ac *AzureConfigure) GetAzureClusterContext(groupName, clusterName string) ([]byte, error) {
-	var cpTitle = strings.ToUpper(AzureClusterProvider[:1]) + strings.ToLower(AzureClusterProvider[1:])
+func (ac *AzureConfigure) GetAzureClusterContext(previousRG, clusterName string) ([]byte, error) {
+	var (
+		cpTitle     = strings.ToUpper(AzureClusterProvider[:1]) + strings.ToLower(AzureClusterProvider[1:])
+		credentials armcontainerservice.ManagedClustersClientListClusterAdminCredentialsResponse
+		err         error
+	)
 
-	credentials, err := ac.ManagedClustersClient.ListClusterAdminCredentials(ac.Ctx, groupName, clusterName, nil)
+	credentials, err = ac.ManagedClustersClient.ListClusterAdminCredentials(ac.Ctx, clusterName, clusterName, nil)
 	if err != nil {
-		return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
-			cpTitle, clusterName)
+		var respErr *azcore.ResponseError
+		if errors.As(err, &respErr) && respErr.StatusCode == http.StatusNotFound {
+			credentials, err = ac.ManagedClustersClient.ListClusterAdminCredentials(ac.Ctx,
+				previousRG, clusterName, nil)
+			if err != nil {
+				return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
+					cpTitle, clusterName)
+			}
+		} else {
+			return nil, fmt.Errorf("kubecontext for %s provider's %s cluster not found",
+				cpTitle, clusterName)
+		}
 	}
 
 	if len(credentials.CredentialResults.Kubeconfigs) == 1 {
@@ -396,9 +410,6 @@ func (ac *AzureConfigure) GetAzureSecrets() (map[string][]byte, error) {
 	}
 
 	listSecrets := client.NewListSecretsPager(nil)
-	if err != nil {
-		return nil, err
-	}
 
 	for listSecrets.More() {
 		page, err := listSecrets.NextPage(ac.Ctx)

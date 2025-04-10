@@ -24,10 +24,17 @@ import (
 )
 
 const (
+	clusterIdentityNameSuffix   = "identity"
+	clusterIdentitySecretSuffix = "identity-secret"
+
 	labelKeyCluster    = "cluster"
 	labelKeyConfig     = "config"
 	labelValClusterCTL = "clusterctl"
 	labelValExtension  = "extension"
+
+	objectIdentityName   = "identityName"
+	objectIdentitySecret = "identitySecret"
+	objectNamespace      = "namespace"
 )
 
 type clusterRunner interface {
@@ -57,8 +64,32 @@ type ConfigExtension struct {
 	Namespace string `json:"namespace,omitempty"`
 }
 
+type IdentityNameSpec struct {
+	ClusterName string
+	Suffix      string
+	Prefix      string
+}
+
+type IdentityName struct {
+	Objects map[string]IdentityNameSpec
+}
+
 func newClusterCommands(conf *config.Config, ctx *cli.Context, workDir string) *ClusterCommands {
 	return &ClusterCommands{&ReleaseCommands{Conf: conf, Ctx: ctx, WorkDir: workDir}}
+}
+
+func newIdentityName(objects map[string]IdentityNameSpec) *IdentityName {
+	return &IdentityName{objects}
+}
+
+func (in *IdentityName) generateObjectName(objectName string) string {
+	if identity, ok := in.Objects[objectName]; ok && len(identity.Suffix) > 0 {
+		return fmt.Sprintf("%s-%s", identity.ClusterName, identity.Suffix)
+	} else if ok && len(identity.Prefix) > 0 {
+		return fmt.Sprintf("%s-%s", identity.Prefix, identity.ClusterName)
+	}
+
+	return ""
 }
 
 func (cc *ClusterCommands) clusterCTL(args ...string) *util.SpecCMD {
@@ -89,7 +120,7 @@ func (cc *ClusterCommands) clusterCTL(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:    args,
 		Command: "clusterctl",
-		Ctx:     cc.Ctx.Context,
+		Ctx:     cc.Ctx,
 		Dir:     cc.WorkDir,
 		Debug:   true,
 		Envs:    envs,
@@ -100,7 +131,7 @@ func (cc *ClusterCommands) kubectl(args ...string) *util.SpecCMD {
 	return &util.SpecCMD{
 		Args:          args,
 		Command:       "kubectl",
-		Ctx:           cc.Ctx.Context,
+		Ctx:           cc.Ctx,
 		Dir:           cc.WorkDir,
 		DisableStdOut: false,
 		Debug:         true,
@@ -184,20 +215,21 @@ func (cc *ClusterCommands) initConfigExtensions() error {
 			labelKeyConfig, labelValExtension, labelKeyCluster, cc.Conf.ClusterProvider)
 	)
 
-	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "list", "--output", "json")
+	cc.SpecCMD = cc.prepareHelmfile("--allow-no-matching-release", "--log-level", "error",
+		"--selector", labelSelector, "list", "--output", "json")
 	cc.SpecCMD.DisableStdOut = true
 	if err := releaseRunner(cc).runCMD(); err != nil {
 		return fmt.Errorf("failed to list config extensions: %s", cc.SpecCMD.StderrBuf.String())
+	}
+
+	if len(cc.SpecCMD.StdoutBuf.String()) == 0 {
+		return nil
 	}
 
 	data := cc.SpecCMD.StdoutBuf.Bytes()
 	src := (*rawjson.RawMessage)(&data)
 	if err := json.Unmarshal(*src, &configExtensions); err != nil {
 		return fmt.Errorf("failed to parse config extensions JSON: %w", err)
-	}
-
-	if len(configExtensions) == 0 {
-		return nil
 	}
 
 	cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "sync")
