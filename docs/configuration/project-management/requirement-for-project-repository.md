@@ -10,14 +10,28 @@
    - `develop`
    - `staging`
    - `production`
-   
-   Each branch corresponds to its own environment with a separately deployed Kubernetes cluster. RMK supports these 
-   branches as well as the feature or release branches:
 
-   - A feature branch should have the following naming: `feature/<issue_key>-<issue_number>-<issue_description>`.
-     For example: `feature/RMK-1446-example`. RMK will use `<issue_key>` and `<issue_number>` as the feature cluster name.
-   - A release branch should have the following naming: `release/<SemVer2>-rc` or `release/<SemVer2>`
-     For example: `release/v1.0.0`. RMK will use the project name and the `<SemVer2>` tag as the release cluster name.
+   Each branch corresponds to its own environment with a separately deployed Kubernetes cluster. 
+   
+   RMK supports these branches as well as the ephemeral branches:
+
+   - A `feature` branch should have the following naming: `feature/<issue_key>-<issue_number>-<issue_description>`
+     (`develop` configuration will be used).
+  
+     For example: `feature/RMK-123-new-feature`.
+  
+     > RMK will use `<issue_key>` and `<issue_number>` as the cluster name.
+   - A `release` branch should have the following naming: `release/<SemVer2>-rc` (`staging` configuration will be used)
+     or `release/<SemVer2>` (`production` configuration will be used).
+  
+     For example: `release/v1.0.0`. 
+  
+     > RMK will use the project name and the `<SemVer2>` tag as the cluster name.
+   - A `hotfix` branch should have the following naming: `hotfix/<SemVer2>` (`production` configuration will be used).
+  
+     For example: `hotfix/v1.0.1`. 
+
+     > RMK will use the project name and the `<SemVer2>` tag as the cluster name.
 
 ## Expected repository structure:
 
@@ -56,7 +70,7 @@ project.yaml # Project specification for the dependencies and inventory installe
 <release_name_foo>: # Required, release name from helmfile.yaml.gotmpl.
   enabled: true # Required, enable|disable release from helmfile.yaml.gotmpl.
   image: # Optional, needed when using a private container image with the automatic release update feature of RMK.
-    repository: <full_container_images_repository_url>  
+    repository: <full_container_images_repository_url>
     tag: <container_images_tag>
 <release_name_bar>: # -//-
   enabled: false # -//-
@@ -85,18 +99,19 @@ hooks:
   <release_name>:
     common-postuninstall-hook:
       events:
-         - postuninstall
+        - postuninstall
       showlogs: true
       command: "{{`{{ .Release.Labels.bin }}`}}/common-postuninstall-hook.sh"
       args:
-         - "{{`{{ .Release.Namespace }}`}}"
+        - "{{`{{ .Release.Namespace }}`}}"
   # ...
 ```
 
-> globals.yaml.gotmpl is used in two cases:
-> 
-> 1. When values, configurations or environment variables need to be **declared globally** for multiple releases. 
-> 2. When the current project is planned to be **inherited** by a downstream project and the overrides should be supported.
+> `globals.yaml.gotmpl` is used in two cases:
+>
+> 1. When values, configurations or environment variables need to be **declared globally** for multiple releases.
+> 2. When the current project is planned to be **inherited** by a downstream project and the overrides should be
+     supported.
 
 ### Requirement for `helmfile.yaml.gotmpl`
 
@@ -197,5 +212,5 @@ releases:
 ```
 </details>
 
-> You can use the [rmk project generate](../../commands.md#generate-g-1) 
+> You can use the [rmk project generate](../../commands.md#generate-g-1)
 > command to view the full example of the contents of all the project files.

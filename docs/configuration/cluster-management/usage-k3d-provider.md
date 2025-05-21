@@ -8,7 +8,7 @@ for K3D.
 
 #### Prerequisites
 
-1. Create a separate `feature` branch: `feature/<issue_key>-<issue_number>-<issue_description>`.
+1. Create a separate ephemeral branch, e.g.: `feature/<issue_key>-<issue_number>-<issue_description>`.
 2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-with-a-custom-root-domain)
    for this branch with the `localhost` root domain name.
 

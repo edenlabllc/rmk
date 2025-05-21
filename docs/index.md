@@ -26,7 +26,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
 * [Installation](#installation)
 * [Update](#update)
   * [General update process](#general-update-process)
-  * [Updating to specific version](#update-to-specific-version)
+  * [Updating to specific version](#updating-to-specific-version)
 * [Quickstart](quickstart.md)
 * [Backward compatibility](backward-compatibility.md)
 * Configuration
@@ -58,7 +58,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
 **RMK** stands for "**R**educed **M**anagement for **K**ubernetes".
 
 The main goal of the [CLI](https://en.wikipedia.org/wiki/Command-line_interface) tool is to simplify (**reduce**) the
-management of Kubernetes clusters and releases, serving as a "Swiss knife" for daily CI/CD and DevOps tasks while 
+management of Kubernetes clusters and releases, serving as a "Swiss knife" for daily CI/CD and DevOps tasks while
 allowing **efficient control** with a minimal set of CLI commands.
 
 RMK serves as a **wrapper** for various popular CI/CD and DevOps CLI tools, including:
@@ -81,9 +81,10 @@ cloud architects, system analytics, software testers and even managers with mini
 
 ## Advantages
 
-RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
+RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following
+advantages:
 
-- **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and 
+- **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and
   real customers, RMK leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
   and [Helmfile](https://helmfile.readthedocs.io/en/latest/)/[Helm](https://helm.sh/) for efficient release and secrets
   management.
@@ -96,14 +97,15 @@ RMK **simplifies** the setup and management of Kubernetes-based projects of any 
 - **Transparent [project structure](configuration/project-management/preparation-of-project-repository.md) and
   [dependency management](configuration/project-management/dependencies-management-and-project-inheritance.md)**:
   Enables rapid project setup and hierarchical project inheritance, e.g., "parent-child" or "upstream-downstream"
-  relationships) between sibling projects to enable release configuration reuse.
+  relationships between sibling projects to enable release configuration reuse.
 - **[Batch](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
   management**: Automates templating, generation, and encryption of secrets across all environments
   in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
-  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, `release/*`) for
+  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, `release/*`,
+  `hotfix/*`) for
   temporary environments.
 - **Aligns with the [DevOps](https://www.atlassian.com/devops) methodology**: Enables multiple teams to develop and
   release independently while seamlessly integrating their work into a single project.
@@ -139,9 +141,9 @@ to connect to and manage the cluster.
 Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
 [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
 
-**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for automated
-provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and 
-automatically within CI/CD pipelines.
+**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for
+automated provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both
+manually and automatically within CI/CD pipelines.
 
 **:rocket: Proven at scale**:
 
@@ -200,7 +202,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   dependencies, Kodjin, or any other project,
   e.g.,
-  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16)).
+  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16).
 - **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra)**:
   Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
@@ -214,7 +216,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 #### Helm charts
 
 - **[core-charts](https://edenlabllc-core-charts-infra.s3.eu-north-1.amazonaws.com/)**:
-  A publicly accessible, [S3-based](https://aws.amazon.com/s3/) 
+  A publicly accessible, [S3-based](https://aws.amazon.com/s3/)
   [Helm chart repository](https://helm.sh/docs/topics/chart_repository/) used by Kodjin, or any other project, e.g.,
   check [cluster-deps Helmfile](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/helmfile.yaml.gotmpl#L49).
 
