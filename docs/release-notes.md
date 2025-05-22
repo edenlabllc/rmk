@@ -1,1 +1,1 @@
-- Fixed export of RMK_COMMAND_CATEGORY environment variable for all wrapped commands.
+- Added support for hotfix/* branches (configuration will be taken from production).

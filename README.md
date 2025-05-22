@@ -51,17 +51,18 @@ RMK **simplifies** the setup and management of Kubernetes-based projects of any 
 - **Built-in [versioning](https://en.wikipedia.org/wiki/Software_versioning) for CI/CD pipelines**: Supports static and
   dynamic tags (e.g., [SemVer2](https://semver.org/)) for project and releases to guarantee stable, well-tested, and
   predictable deployments.
-- **Transparent [project structure](configuration/project-management/preparation-of-project-repository.md) and
-  [dependency management](configuration/project-management/dependencies-management-and-project-inheritance.md)**:
+- **Transparent [project structure](docs/configuration/project-management/preparation-of-project-repository.md) and
+  [dependency management](docs/configuration/project-management/dependencies-management-and-project-inheritance.md)**:
   Enables rapid project setup and hierarchical project inheritance, e.g., "parent-child" or "upstream-downstream"
   relationships) between sibling projects to enable release configuration reuse.
-- **[Batch](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
+- **[Batch](docs/configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
   management**: Automates templating, generation, and encryption of secrets across all environments
   in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
-  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, `release/*`) for
+  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, 
+  `release/*`, `hotfix/*`) for
   temporary environments.
 - **Aligns with the [DevOps](https://www.atlassian.com/devops) methodology**: Enables multiple teams to develop and
   release independently while seamlessly integrating their work into a single project.

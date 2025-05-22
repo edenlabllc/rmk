@@ -24,6 +24,7 @@ import (
 const (
 	PrefixFeature     = "feature/"
 	PrefixRelease     = "release/"
+	PrefixHotfix      = "hotfix/"
 	DefaultDevelop    = "develop"
 	DefaultStaging    = "staging"
 	DefaultProduction = "production"
@@ -92,6 +93,13 @@ func (g *GitSpec) checkBranchName(branch string) error {
 				default:
 					return fmt.Errorf("selected branch %s cannot be used as environment name", branch)
 				}
+			case strings.HasPrefix(branch, PrefixHotfix):
+				_, err := g.checkIntermediateBranchName(branch, PrefixHotfix)
+				if err != nil {
+					return err
+				}
+
+				g.DefaultBranch = DefaultProduction
 			}
 		} else {
 			g.DefaultBranch = val
