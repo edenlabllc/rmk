@@ -286,54 +286,89 @@ func resolveDependencies(conf *config.Config, ctx *cli.Context, silent bool) err
 
 	recursivelyDownload = func() error {
 		for _, val := range conf.Dependencies {
+			type GraphMap struct {
+				PkgName   string
+				Inherited map[string]config.Package
+			}
+
 			projectFile := &config.ProjectFile{}
 
+			// Build directory name for the dependency using its name and version
 			nameDir := val.Name + "-" + strings.ReplaceAll(val.Version, "/", "_")
+			// Find the local directory corresponding to this dependency
 			depsDir := util.FindDir(util.GetPwdPath(TenantPrDependenciesDir), nameDir, false, false)
+			// Load the dependency's project file
 			if err := projectFile.ReadProjectFile(util.GetPwdPath(TenantPrDependenciesDir, depsDir, util.TenantProjectFile)); err != nil {
 				return err
 			}
 
-			// Resolve repositories containing hooks
+			// Resolve repositories that contain hooks, using the base directory name
 			if len(strings.Split(depsDir, ".")) > 0 {
 				if err := resolveHooks(projectFile.Hooks, strings.Split(depsDir, ".")[0], conf); err != nil {
 					return err
 				}
 			}
 
-			// Resolve and recursively download repositories containing helm plugins
+			// Resolve and recursively download any Helm plugins used by this dependency
 			if conf.HelmPlugins, invErr = invState.resolveHelmPlugins(projectFile.HelmPlugins, conf); invErr != nil {
 				return invErr
 			}
 
-			// Resolve and recursively download repositories containing tools
+			// Resolve and recursively download any tools required by this dependency
 			if conf.Tools, invErr = invState.resolveTools(projectFile.Tools, conf); invErr != nil {
 				return invErr
 			}
 
-			// Recursively downloading repositories containing helmfiles
-			foundDeps := 0
-			compare := make(map[string]struct{}, len(projectFile.Dependencies))
+			// Start processing nested dependencies (Helmfiles, etc.)
+			foundNewDeps := false
+			// Convert dependency list from projectFile to a map for comparison
+			compare := make(map[string]config.Package, len(projectFile.Dependencies))
 			for _, dep := range projectFile.Dependencies {
-				compare[dep.Name] = struct{}{}
+				compare[dep.Name] = dep
 			}
 
+			// Build a GraphMap for tracking inherited dependencies
+			graphMap := GraphMap{PkgName: val.Name, Inherited: compare}
+			// Remove any dependencies from compare that are already in the current configuration
 			for _, dep := range conf.Dependencies {
 				if _, ok := compare[dep.Name]; ok {
-					foundDeps++
+					delete(compare, dep.Name)
 				}
 			}
 
+			// Determine whether new dependencies were actually found
 			if len(projectFile.Dependencies) == 0 {
-				foundDeps++
+				foundNewDeps = false
 			}
 
-			if foundDeps == 0 {
-				conf.Dependencies = append(conf.Dependencies, projectFile.Dependencies...)
+			// Initialize an empty ProjectFile to hold truly new dependencies
+			finallyProjectFile := &config.ProjectFile{}
+			// Collect dependencies from 'compare' that are not already present in conf.Dependencies
+			for _, dep := range compare {
+				finallyProjectFile.Dependencies = append(finallyProjectFile.Dependencies, dep)
+			}
+
+			// If any dependencies were collected, mark that new dependencies have been found
+			if len(finallyProjectFile.Dependencies) > 0 {
+				foundNewDeps = true
+			}
+
+			if foundNewDeps {
+				// Insert new dependencies before the current dependency in the conf.Dependencies list
+				finallyPF := finallyProjectFile.Dependencies[0]
+				for key, dep := range conf.Dependencies {
+					if _, ok := graphMap.Inherited[finallyPF.Name]; ok && graphMap.PkgName == dep.Name {
+						conf.Dependencies = append(conf.Dependencies[:key],
+							append(finallyProjectFile.Dependencies, conf.Dependencies[key:]...)...)
+					}
+				}
+
+				// Update dependencies with the newly added ones
 				if err := updateDependencies(conf, ctx, silent); err != nil {
 					return err
 				}
 
+				// Recurse to resolve further nested dependencies
 				if err := recursivelyDownload(); err != nil {
 					return err
 				}
