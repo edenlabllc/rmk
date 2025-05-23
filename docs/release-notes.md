@@ -1,1 +1,2 @@
 - Added support for hotfix/* branches (configuration will be taken from production).
+- Fixed dependency resolution order to ensure proper recursive download of project dependencies.
