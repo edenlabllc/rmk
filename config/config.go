@@ -19,30 +19,32 @@ import (
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
+	"rmk/providers/onprem_provider"
 	"rmk/util"
 )
 
 type Config struct {
-	Name                           string   `yaml:"name,omitempty"`
-	Tenant                         string   `yaml:"tenant,omitempty"`
-	Environment                    string   `yaml:"environment,omitempty"`
-	RootDomain                     string   `yaml:"root-domain,omitempty"`
-	GitHubToken                    string   `yaml:"github-token,omitempty"`
-	ClusterProvider                string   `yaml:"cluster-provider"`
-	SlackNotifications             bool     `yaml:"slack-notifications"`
-	SlackWebHook                   string   `yaml:"slack-webhook,omitempty"`
-	SlackChannel                   string   `yaml:"slack-channel,omitempty"`
-	SlackMsgDetails                []string `yaml:"slack-message-details,omitempty"`
-	SopsAgeKeys                    string   `yaml:"sops-age-keys,omitempty"`
-	AWSMFAProfile                  string   `yaml:"aws-mfa-profile,omitempty"`
-	AWSMFATokenExpiration          string   `yaml:"aws-mfa-token-expiration,omitempty"`
-	AzureKeyVaultResourceGroup     string   `yaml:"azure-key-vault-resource-group-name,omitempty"`
-	GCPRegion                      string   `yaml:"gcp-region,omitempty"`
-	*aws_provider.AwsConfigure     `yaml:"aws,omitempty"`
-	*azure_provider.AzureConfigure `yaml:"azure,omitempty"`
-	*google_provider.GCPConfigure  `yaml:"gcp,omitempty"`
-	ProgressBar                    bool `yaml:"progress-bar"`
-	ProjectFile                    `yaml:"project-file"`
+	Name                             string   `yaml:"name,omitempty"`
+	Tenant                           string   `yaml:"tenant,omitempty"`
+	Environment                      string   `yaml:"environment,omitempty"`
+	RootDomain                       string   `yaml:"root-domain,omitempty"`
+	GitHubToken                      string   `yaml:"github-token,omitempty"`
+	ClusterProvider                  string   `yaml:"cluster-provider"`
+	SlackNotifications               bool     `yaml:"slack-notifications"`
+	SlackWebHook                     string   `yaml:"slack-webhook,omitempty"`
+	SlackChannel                     string   `yaml:"slack-channel,omitempty"`
+	SlackMsgDetails                  []string `yaml:"slack-message-details,omitempty"`
+	SopsAgeKeys                      string   `yaml:"sops-age-keys,omitempty"`
+	AWSMFAProfile                    string   `yaml:"aws-mfa-profile,omitempty"`
+	AWSMFATokenExpiration            string   `yaml:"aws-mfa-token-expiration,omitempty"`
+	AzureKeyVaultResourceGroup       string   `yaml:"azure-key-vault-resource-group-name,omitempty"`
+	GCPRegion                        string   `yaml:"gcp-region,omitempty"`
+	*aws_provider.AwsConfigure       `yaml:"aws,omitempty"`
+	*azure_provider.AzureConfigure   `yaml:"azure,omitempty"`
+	*google_provider.GCPConfigure    `yaml:"gcp,omitempty"`
+	*onprem_provider.OnPremConfigure `yaml:"onprem,omitempty"`
+	ProgressBar                      bool `yaml:"progress-bar"`
+	ProjectFile                      `yaml:"project-file"`
 }
 
 type HookMapping struct {

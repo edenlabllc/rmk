@@ -20,6 +20,7 @@ import (
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
+	"rmk/providers/onprem_provider"
 	"rmk/util"
 )
 
@@ -404,6 +405,15 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
 		}
+	case onprem_provider.OnPremClusterProvider:
+		clusterContext, err := cc.getOnPremClusterContext()
+		if err != nil {
+			return err
+		}
+
+		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -512,6 +522,15 @@ func (cc *ClusterCommands) provisionDestroyTargetCluster() error {
 			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 				return err
 			}
+		case onprem_provider.OnPremClusterProvider:
+			clusterContext, err := cc.getOnPremClusterContext()
+			if err != nil {
+				return err
+			}
+
+			if err := cc.mergeKubeConfigs(clusterContext); err != nil {
+				return err
+			}
 		}
 	case "destroy":
 		cc.SpecCMD = cc.prepareHelmfile("--log-level", "error", "--selector", labelSelector, "destroy")
@@ -590,6 +609,12 @@ func CAPIInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.After
 			return err
 		}
 
+		if cc.Conf.ClusterProvider == onprem_provider.OnPremClusterProvider {
+			if err := cc.applyOnPremClusterIdentitySecret(); err != nil {
+				return err
+			}
+		}
+
 		if err := cc.initClusterCTLConfig(); err != nil {
 			return err
 		}
@@ -605,6 +630,10 @@ func CAPIInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.After
 			}
 		case google_provider.GoogleClusterProvider:
 			if err := cc.applyGCPClusterIdentitySecret(); err != nil {
+				return err
+			}
+		case onprem_provider.OnPremClusterProvider:
+			if err := cc.applyOnPremClusterIdentitySecret(); err != nil {
 				return err
 			}
 		}
@@ -647,6 +676,10 @@ func CAPIUpdateAction(conf *config.Config) cli.ActionFunc {
 			}
 		case google_provider.GoogleClusterProvider:
 			if err := cc.applyGCPClusterIdentitySecret(); err != nil {
+				return err
+			}
+		case onprem_provider.OnPremClusterProvider:
+			if err := cc.applyOnPremClusterIdentitySecret(); err != nil {
 				return err
 			}
 		}
