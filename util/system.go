@@ -459,7 +459,7 @@ func FindSSHKey() (string, error) {
 
 func askIsSSHHostTrusted(host string, key ssh.PublicKey) bool {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("Unknown Host: %s \nFingerprint: %s \n", host, ssh.FingerprintSHA256(key))
+	fmt.Printf("Unknown host: %s \nFingerprint: %s \n", host, ssh.FingerprintSHA256(key))
 	fmt.Print("Would you like to add it? type yes or no: ")
 
 	a, err := reader.ReadString('\n')
