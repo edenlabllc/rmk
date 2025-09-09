@@ -23,6 +23,7 @@ import (
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
+	"rmk/providers/onprem_provider"
 	"rmk/util"
 )
 
@@ -176,6 +177,10 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 			"GCP_PROJECT_ID="+rc.Conf.GCPConfigure.ProjectID,
 			"GCP_REGION="+rc.Conf.GCPRegion,
 			"GOOGLE_APPLICATION_CREDENTIALS="+rc.Conf.GCPConfigure.AppCredentialsPath,
+		)
+	case onprem_provider.OnPremClusterProvider:
+		envs = append(envs,
+			"ONPREM_CLUSTER=true",
 		)
 	}
 

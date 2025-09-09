@@ -597,11 +597,11 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 	for _, pkg := range conf.Tools {
 		for _, pathArt := range pkg.Artifacts {
 			if pkg.Rename {
-				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, pkg.Name)); err != nil {
+				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, pkg.Name), 0755); err != nil {
 					return err
 				}
 			} else {
-				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, filepath.Base(pathArt))); err != nil {
+				if err := util.CopyFile(pathArt, filepath.Join(toolsBinPath, filepath.Base(pathArt)), 0755); err != nil {
 					return err
 				}
 			}

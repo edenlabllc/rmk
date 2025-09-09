@@ -34,6 +34,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/googleapis/gax-go/v2 v2.12.3
 	github.com/hashicorp/go-getter v1.7.5
+	github.com/melbahja/goph v1.4.0
 	github.com/microsoftgraph/msgraph-sdk-go v1.61.0
 	github.com/slack-go/slack v0.12.3
 	github.com/urfave/cli/v2 v2.27.1
@@ -118,6 +119,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
@@ -140,6 +142,8 @@ require (
 	github.com/onsi/gomega v1.34.2 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

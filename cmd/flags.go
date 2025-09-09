@@ -136,6 +136,27 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"gac"},
 			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
 		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-kube-api-endpoint",
+			Usage:    "Kubernetes API server endpoint used to retrieve kubeconfig",
+			Aliases:  []string{"opkae"},
+			EnvVars:  []string{"RMK_ONPREM_KUBE_API_ENDPOINT"},
+		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-ssh-private-key",
+			Usage:    "path to SSH private key. If not set, RMK will search in default SSH locations (e.g., ~/.ssh/id_[ed25519|rsa|ecdsa|dsa])",
+			Aliases:  []string{"opspk"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_PRIVATE_KEY"},
+		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-ssh-user",
+			Usage:    "username to use for SSH authentication",
+			Aliases:  []string{"opsu"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_USER"},
+		},
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "progress-bar",

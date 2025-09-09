@@ -66,13 +66,14 @@ func Commands() []*cli.Command {
 			Usage: "Configuration management",
 			Subcommands: []*cli.Command{
 				{
-					Name:     "init",
-					Usage:    "Initialize configuration for current project and selected environment",
-					Aliases:  []string{"i"},
-					Before:   initInputSourceWithContext(gitSpec, flags["config"]),
-					Flags:    flags["config"],
-					Category: "config",
-					Action:   configInitAction(conf, gitSpec),
+					Name:         "init",
+					Usage:        "Initialize configuration for current project and selected environment",
+					Aliases:      []string{"i"},
+					Before:       initInputSourceWithContext(gitSpec, flags["config"]),
+					Flags:        flags["config"],
+					Category:     "config",
+					BashComplete: util.ShellCompleteCustomOutput,
+					Action:       configInitAction(conf, gitSpec),
 				},
 				{
 					Name:         "delete",
