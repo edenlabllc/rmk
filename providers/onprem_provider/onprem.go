@@ -19,7 +19,7 @@ const (
 )
 
 type OnPremConfigure struct {
-	KubeAPIEndpoint         string `json:"kube-api-endpoint,omitempty" yaml:"kube-api-endpoint,omitempty"`
+	SSHInitServerHost       string `json:"ssh-init-server-host,omitempty" yaml:"ssh-init-server-host,omitempty"`
 	SSHPassword             string `json:"ssh-password,omitempty" yaml:"-"`
 	SSHPrivateKeyPassphrase string `json:"ssh-private-key-passphrase,omitempty" yaml:"-"`
 	SSHPrivateKey           string `json:"ssh-private-key,omitempty" yaml:"ssh-private-key,omitempty"`
@@ -40,8 +40,8 @@ func getTagStructName(i interface{}, name string) error {
 
 // ValidateSSHCredentials will validate the required parameters for SSH authentication
 func (op *OnPremConfigure) ValidateSSHCredentials() error {
-	if len(op.KubeAPIEndpoint) == 0 {
-		return getTagStructName(op, "KubeAPIEndpoint")
+	if len(op.SSHInitServerHost) == 0 {
+		return getTagStructName(op, "SSHInitServerHost")
 	}
 
 	if len(op.SSHUser) == 0 {
@@ -98,7 +98,7 @@ func (op *OnPremConfigure) SSHAuth(sshPassword, sshAgent bool) (goph.Auth, error
 func (op *OnPremConfigure) SSHClient(sshAuth goph.Auth) (*goph.Client, error) {
 	return goph.NewConn(&goph.Config{
 		User:     op.SSHUser,
-		Addr:     op.KubeAPIEndpoint,
+		Addr:     op.SSHInitServerHost,
 		Port:     22,
 		Auth:     sshAuth,
 		Callback: util.VerifySSHHost,
@@ -148,7 +148,7 @@ func (op *OnPremConfigure) generateBaseKubeConfig(clusterName string, config *ap
 		APIVersion: api.SchemeGroupVersion.Version,
 		Clusters: map[string]*api.Cluster{
 			clusterName: {
-				Server:                   fmt.Sprintf("https://%s:6443", op.KubeAPIEndpoint),
+				Server:                   fmt.Sprintf("https://%s:6443", op.SSHInitServerHost),
 				CertificateAuthorityData: config.Clusters["default"].CertificateAuthorityData,
 			},
 		},
