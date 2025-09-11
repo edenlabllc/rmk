@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 88aa8e4 <br />
-**Date:** 2025-09-09T15:34:47Z <br />
+**Commit:** 2b7f1e8 <br />
+**Date:** 2025-09-11T11:03:14Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -157,7 +157,7 @@ Initialize configuration for current project and selected environment
 
 **--google-application-credentials, --gac**="": path to GCP service account credentials JSON file
 
-**--onprem-kube-api-endpoint, --opkae**="": Kubernetes API server endpoint used to retrieve kubeconfig
+**--onprem-ssh-init-server-host, --opsish**="": K3S init server host used to retrieve kubeconfig via SSH
 
 **--onprem-ssh-private-key, --opspk**="": path to SSH private key. If not set, RMK will search in default SSH locations (e.g., ~/.ssh/id_[ed25519|rsa|ecdsa|dsa])
 
