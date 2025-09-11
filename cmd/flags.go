@@ -138,10 +138,10 @@ func flagsConfig() []cli.Flag {
 		},
 		&cli.StringFlag{
 			Category: onPremFlagsCategory,
-			Name:     "onprem-kube-api-endpoint",
-			Usage:    "Kubernetes API server endpoint used to retrieve kubeconfig",
-			Aliases:  []string{"opkae"},
-			EnvVars:  []string{"RMK_ONPREM_KUBE_API_ENDPOINT"},
+			Name:     "onprem-ssh-init-server-host",
+			Usage:    "K3S init server host used to retrieve kubeconfig via SSH",
+			Aliases:  []string{"opsish"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_INIT_SERVER_HOST"},
 		},
 		&cli.StringFlag{
 			Category: onPremFlagsCategory,

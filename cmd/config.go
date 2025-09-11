@@ -469,8 +469,8 @@ func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler
 		conf.OnPremConfigure = onprem_provider.NewOnPremConfigure()
 	}
 
-	if c.IsSet("onprem-kube-api-endpoint") {
-		conf.OnPremConfigure.KubeAPIEndpoint = c.String("onprem-kube-api-endpoint")
+	if c.IsSet("onprem-ssh-init-server-host") {
+		conf.OnPremConfigure.SSHInitServerHost = c.String("onprem-ssh-init-server-host")
 	}
 
 	if c.IsSet("onprem-ssh-private-key") && len(c.String("onprem-ssh-private-key")) > 0 {
