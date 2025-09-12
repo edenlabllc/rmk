@@ -81,6 +81,9 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - Single-machine [K3D](https://k3d.io/) clusters
+- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) a custom-built 
+  infrastructure provider (operator) based on the [Ansible Operator SDK](https://sdk.operatorframework.io/docs/building-operators/ansible/)
+  on top of [K3S](https://docs.k3s.io/), inspired by the [k3s-ansible](https://github.com/k3s-io/k3s-ansible) project.
 
 > Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
@@ -167,6 +170,9 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
   Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
+- **[on-premise-configurator.operators.infra]()**:
+  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible.
+  Designed for airgapped and connected environments.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
@@ -181,8 +187,8 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
   values and secrets management.
-- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
-  support for provisioning and destroy of on-premise Kubernetes clusters.
+- ~~**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
+  support for provisioning and destroy of on-premise Kubernetes clusters.~~
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
   errors or regressions during the CI/CD across all cluster providers.
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating

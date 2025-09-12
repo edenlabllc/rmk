@@ -35,6 +35,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
     * [Initialization of Azure cluster provider](configuration/configuration-management/init-azure-provider.md)
     * [Initialization of GCP cluster provider](configuration/configuration-management/init-azure-provider.md)
     * [Initialization of K3D cluster provider](configuration/configuration-management/init-k3d-provider.md)
+    * [Initialization of On-Premise cluster provider](configuration/configuration-management/init-onprem-provider.md)
   * Project management
     * [Requirement for project repository](configuration/project-management/requirement-for-project-repository.md)
     * [Preparation of project repository](configuration/project-management/preparation-of-project-repository.md)
@@ -45,6 +46,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
     * [Using Azure cluster provider](configuration/cluster-management/usage-azure-provider.md)
     * [Using GCP cluster provider](configuration/cluster-management/usage-azure-provider.md)
     * [Using K3D cluster provider](configuration/cluster-management/usage-k3d-provider.md)
+    * [Using On-Premise cluster provider](configuration/cluster-management/usage-onprem-provider.md)
   * [Release management](configuration/release-management/release-management.md)
   * [Secrets management](configuration/secrets-management/secrets-management.md)
 * [Commands](commands.md)
@@ -124,6 +126,9 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - Single-machine [K3D](https://k3d.io/) clusters
+- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) a custom-built 
+  infrastructure provider (operator) based on the [Ansible Operator SDK](https://sdk.operatorframework.io/docs/building-operators/ansible/)
+  on top of [K3S](https://docs.k3s.io/), inspired by the [k3s-ansible](https://github.com/k3s-io/k3s-ansible) project.
 
 > Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
@@ -210,6 +215,9 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
   Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
+- **[on-premise-configurator.operators.infra]()**:
+  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible.
+  Designed for airgapped and connected environments.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
@@ -278,8 +286,8 @@ rmk update --version vX.X.X
 
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
   values and secrets management.
-- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
-  support for provisioning and destroy of on-premise Kubernetes clusters.
+- ~~**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
+  support for provisioning and destroy of on-premise Kubernetes clusters.~~
 - **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
   errors or regressions during the CI/CD across all cluster providers.
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating

@@ -5,4 +5,5 @@ nav:
   - usage-azure-provider.md
   - usage-gcp-provider.md
   - usage-k3d-provider.md
+  - usage-onprem-provider.md
 collapse: false

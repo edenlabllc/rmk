@@ -1,1 +1,2 @@
 - Added On-Premise cluster provider support.
+- Added On-Premise cluster provider documentation.

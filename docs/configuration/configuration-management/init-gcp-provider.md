@@ -11,7 +11,7 @@ cluster-provider: gcp # Selected cluster provider.
 # ...
 gcp-region: us-east1 # GCP region of the current Kubernetes cluster.
 gcp:
-  app-credentials-path: /Users/alexalex/.config/gcloud/gcp-credentials-rmk-test-develop.json # Absolute path to GCP service account file.   
+  app-credentials-path: /Users/test-user/.config/gcloud/gcp-credentials-rmk-test-develop.json # Absolute path to GCP service account file.   
   project-id: project-name # GCP project name. Got from GCP service account file.
 # ...
 ```
@@ -43,7 +43,7 @@ The 2 supported configuration scenarios are:
 
 * **via RMK flags**:
   ```shell
-  rmk config init --cluster-provider=gcp 
+  rmk config init --cluster-provider=gcp \
     --gcp-region=us-east1 \
     --google-application-credentials <path_to_exported_google_service_account_file>
   ```
