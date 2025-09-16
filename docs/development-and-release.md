@@ -31,8 +31,8 @@ The [Git branch](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nuts
 For example:
 
 - `feature/RMK-123-add-some-important-feature`
-- `release/v0.42.0`
-- `hotfix/v0.42.1`
+- `release/v0.46.0`
+- `hotfix/v0.46.1`
 
 ## Release
 

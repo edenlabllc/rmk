@@ -170,9 +170,9 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
   Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
-- **[on-premise-configurator.operators.infra]()**:
-  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible.
-  Designed for airgapped and connected environments.
+- **[on-premise-configurator.operators.infra](https://github.com/edenlabllc/on-premise-configurator.operators.infra)**:
+  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible,
+  with support for both isolated (air-gapped) and network-connected environments.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
@@ -187,10 +187,8 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 - **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
   values and secrets management.
-- ~~**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
-  support for provisioning and destroy of on-premise Kubernetes clusters.~~
-- **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
-  errors or regressions during the CI/CD across all cluster providers.
+- **Enhanced automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase 
+  do not introduce errors or regressions during the CI/CD across all cluster providers.
 - **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
   pull requests (PRs).
 
