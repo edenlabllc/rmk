@@ -8,7 +8,7 @@
 
 Before provisioning the Kubernetes cluster, add override for the
 [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/azure-cluster.yaml.gotmpl)
-file to scope `deps` for the target Kubernetes cluster.
+file to the `deps` scope for the target Kubernetes cluster.
 
 ```yaml
 controlPlane:

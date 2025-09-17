@@ -7,10 +7,10 @@
 
 Before provisioning the Kubernetes cluster, add override for
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl)
-file to scope `deps` for the target Kubernetes cluster.
+file to the `deps` scope for the target Kubernetes cluster.
 
 ```yaml
-# A complete list of all options can be found here https://capz.sigs.k8s.io/reference/v1beta1-api
+# A complete list of all options can be found here: https://capz.sigs.k8s.io/reference/v1beta1-api
 controlPlane:
   spec:
     iamAuthenticatorConfig:
@@ -45,8 +45,8 @@ machinePools:
 ```
 
 Using the example above and the example from
-the [cluster-deps repository](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl)
-you can add the required number of machine pools depending on the requirements for distribution into individual roles.
+the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/aws-cluster.yaml.gotmpl)
+repository you can add the required number of machine pools depending on the requirements for distribution into individual roles.
 
 > For the AWS provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
