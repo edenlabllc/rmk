@@ -188,7 +188,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ## Roadmap
 
 - :construction:
-  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with the tool for advanced
+  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
   values and secrets management.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
