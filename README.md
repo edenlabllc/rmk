@@ -173,7 +173,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
   Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
 - **[on-premise-configurator.operators.infra](https://github.com/edenlabllc/on-premise-configurator.operators.infra)**:
-  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible,
+  Kubernetes operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible,
   with support for both isolated (air-gapped) and network-connected environments.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.

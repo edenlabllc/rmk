@@ -15,10 +15,10 @@ aws-mfa-profile: rmk-test-develop-mfa # AWS profile name for MFA.
 aws-mfa-token-expiration: "1738006158" # Time expiration MFA token.
 aws:
   account_id: "123456789012"
-  config-source: /Users/test-mfa-user/.aws/config_rmk-test-develop
-  credentials-source: /Users/test-mfa-user/.aws/credentials_rmk-test-develop
-  user-name: test-mfa-user
-  mfa-device: arn:aws:iam::123456789012:mfa/test-mfa-user # MFA device AWS ARN.
+  config-source: /home/user/.aws/config_rmk-test-develop
+  credentials-source: /home/user/.aws/credentials_rmk-test-develop
+  user-name: user
+  mfa-device: arn:aws:iam::123456789012:mfa/user # MFA device AWS ARN.
   profile: rmk-test-develop
   region: us-east-1
 ```
@@ -34,8 +34,8 @@ cluster-provider: aws # Selected cluster provider.
 # ...
 aws:
   account_id: "123456789012" # AWS account ID.
-  config-source: /Users/user/.aws/config_rmk-test-develop # Absolute path to the AWS profile config.
-  credentials-source: /Users/user/.aws/credentials_rmk-test-develop # Absolute path to the AWS profile credentials.
+  config-source: /home/user/.aws/config_rmk-test-develop # Absolute path to the AWS profile config.
+  credentials-source: /home/user/.aws/credentials_rmk-test-develop # Absolute path to the AWS profile credentials.
   user-name: user # AWS user name.
   profile: rmk-test-develop # AWS profile name.
   region: us-east-1 # AWS region of the current Kubernetes cluster.    

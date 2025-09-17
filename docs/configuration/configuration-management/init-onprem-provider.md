@@ -10,9 +10,9 @@ root-domain: rmk-test-develop.edenlab.dev # Root domain name used across the clu
 cluster-provider: onprem # Selected cluster provider.
 # ...
 onprem:
-  ssh-init-server-host: 10.1.1.10 #  K3S init server host.
-  ssh-private-key: /Users/test-user/.ssh/id_rsa # Absolute path to SSH private key file. 
-  ssh-user: test-user # SSH user.
+  ssh-init-server-host: 10.1.1.10 # K3S init server host.
+  ssh-private-key: /home/user/.ssh/id_rsa # Absolute path to SSH private key file. 
+  ssh-user: user # SSH user.
 # ...
 ```
 

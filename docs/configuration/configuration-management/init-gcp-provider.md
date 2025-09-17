@@ -11,7 +11,7 @@ cluster-provider: gcp # Selected cluster provider.
 # ...
 gcp-region: us-east1 # GCP region of the current Kubernetes cluster.
 gcp:
-  app-credentials-path: /Users/test-user/.config/gcloud/gcp-credentials-rmk-test-develop.json # Absolute path to GCP service account file.   
+  app-credentials-path: /home/user/.config/gcloud/gcp-credentials-rmk-test-develop.json # Absolute path to GCP service account file.   
   project-id: project-name # GCP project name. Got from GCP service account file.
 # ...
 ```
