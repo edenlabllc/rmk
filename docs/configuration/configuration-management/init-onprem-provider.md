@@ -18,22 +18,53 @@ onprem:
 
 ## Prerequisites
 
-1. A common user with passwordless sudo privileges must be available on all nodes where the Kubernetes cluster based on K3S will be deployed.
+1. **System user**:
 
-2. SSH access to all cluster nodes from the administrator’s machine must be configured using a private key.
+   * Shared system user must exist on **all cluster nodes**.
+   * Requires **sudo** privileges without password prompt.
 
-3. Firewall rules must allow open network access between all cluster nodes.
+2. **SSH access**:
 
-4. An IP address must be available for the Kubernetes API server (K3S init server).
+   * SSH connectivity from the administrator machine to **all cluster nodes** must be available.
+   * SSH authentication is done via a **private key**.
+   * An **absolute path** to the private key must be specified
+     during [configuration initialization](../configuration-management/init-onprem-provider.md#configuration),
+     or RMK will attempt to use the default path (e.g., `~/.ssh/id_[ed25519|rsa|ecdsa|dsa]`).
+
+3. **Networking**:
+
+   * Firewall must allow full bidirectional connectivity between **all cluster nodes**.
+   * Required [ports](https://docs.k3s.io/installation/requirements#networking) include (but are not limited to):
+     * _6443/TCP_ ([Kubernetes API server](https://kubernetes.io/docs/concepts/overview/kubernetes-api/))
+     * _10250/TCP_ ([Kubelet API](https://kubernetes.io/docs/concepts/architecture/#kubelet))
+     * _8472/UDP_ ([Flannel](https://github.com/flannel-io/flannel) VXLAN overlay network)
+     * _51820/UDP_, _51821/UDP_ ([WireGuard](https://www.wireguard.com/), if enabled)
+
+4. **K3S init server host**:
+
+   * An IP address must be allocated for the [bootstrap](https://docs.k3s.io/datastore/ha-embedded) control
+     plane node (used by other nodes when joining the cluster).
+
+5. **OS requirements**:
+
+   * Only [Linux](https://docs.k3s.io/installation/requirements#operating-systems) machines with 
+     [systemd](https://systemd.io/) are supported.
+   * Tested distributions: 
+     [RHEL 9](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9),
+     [Ubuntu 22.04](https://releases.ubuntu.com/jammy/),
+     [Debian 12](https://www.debian.org/releases/bookworm/).
+
+6. **Disk and filesystem**:
+
+   * Nodes should provide a **dedicated** disk or partition for container storage (optional but recommended).
+
+7. **DNS resolution**:
+
+   * If hostnames are used in configuration, they must resolve to correct internal IPs using
+     [DNS](https://en.wikipedia.org/wiki/Domain_Name_System).
+   * Alternatively, configure [/etc/hosts](https://en.wikipedia.org/wiki/Hosts_(file)) on **all cluster nodes**.
 
 ## Configuration
-
-The absolute path to the SSH private key must be specified when running the rmk config init command. If it is not provided,
-RMK will search in default SSH locations (e.g., ${HOME}/.ssh/id_[ed25519|rsa|ecdsa|dsa])
-
-```shell
-${HOME}/.ssh/id_[ed25519|rsa|ecdsa|dsa]
-```
 
 The 2 supported configuration scenarios are:
 
@@ -42,19 +73,20 @@ The 2 supported configuration scenarios are:
   rmk config init --cluster-provider=onprem \
     --onprem-ssh-init-server-host=<k3s_init_server_ip> \
     --onprem-ssh-private-key=<ssh_private_key_path> \
-    --onprem-ssh-user=<ssh_user_name>
+    --onprem-ssh-user=<ssh_user>
   ```
 
 * **via environment variables**: `RMK_ONPREM_SSH_INIT_SERVER_HOST`, `RMK_ONPREM_SSH_PRIVATE_KEY`, `RMK_ONPREM_SSH_USER`.
   ```shell
   export RMK_ONPREM_SSH_INIT_SERVER_HOST=<k3s_init_server_ip>
   export RMK_ONPREM_SSH_PRIVATE_KEY=<ssh_private_key_path>
-  export RMK_ONPREM_SSH_USER=<ssh_user_name>
+  export RMK_ONPREM_SSH_USER=<ssh_user>
   rmk config init --cluster-provider=onprem
   ```  
 
-If environment variables are set before running the command, RMK will place the SSH private key into the default 
-SSH location using the same file name as specified in the flag or environment variable.  
+If an environment variable or flag specifies a **custom** SSH private key, RMK will **copy** that key into the default 
+SSH location (using the **same** file name), and will use it for subsequent operations.
+
 If CLI flags are provided, RMK will prioritize them over environment variables, as **CLI flags take precedence**.
 
 ## Reconfiguration of the On-Premise SSH private key
@@ -62,5 +94,5 @@ If CLI flags are provided, RMK will prioritize them over environment variables, 
 Modify the value of a specific flag if changes are needed:
 
 ```shell
-rmk config init --onprem-ssh-private-key=<ssh_private_key_path>
+rmk config init --onprem-ssh-private-key=<new_ssh_private_key_path>
 ```

@@ -36,7 +36,7 @@ aws:
   account_id: "123456789012" # AWS account ID.
   config-source: /home/user/.aws/config_rmk-test-develop # Absolute path to the AWS profile config.
   credentials-source: /home/user/.aws/credentials_rmk-test-develop # Absolute path to the AWS profile credentials.
-  user-name: user # AWS user name.
+  user-name: user # AWS user.
   profile: rmk-test-develop # AWS profile name.
   region: us-east-1 # AWS region of the current Kubernetes cluster.    
 # ...
@@ -62,8 +62,8 @@ not created during the initial configuration, RMK will generate it and store the
 following path:
 
 ```shell
-${HOME}/.aws/config_<project_name>-<project_branch>
-${HOME}/.aws/credentials_<project_name>-<project_branch>
+/home/user/.aws/config_<project_name>-<project_branch>
+/home/user/.aws/credentials_<project_name>-<project_branch>
 ```
 
 The 2 supported configuration scenarios are:
