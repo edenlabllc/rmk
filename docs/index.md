@@ -301,7 +301,8 @@ rmk update --version vX.X.X
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroy of on-premise Kubernetes clusters._
 - :white_check_mark:
-  _**Web documentation generator:** Add an HTML documentation generator based on the **.md** files._
+  _**Web documentation generator:** Add an HTML documentation [generator](https://www.mkdocs.org/)
+  based on the **.md** files._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
