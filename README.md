@@ -196,13 +196,13 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for 
   creating pull requests (PRs).
 - :white_check_mark:
-  _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
-  Implement support for provisioning and destroy of on-premise Kubernetes clusters._
-- :white_check_mark:
   _**Implementation of additional cloud [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) providers:**
   Implement support for other popular Kubernetes services such as
   [GKE](https://cloud.google.com/kubernetes-engine),
   [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc._
+- :white_check_mark:
+  _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
+  Implement support for provisioning and destroy of on-premise Kubernetes clusters._
 - :white_check_mark: 
   _**Web documentation generator:** Add an HTML documentation generator based on the **.md** files._
 
