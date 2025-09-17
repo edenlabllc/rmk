@@ -187,14 +187,16 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Roadmap
 
-- :construction: 
-  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_for advanced values and secrets management.
 - :construction:
-  **Enhanced automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase
+  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with the tool for advanced
+  values and secrets management.
+- :construction:
+  **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
+  Ensure that changes to the RMK codebase
   do not introduce errors or regressions during the CI/CD across all cluster providers.
 - :construction:
-  **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for 
-  creating pull requests (PRs).
+  **Guidelines for [contributors](https://github.com/edenlabllc/rmk/pulls):**
+  Create comprehensive guidelines and instructions for creating pull requests (PRs).
 - :white_check_mark:
   _**Implementation of additional cloud [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) providers:**
   Implement support for other popular Kubernetes services such as
@@ -203,9 +205,9 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroy of on-premise Kubernetes clusters._
-- :white_check_mark: 
-  _**Web documentation generator:** Add an HTML documentation [generator](https://www.mkdocs.org/) 
-  based on the **.md** files._
+- :white_check_mark:
+  _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
+  based on the .md files._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
