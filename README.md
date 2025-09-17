@@ -39,7 +39,8 @@ cloud architects, system analytics, software testers and even managers with mini
 
 ## Advantages
 
-RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
+RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following
+advantages:
 
 - **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and
   real customers, RMK leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
@@ -61,7 +62,7 @@ RMK **simplifies** the setup and management of Kubernetes-based projects of any 
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
-  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, 
+  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`,
   `release/*`, `hotfix/*`) for
   temporary environments.
 - **Aligns with the [DevOps](https://www.atlassian.com/devops) methodology**: Enables multiple teams to develop and
@@ -81,8 +82,9 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
 - Single-machine [K3D](https://k3d.io/) clusters
-- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) a custom-built 
-  infrastructure provider (operator) based on the [Ansible Operator SDK](https://sdk.operatorframework.io/docs/building-operators/ansible/)
+- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) a custom-built
+  infrastructure provider (operator) based on
+  the [Ansible Operator SDK](https://sdk.operatorframework.io/docs/building-operators/ansible/)
   on top of [K3S](https://docs.k3s.io/), inspired by the [k3s-ansible](https://github.com/k3s-io/k3s-ansible) project.
 
 > Please see the [Roadmap](#roadmap) section for more details on upcoming features.
@@ -101,9 +103,9 @@ to connect to and manage the cluster.
 Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
 [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
 
-**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for automated
-provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and
-automatically within CI/CD pipelines.
+**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for
+automated provisioning and destroy of temporary Kubernetes clusters for development and testing purposes,
+both manually and automatically within CI/CD pipelines.
 
 **:rocket: Proven at scale**:
 
@@ -185,12 +187,24 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Roadmap
 
-- **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
-  values and secrets management.
-- **Enhanced automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase 
+- :construction: 
+  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_for advanced values and secrets management.
+- :construction:
+  **Enhanced automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase
   do not introduce errors or regressions during the CI/CD across all cluster providers.
-- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
-  pull requests (PRs).
+- :construction:
+  **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for 
+  creating pull requests (PRs).
+- :white_check_mark:
+  _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
+  Implement support for provisioning and destroy of on-premise Kubernetes clusters._
+- :white_check_mark:
+  _**Implementation of additional cloud [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) providers:**
+  Implement support for other popular Kubernetes services such as
+  [GKE](https://cloud.google.com/kubernetes-engine),
+  [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc._
+- :white_check_mark: 
+  _**Web documentation generator:** Add an HTML documentation generator based on the **.md** files._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 
