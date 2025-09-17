@@ -111,7 +111,7 @@ both manually and automatically within CI/CD pipelines.
 
 - **220+** clusters handled **monthly** (based on a 5-day workweek).
 - **2,600+** clusters handled **annually**.
-- **10,000+** clusters orchestrated **since 2021**.
+- **12,000+** clusters orchestrated **since 2021**.
 
 Beyond internal use, RMK is also leveraged by various **external clients** to streamline their CI/CD workflows, ensuring
 fast and
