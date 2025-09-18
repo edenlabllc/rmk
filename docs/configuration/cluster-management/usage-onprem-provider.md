@@ -136,6 +136,11 @@ repository you can add the required number of machines depending on the requirem
 > For the On-Premise provider, before launching the actual provisioning of the cluster,
 > RMK will **create** a K8S secret `capop-ssh-identity-secret` in the `capop-system` namespace
 > of the CAPI Management cluster storing the provided SSH private key.
+> 
+> **Only one** SSH identity secret can be active at a time, which means that only a **single** target on-premise
+> cluster can be managed concurrently. To switch to another cluster, the provider must be 
+> [reconfigured](../configuration-management/init-onprem-provider.md#reconfiguration-of-the-on-premise-ssh-private-key)
+> with the corresponding SSH key, which will **replace** the existing secret.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
