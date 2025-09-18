@@ -1,6 +1,6 @@
 # Using On-Premise cluster provider
 
-> Ensure that all target machines are accessible over the network via SSH and properly configured for
+> Ensure that all target machines are **accessible** over the network via **SSH** and properly configured for
 > [K3S installation](https://docs.k3s.io/installation).
 
 Before provisioning the Kubernetes cluster, add override for
@@ -37,6 +37,7 @@ templates:
 
   controlPlaneHostInternal: &controlPlaneHostInternal "192.0.2.10" # e.g. 192.0.2.10
 
+# A minimum of 3 control plane machines is required, when k3sHAMode=true
 controlPlane:
   endpoint:
     host: *controlPlaneHostInternal
@@ -83,6 +84,7 @@ controlPlane:
 
 ## The worker machines (k3sRole=agent)
 machines:
+  ## Example load balancer machine
   load-balancer:
     enabled: true
     remote:
@@ -96,7 +98,8 @@ machines:
         <<: *machineRemoteAgentSpec
     spec:
       <<: *machineSpec
-
+      
+  ## Example stateless app machine
   app-stateless:
     enabled: true
     remote:
@@ -109,6 +112,7 @@ machines:
     spec:
       <<: *machineSpec
 
+  ## Example stateful app machine
   app-stateful:
     enabled: true
     remote:
@@ -127,12 +131,11 @@ machines:
 
 Using the example above and the example from
 the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/onprem-cluster.yaml.gotmpl)
-repository you can add the required number of machines depending on the requirements for distribution into individual roles.
+repository you can add the required number of machines depending on the requirements.
 
 > For the On-Premise provider, before launching the actual provisioning of the cluster,
-> RMK will perform the following preliminary steps:
->
-> - Create secrets with SSH private key `capop-ssh-identity-secret` in the CAPI Management cluster.
+> RMK will **create** a K8S secret `capop-ssh-identity-secret` in the `capop-system` namespace
+> of the CAPI Management cluster storing the provided SSH private key.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
@@ -148,5 +151,5 @@ To destroy a Kubernetes cluster, run the command:
 rmk cluster capi destroy
 ```
 
-> After the cluster is destroyed, RMK will **delete** the previously created SSH key and the context
-> for the target Kubernetes cluster.
+> After the cluster is destroyed, RMK will **delete** the previously created K8S secret with the SSH private key 
+> as well as the K8S context for the target Kubernetes cluster.
