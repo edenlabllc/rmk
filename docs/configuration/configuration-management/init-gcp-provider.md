@@ -18,7 +18,7 @@ gcp:
 
 ## Prerequisites
 
-1. Having an account and project in GCP and a created service account with access roles in IAM: `Editor`, `Secret
+1. Having a **GCP account** and **project** and a created **service account** with access roles in IAM: `Editor`, `Secret
    Manager Admin`, `Kubernetes Engine Admin`.
    > See the
    > [useful link](https://cloud.google.com/iam/docs/understanding-roles).

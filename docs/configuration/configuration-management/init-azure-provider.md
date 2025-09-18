@@ -21,7 +21,7 @@ azure:
 
 ## Prerequisites
 
-1. Having an subscription in Azure and a created service principal with access roles in IAM:
+1. Having an **Azure subscription** and a created service principal with access roles in IAM:
    [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor),
    [Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer).
    > See the
@@ -105,7 +105,7 @@ role with a scope, e.g.:
 /subscriptions/<subscription-id>/resourceGroups/<resource_group>
 ```
 
-pointing to a Azure Key Vault resource group, RMK will **automatically determine** its name based on this scope.
+pointing to an Azure Key Vault resource group, RMK will **automatically determine** its name based on this scope.
 
 Alternatively, you can **manually specify** the custom resource group name when initializing RMK configuration for the 
 current environment using the optional `--azure-key-vault-resource-group-name=<key_vault_resource_group>` flag:

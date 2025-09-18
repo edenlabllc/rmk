@@ -44,12 +44,12 @@ aws:
 
 ## Prerequisites
 
-1. Having an account in AWS and a created user with access policies in IAM:
+1. Having an **AWS account** and a created user with access policies in IAM:
    [PowerUserAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/PowerUserAccess.html),
    [SecretsManagerReadWrite](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/SecretsManagerReadWrite.html).
    > See the [useful link](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html).
 
-2. Having an AWS access key pair.
+2. Having an **AWS access key pair**.
    > See the [useful link](https://docs.aws.amazon.com/IAM/latest/UserGuide/access-key-self-managed.html).
 
 3. Allocated [EC2 quotas](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html) for specific
@@ -98,16 +98,16 @@ rmk config init --cluster-provider=aws
 
 To **set up an MFA device**, if it is required by the administrator, the following actions should be executed:
 
-1. Sign in to the "AWS Management Console".
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/).
 2. Go to the following page to set up security
    credentials: [My security credentials](https://console.aws.amazon.com/iam/home#/security_credentials)
-3. Navigate to the "Multi-factor authentication (MFA)" section and set up an MFA device.
+3. Navigate to the "_Multi-factor authentication (MFA)_" section and set up an **MFA device**.
    If a device name is required, specify a name.
-4. After that, sign out and sign in again to refresh AWS policies
+4. After that, **sign out** and **sign in** again to refresh AWS policies
    (might be required in case of an IAM policy based on the
    [aws:MultiFactorAuthPresent](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_configure-api-require.html)
    condition exists).
-5. Finally, on the "My security credentials" page navigate to the "Access keys for CLI, SDK, & API access" section
+5. Finally, on the "_My security credentials_" page navigate to the "_Access keys_" section
    and create a new AWS access key, if needed.
 
 > For the detailed documentation regarding the MFA setup in AWS, go to
