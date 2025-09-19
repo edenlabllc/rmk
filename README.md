@@ -190,7 +190,8 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
   values and secrets management.
 - :construction:
-  **Integration with open-source AI models for project generation:**  
+  **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
+  for project generation:**  
   Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
