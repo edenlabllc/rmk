@@ -20,7 +20,8 @@ onprem:
 
 > :warning: **Important**
 >
-> The On-Premise provider is fundamentally **different** from cloud providers like AWS, Azure, GCP.
+> The [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) provider is fundamentally 
+> **different** from cloud providers like AWS, Azure, GCP.
 >
 > It requires **manual** preparation and configuration the underlying machines (bare-metal or VMs),
 > **low-level** understanding of how Kubernetes and K3S behave in a **non-cloud** setup (control plane bootstrap,
