@@ -138,9 +138,11 @@ repository you can add the required number of machines depending on the requirem
 > of the CAPI Management cluster storing the provided SSH private key.
 > 
 > **Only one** SSH identity secret can be active at a time, which means that only a **single** target on-premise
-> cluster can be managed concurrently. To switch to another cluster, the provider must be 
-> [reconfigured](../configuration-management/init-onprem-provider.md#reconfiguration-of-the-on-premise-ssh-private-key)
-> with the corresponding SSH key, which will **replace** the existing secret.
+> cluster can be managed concurrently. To switch to another cluster,
+> [reconfigure](../configuration-management/init-onprem-provider.md#reconfiguration-of-the-on-premise-ssh-private-key)
+> the provider with the corresponding SSH key, which will **replace** the existing secret, then
+> [update](http://localhost:8000/rmk/configuration/configuration-management/init-onprem-provider/#reconfiguration-of-the-on-premise-ssh-private-key)
+> the CAPI Management cluster to apply the changes.
 
 To start provisioning a Kubernetes cluster, run the commands:
 
