@@ -62,8 +62,8 @@ not created during the initial configuration, RMK will generate it and store the
 following path:
 
 ```shell
-/home/user/.aws/config_<project_name>-<project_branch>
-/home/user/.aws/credentials_<project_name>-<project_branch>
+${HOME}/.aws/config_<project_name>-<project_branch>
+${HOME}/.aws/credentials_<project_name>-<project_branch>
 ```
 
 The 2 supported configuration scenarios are:
