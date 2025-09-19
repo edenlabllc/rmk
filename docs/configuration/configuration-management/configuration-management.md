@@ -18,6 +18,7 @@ Example of the configuration per cluster provider:
 - [Azure](init-azure-provider.md#list-of-main-attributes-of-the-rmk-configuration)
 - [GCP](init-gcp-provider.md#list-of-main-attributes-of-the-rmk-configuration)
 - [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [On-Premise](init-onprem-provider.md#list-of-main-attributes-of-the-rmk-configuration)
 
 > All configuration attributes **can be overridden** using RMK flags or environment variables.
 
@@ -91,6 +92,7 @@ rmk config init --github-token=<github_personal_access_token>
 - [Azure](init-azure-provider.md#prerequisites)
 - [GCP](init-gcp-provider.md#prerequisites)
 - [K3D](init-k3d-provider.md#list-of-main-attributes-of-the-rmk-configuration)
+- [On-Premise](init-onprem-provider.md#prerequisites)
 
 ### Initialization of RMK configuration with a custom root domain
 

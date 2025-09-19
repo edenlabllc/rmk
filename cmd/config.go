@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,6 +19,7 @@ import (
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
+	"rmk/providers/onprem_provider"
 	"rmk/util"
 )
 
@@ -450,6 +452,64 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		WriteKeysInRootDir(secrets, "GCP Secrets Manager")
 }
 
+func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
+	confDiff := &config.Config{}
+	configPath := util.GetHomePath(util.RMKDir, util.RMKConfig, gitSpec.ID+".yaml")
+	if util.IsExists(configPath, true) {
+		if err := confDiff.ReadConfigFile(configPath); err != nil {
+			return err
+		}
+
+		if confDiff.ClusterProvider != onprem_provider.OnPremClusterProvider || confDiff.OnPremConfigure == nil {
+			conf.OnPremConfigure = onprem_provider.NewOnPremConfigure()
+		} else {
+			conf.OnPremConfigure = confDiff.OnPremConfigure
+		}
+	} else {
+		conf.OnPremConfigure = onprem_provider.NewOnPremConfigure()
+	}
+
+	if c.IsSet("onprem-ssh-init-server-host") {
+		conf.OnPremConfigure.SSHInitServerHost = c.String("onprem-ssh-init-server-host")
+	}
+
+	if c.IsSet("onprem-ssh-private-key") && len(c.String("onprem-ssh-private-key")) > 0 {
+		sshPrivateKey := c.String("onprem-ssh-private-key")
+		if err := os.MkdirAll(util.GetHomePath(".ssh"), 0700); err != nil {
+			return err
+		}
+
+		sshPKHomePath := util.GetHomePath(".ssh", filepath.Base(sshPrivateKey))
+		if util.IsExists(sshPKHomePath, true) {
+			if ok, err := util.CheckFilesSum(sshPrivateKey, sshPKHomePath); err != nil {
+				return err
+			} else if !ok {
+				if err := util.CopyFile(sshPrivateKey, sshPKHomePath, 0600); err != nil {
+					return err
+				}
+			}
+		} else {
+			if err := util.CopyFile(sshPrivateKey, sshPKHomePath, 0600); err != nil {
+				return err
+			}
+		}
+
+		conf.OnPremConfigure.SSHPrivateKey = sshPKHomePath
+	} else if c.IsSet("onprem-ssh-private-key") && len(c.String("onprem-ssh-private-key")) == 0 {
+		conf.OnPremConfigure.SSHPrivateKey = ""
+	}
+
+	if c.IsSet("onprem-ssh-user") {
+		conf.OnPremConfigure.SSHUser = c.String("onprem-ssh-user")
+	}
+
+	if err := conf.OnPremConfigure.ValidateSSHCredentials(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		if err := util.ValidateNArg(c, 0); err != nil {
@@ -487,6 +547,12 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 			if err := os.RemoveAll(util.GetHomePath(google_provider.GoogleHomeDir,
 				google_provider.GoogleCredentialsPrefix+conf.Name+".json")); err != nil {
 				return err
+			}
+		case c.String("cluster-provider") == onprem_provider.OnPremClusterProvider:
+			if util.IsExists(conf.OnPremConfigure.SSHPrivateKey, true) {
+				if err := os.RemoveAll(conf.OnPremConfigure.SSHPrivateKey); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -531,18 +597,21 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		case aws_provider.AWSClusterProvider:
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil
+			conf.OnPremConfigure = nil
 			if err := initAWSProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
 		case azure_provider.AzureClusterProvider:
 			conf.AwsConfigure = nil
 			conf.GCPConfigure = nil
+			conf.OnPremConfigure = nil
 			if err := initAzureProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
 		case google_provider.GoogleClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
+			conf.OnPremConfigure = nil
 			if err := initGCPProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
@@ -550,6 +619,14 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil
+			conf.OnPremConfigure = nil
+		case onprem_provider.OnPremClusterProvider:
+			conf.AwsConfigure = nil
+			conf.AzureConfigure = nil
+			conf.GCPConfigure = nil
+			if err := initOnPremProfile(c, conf, gitSpec); err != nil {
+				return err
+			}
 		}
 
 		if err := conf.InitConfig().SetRootDomain(gitSpec.ID); err != nil {

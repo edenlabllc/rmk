@@ -5,8 +5,11 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"crypto/sha256"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,8 +17,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/melbahja/goph"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/ssh"
 )
 
 type SpecCMD struct {
@@ -295,13 +300,29 @@ func CopyDir(src, dst string) error {
 	})
 }
 
-func CopyFile(src, dst string) error {
+func CopyFile(src, dst string, perm os.FileMode) error {
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(dst, data, 0755)
+	return os.WriteFile(dst, data, perm)
+}
+
+func CheckFilesSum(path1, path2 string) (bool, error) {
+	data1, err := os.ReadFile(path1)
+	if err != nil {
+		return false, err
+	}
+	data2, err := os.ReadFile(path2)
+	if err != nil {
+		return false, err
+	}
+
+	sum1 := sha256.Sum256(data1)
+	sum2 := sha256.Sum256(data2)
+
+	return sum1 == sum2, nil
 }
 
 func MergeAgeKeys(dir string) error {
@@ -422,4 +443,53 @@ func CreateTempYAMLFile(dirPath, fileName string, content []byte) (string, error
 	defer file.Close()
 
 	return file.Name(), nil
+}
+
+func FindSSHKey() (string, error) {
+	possibleKeys := []string{SSHKeyED25519, SSHKeyRSA, SSHKeyECDSA, SSHKeyDSA}
+	for _, name := range possibleKeys {
+		path := GetHomePath(".ssh", name)
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+
+	return "", fmt.Errorf("no default SSH key found in ~/.ssh/")
+}
+
+func askIsSSHHostTrusted(host string, key ssh.PublicKey) bool {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("Unknown host: %s \nFingerprint: %s \n", host, ssh.FingerprintSHA256(key))
+	fmt.Print("Would you like to add it? type yes or no: ")
+
+	a, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return strings.ToLower(strings.TrimSpace(a)) == "yes"
+}
+
+func VerifySSHHost(host string, remote net.Addr, key ssh.PublicKey) error {
+	// hostFound: is host in known hosts file.
+	// err: error if key not in known hosts file OR host in known hosts file but key changed!
+	hostFound, err := goph.CheckKnownHost(host, remote, key, "")
+	// Host in known hosts but key mismatch!
+	// Maybe because of MAN IN THE MIDDLE ATTACK!
+	if hostFound && err != nil {
+		return err
+	}
+	// handshake because public key already exists.
+	if hostFound {
+		return nil
+	}
+
+	// Ask user to check if he trusts the host public key.
+	if askIsSSHHostTrusted(host, key) == false {
+		// Make sure to return error on non-trusted keys.
+		return fmt.Errorf("you typed no, aborted")
+	}
+
+	// Add the new host to known hosts file.
+	return goph.AddKnownHost(host, remote, key, "")
 }

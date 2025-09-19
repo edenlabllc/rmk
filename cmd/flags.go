@@ -136,6 +136,27 @@ func flagsConfig() []cli.Flag {
 			Aliases:  []string{"gac"},
 			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
 		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-ssh-init-server-host",
+			Usage:    "K3S init server host used to retrieve kubeconfig via SSH",
+			Aliases:  []string{"opsish"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_INIT_SERVER_HOST"},
+		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-ssh-private-key",
+			Usage:    "path to SSH private key. If not set, RMK will search in default SSH locations (e.g., ~/.ssh/id_[ed25519|rsa|ecdsa|dsa])",
+			Aliases:  []string{"opspk"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_PRIVATE_KEY"},
+		},
+		&cli.StringFlag{
+			Category: onPremFlagsCategory,
+			Name:     "onprem-ssh-user",
+			Usage:    "username to use for SSH authentication",
+			Aliases:  []string{"opsu"},
+			EnvVars:  []string{"RMK_ONPREM_SSH_USER"},
+		},
 		altsrc.NewBoolFlag(
 			&cli.BoolFlag{
 				Name:    "progress-bar",

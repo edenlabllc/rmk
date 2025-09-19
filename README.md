@@ -30,16 +30,15 @@ RMK serves as a **wrapper** for various popular CI/CD and DevOps CLI tools, incl
 - [Age](https://age-encryption.org/)
 
 It leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning and management across
-different environments, such as [cloud providers](https://en.wikipedia.org/wiki/Cloud_computing)
-and [on-premise](https://en.wikipedia.org/wiki/On-premises_software) deployments.
+different environments, such as **cloud** providers and **on-premise** deployments.
 
-RMK has been designed to be **used by different IT specialists**, among them are DevOps engineers, software developers,
-SREs,
-cloud architects, system analytics, software testers and even managers with minimal technical background.
+RMK has been designed to be used by **different IT specialists**, among them are DevOps engineers, software developers,
+SREs, cloud architects, system analytics, software testers and even managers with minimal technical background.
 
 ## Advantages
 
-RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following advantages:
+RMK **simplifies** the setup and management of Kubernetes-based projects of any complexity due to the following
+advantages:
 
 - **[Time-proven](#efficiency-in-numbers) CI/CD solution**: Tested and validated across multiple cloud providers and
   real customers, RMK leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning
@@ -61,7 +60,7 @@ RMK **simplifies** the setup and management of Kubernetes-based projects of any 
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
-  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`, 
+  a standard branching strategy (`develop`, `staging`, `production`) and ephemeral branches (`feature/*`,
   `release/*`, `hotfix/*`) for
   temporary environments.
 - **Aligns with the [DevOps](https://www.atlassian.com/devops) methodology**: Enables multiple teams to develop and
@@ -75,12 +74,13 @@ RMK **simplifies** the setup and management of Kubernetes-based projects of any 
 
 ### Provisioned by RMK
 
-RMK currently supports the **provisioning** of the following Kubernetes clusters:
+RMK currently supports provisioning and management of the following Kubernetes clusters:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
-- Single-machine [K3D](https://k3d.io/) clusters
+- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra)
+- Single-machine using [K3D](https://k3d.io/)
 
 > Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
@@ -95,18 +95,18 @@ to connect to and manage the cluster.
 
 ### Efficiency in numbers
 
-Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
-[Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
+Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and
+management of [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
 
-**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for automated
-provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both manually and
-automatically within CI/CD pipelines.
+**Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for
+automated provisioning and destroying temporary Kubernetes clusters for development and testing purposes, both
+manually and automatically within CI/CD pipelines.
 
 **:rocket: Proven at scale**:
 
 - **220+** clusters handled **monthly** (based on a 5-day workweek).
 - **2,600+** clusters handled **annually**.
-- **10,000+** clusters orchestrated **since 2021**.
+- **12,000+** clusters orchestrated **since 2021**.
 
 Beyond internal use, RMK is also leveraged by various **external clients** to streamline their CI/CD workflows, ensuring
 fast and
@@ -125,8 +125,8 @@ Examples of Kubernetes providers where Kodjin has already been deployed include:
 - [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
 - [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
-- [On-premise](https://en.wikipedia.org/wiki/On-premises_software) deployments
-- Single-machine [K3D](https://k3d.io/) clusters
+- [On-premise](https://en.wikipedia.org/wiki/On-premises_software)
+- Single-machine using [K3D](https://k3d.io/)
 
 A standard Kodjin-based cluster follows a **4-level inheritance** structure:
 
@@ -164,9 +164,16 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
 - **[ebs-snapshot-provision.operators.infra](https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra)**:
-  Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.
+  Kubernetes operator for automatic provisioning of Amazon [EBS](https://aws.amazon.com/ebs/) snapshots to be reused
+  in existing Kubernetes clusters.
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
-  Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
+  Kubernetes operator for automatic refresh of the Amazon [ECR](https://aws.amazon.com/ecr/) authorization token
+  before it expires.
+- **[on-premise-configurator.operators.infra](https://github.com/edenlabllc/on-premise-configurator.operators.infra)**:
+  Kubernetes operator for declarative configuration of remote bare-metal or virtual machines over SSH, for both 
+  isolated and network-connected environments,
+  a fully compliant [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/developer/providers/contracts/overview)
+  infrastructure provider.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
@@ -179,14 +186,31 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Roadmap
 
-- **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with _vals_ for advanced
+- :construction:
+  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
   values and secrets management.
-- **Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:** Implement
-  support for provisioning and destroy of on-premise Kubernetes clusters.
-- **Automatic testing of RMK during the CI/CD pipeline:** Ensure that changes to the RMK codebase do not introduce
-  errors or regressions during the CI/CD across all cluster providers.
-- **Guidelines for contributors:** Create comprehensive guidelines for contributors, including instructions for creating
-  pull requests (PRs).
+- :construction:
+  **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
+  for project generation:**  
+  Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
+- :construction:
+  **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
+  Ensure that changes to the RMK codebase
+  do not introduce errors or regressions during the CI/CD across all cluster providers.
+- :construction:
+  **Guidelines for [contributors](https://github.com/edenlabllc/rmk/pulls):**
+  Create comprehensive guidelines and instructions for creating pull requests (PRs).
+- :white_check_mark:
+  _**Implementation of additional cloud [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) providers:**
+  Implement support for other popular Kubernetes services such as
+  [GKE](https://cloud.google.com/kubernetes-engine),
+  [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc._
+- :white_check_mark:
+  _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
+  Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
+- :white_check_mark:
+  _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
+  based on the .md files._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 

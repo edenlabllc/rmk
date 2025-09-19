@@ -109,6 +109,12 @@ GCP_CLUSTER=true
 GCP_PROJECT_ID="<google_cloud_project_id>"
 GCP_REGION="<google_cloud_region>"
 GOOGLE_APPLICATION_CREDENTIALS="${HOME}/.config/gcloud/gcp-credentials-<project_name>-<project_branch>.json"
+
+# Only for Kubernetes Cluster API Provider On-Premise:
+# On-Premise configuration
+# For example:
+# ONPREM_CLUSTER=false
+ONPREM_CLUSTER=true
 ```
 
 > To view the complete list of all possible exported variables and their values for the
