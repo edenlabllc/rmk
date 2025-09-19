@@ -192,3 +192,19 @@ func K3DAction(conf *config.Config, action func(k3dRunner K3DRunner) error) cli.
 		return action(newK3DCommands(conf, c, util.GetPwdPath("")))
 	}
 }
+
+func (cc *ClusterCommands) getK3DClusterContext() ([]byte, error) {
+	k := &K3DCommands{cc.ReleaseCommands}
+
+	if err := k.prepareK3D("kubeconfig", "get", cc.Conf.Name); err != nil {
+		return nil, err
+	}
+
+	k.SpecCMD.DisableStdOut = true
+
+	if err := releaseRunner(k).runCMD(); err != nil {
+		return nil, err
+	}
+
+	return k.SpecCMD.StdoutBuf.Bytes(), nil
+}

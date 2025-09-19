@@ -25,6 +25,8 @@ import (
 )
 
 const (
+	K3DClusterProvider = "k3d"
+
 	clusterIdentityNameSuffix   = "identity"
 	clusterIdentitySecretSuffix = "identity-secret"
 
@@ -410,6 +412,17 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		if err != nil {
 			return err
 		}
+
+		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
+			return err
+		}
+	case K3DClusterProvider:
+		clusterContext, err := cc.getK3DClusterContext()
+		if err != nil {
+			return err
+		}
+
+		cc.Conf.Name = fmt.Sprintf("%v-%v", util.K3DPrefix, cc.Conf.Name)
 
 		if err := cc.mergeKubeConfigs(clusterContext); err != nil {
 			return err
