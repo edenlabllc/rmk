@@ -17,7 +17,8 @@ The 2 scenarios are:
   [AWS](../configuration-management/init-aws-provider.md),
   [Azure](../configuration-management/init-azure-provider.md),
   [GCP](../configuration-management/init-gcp-provider.md),
-  [K3D](../configuration-management/init-k3d-provider.md) (local installation)
+  [K3D](../configuration-management/init-k3d-provider.md) (local installation),
+  [On-Premise](../configuration-management/init-onprem-provider.md)
   will be utilized.
 
 ## Switching the context to an existing Kubernetes cluster
@@ -48,7 +49,7 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   might be required, if the RMK configuration for this cluster has not been created before:
   
   ```shell
-  rmk config init --cluster-provider=<aws|azure|gcp|k3d>
+  rmk config init --cluster-provider=<aws|azure|gcp|k3d|onprem>
   ```
   
   > The default value for the `--cluster-provider` argument is `k3d`.
@@ -56,10 +57,11 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   The next command depends on whether a remote Kubernetes cluster provider
   (e.g., [AWS](../configuration-management/init-aws-provider.md),
   [Azure](../configuration-management/init-azure-provider.md),
-  [GCP](../configuration-management/init-gcp-provider.md))
+  [GCP](../configuration-management/init-gcp-provider.md),
+  [On-Premise](../configuration-management/init-onprem-provider.md)),
   or a local one (e.g., [K3D](../configuration-management/init-k3d-provider.md)) has been used:
   
-  * **AWS, Azure, GCP**:
+  * **AWS, Azure, GCP, On-Premise**:
     
     ```shell
     # --force might be required to refresh the credentials after a long period of inactivity
@@ -142,7 +144,8 @@ and for provisioning target Kubernetes clusters can be found at the [link](../..
 
 Currently, the following cluster providers are supported by RMK:
 
-- **[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**:
+- **[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**, 
+  **[On-Premise](usage-onprem-provider.md)**:
   
   Configuration for managing remote clusters using Kubernetes Cluster API.
   
@@ -186,7 +189,7 @@ To manage provider controller configuration, RMK uses a single CAPI management c
 machine.
 
 At the same time, RMK supports multi-tenancy for provisioning target clusters across different cloud providers:
-**[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**.
+**[AWS EKS](usage-aws-provider.md)**, **[Azure AKS](usage-azure-provider.md)**, **[GCP GKE](usage-gcp-provider.md)**, **[On-Premise](usage-onprem-provider.md)**.
 
 When a CAPI management cluster is created for a specific provider, RMK performs the following  
 [initialization steps](#using-rmk-to-prepare-capi-management-cluster) as part of the provider controller setup.
@@ -207,7 +210,7 @@ rmk cluster capi update
 This command will initialize or update the required provider controller and install or update credentials for
 the selected cloud provider.
 
-> If the required cloud provider is **not yet installed** in the CAPI management cluster (as per  
+> If the required provider is **not yet installed** in the CAPI management cluster (as per  
 > [RMK configuration initialization](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-for-different-cluster-providers)),  
 > you must run the `rmk cluster capi update` command **before** provisioning or destroying a target cluster via
 > `rmk cluster capi <provision|destroy>`.

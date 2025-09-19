@@ -6,12 +6,6 @@ The CLI will create a cluster according to the
 declarative [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/k3d-cluster.yaml.gotmpl)
 for K3D.
 
-#### Prerequisites
-
-1. Create a separate ephemeral branch, e.g.: `feature/<issue_key>-<issue_number>-<issue_description>`.
-2. [Initialize configuration](../configuration-management/configuration-management.md#initialization-of-rmk-configuration-with-a-custom-root-domain)
-   for this branch with the `localhost` root domain name.
-
 #### Creating K3D clusters
 
 Run the following command:

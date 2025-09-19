@@ -6,7 +6,7 @@
 
 Before provisioning the Kubernetes cluster, add override
 the [configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl)
-file to scope `deps` for the target Kubernetes cluster.
+file to the `deps` scope for the target Kubernetes cluster.
 
 ```yaml
 controlPlane:
@@ -33,8 +33,8 @@ machinePools:
 ```
 
 Using the example above and the example from
-the [cluster-deps repository](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl)
-you can add the required number of machine pools depending on the requirements for distribution into individual roles.
+the [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/values/gcp-cluster.yaml.gotmpl)
+repository you can add the required number of machine pools depending on the requirements for distribution into individual roles.
 
 > For the GCP provider, before launching the actual provisioning of the cluster,
 > RMK will perform the following preliminary steps:
