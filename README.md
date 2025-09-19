@@ -81,11 +81,8 @@ RMK currently supports the **provisioning** of the following Kubernetes clusters
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
 - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
-- Single-machine [K3D](https://k3d.io/) clusters
-- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra) a custom-built
-  infrastructure provider (operator) based on
-  the [Ansible Operator SDK](https://sdk.operatorframework.io/docs/building-operators/ansible/)
-  on top of [K3S](https://docs.k3s.io/), inspired by the [k3s-ansible](https://github.com/k3s-io/k3s-ansible) project.
+- [On-Premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra)
+- Single-machine using [K3D](https://k3d.io/)
 
 > Please see the [Roadmap](#roadmap) section for more details on upcoming features.
 
@@ -130,8 +127,8 @@ Examples of Kubernetes providers where Kodjin has already been deployed include:
 - [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
 - [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
-- [On-premise](https://en.wikipedia.org/wiki/On-premises_software) deployments
-- Single-machine [K3D](https://k3d.io/) clusters
+- [On-premise](https://en.wikipedia.org/wiki/On-premises_software)
+- Single-machine using [K3D](https://k3d.io/)
 
 A standard Kodjin-based cluster follows a **4-level inheritance** structure:
 
@@ -169,12 +166,17 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
 - **[ebs-snapshot-provision.operators.infra](https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra)**:
-  Kubernetes operator for automatic provisioning of Amazon EBS snapshots to be used in existing Kubernetes clusters.
+  Kubernetes operator for automatic provisioning of Amazon [EBS](https://aws.amazon.com/ebs/) snapshots to be reused
+  in existing Kubernetes clusters.
 - **[ecr-token-refresh.operators.infra](https://github.com/edenlabllc/ecr-token-refresh.operators.infra)**:
-  Kubernetes operator for automatic refresh of the Amazon ECR authorization token before it expires.
+  Kubernetes operator for automatic refresh of the Amazon [ECR](https://aws.amazon.com/ecr/) authorization token
+  before it expires.
 - **[on-premise-configurator.operators.infra](https://github.com/edenlabllc/on-premise-configurator.operators.infra)**:
-  Kubernetes operator for declarative configuration of remote bare-metal or virtual machines via SSH using Ansible,
-  with support for both isolated (air-gapped) and network-connected environments.
+  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines over SSH,  
+  designed to work in both isolated ([air-gapped](https://en.wikipedia.org/wiki/Air_gap_(networking)))
+  and network-connected environments, a fully compliant
+  [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/developer/providers/contracts/overview) infrastructure
+  provider.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
