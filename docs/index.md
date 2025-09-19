@@ -74,12 +74,10 @@ RMK serves as a **wrapper** for various popular CI/CD and DevOps CLI tools, incl
 - [Age](https://age-encryption.org/)
 
 It leverages [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) for cluster provisioning and management across
-different environments, such as [cloud providers](https://en.wikipedia.org/wiki/Cloud_computing)
-and [on-premise](https://en.wikipedia.org/wiki/On-premises_software) deployments.
+different environments, such as **cloud** providers and **on-premise** deployments.
 
-RMK has been designed to be **used by different IT specialists**, among them are DevOps engineers, software developers,
-SREs,
-cloud architects, system analytics, software testers and even managers with minimal technical background.
+RMK has been designed to be used by **different IT specialists**, among them are DevOps engineers, software developers,
+SREs, cloud architects, system analytics, software testers and even managers with minimal technical background.
 
 ## Advantages
 
@@ -120,7 +118,7 @@ advantages:
 
 ### Provisioned by RMK
 
-RMK currently supports the **provisioning** of the following Kubernetes clusters:
+RMK currently supports provisioning and management of the following Kubernetes clusters:
 
 - [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/)
 - [Azure Kubernetes Service (AKS)](https://azure.microsoft.com/en-us/products/kubernetes-service/)
@@ -141,11 +139,11 @@ to connect to and manage the cluster.
 
 ### Efficiency in numbers
 
-Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and managing
-[Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
+Initially, it has been developed by [Edenlab LLC](https://edenlab.io/) as the main CLI for provisioning and 
+management of [Kodjin FHIR Server](https://kodjin.com) on Kubernetes clusters in different environments.
 
 **Since 2021**, RMK has been an **integral part** of the company’s Kubernetes infrastructure, used regularly for
-automated provisioning and destroy of temporary Kubernetes clusters for development and testing purposes, both
+automated provisioning and destroying temporary Kubernetes clusters for development and testing purposes, both
 manually and automatically within CI/CD pipelines.
 
 **:rocket: Proven at scale**:
@@ -171,7 +169,7 @@ Examples of Kubernetes providers where Kodjin has already been deployed include:
 - [Open Telekom Cloud - Cloud Container Engine (CCE)](https://www.open-telekom-cloud.com/en/products-services/core-services/cloud-container-engine)
 - [Rancher Kubernetes Platform](https://www.rancher.com/)
 - [Kubermatic Kubernetes Platform (KKP)](https://www.kubermatic.com/)
-- [On-premise](https://en.wikipedia.org/wiki/On-premises_software)
+- [On-premise](https://github.com/edenlabllc/on-premise-configurator.operators.infra)
 - Single-machine using [K3D](https://k3d.io/)
 
 A standard Kodjin-based cluster follows a **4-level inheritance** structure:
@@ -216,11 +214,10 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Kubernetes operator for automatic refresh of the Amazon [ECR](https://aws.amazon.com/ecr/) authorization token 
   before it expires.
 - **[on-premise-configurator.operators.infra](https://github.com/edenlabllc/on-premise-configurator.operators.infra)**:
-  Kubernetes Operator for declarative configuration of remote bare-metal or virtual machines over SSH,  
-  designed to work in both isolated ([air-gapped](https://en.wikipedia.org/wiki/Air_gap_(networking)))
-  and network-connected environments, a fully compliant
-  [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/developer/providers/contracts/overview) infrastructure
-  provider.
+  Kubernetes operator for declarative configuration of remote bare-metal or virtual machines over SSH, for both
+  isolated and network-connected environments,
+  a fully compliant [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/developer/providers/contracts/overview)
+  infrastructure provider.
 - **[secrets-sync.operators.infra](https://github.com/edenlabllc/secrets-sync.operators.infra)**:
   Kubernetes operator for automatically copying of existing Kubernetes secrets between namespaces.
 
@@ -291,6 +288,9 @@ rmk update --version vX.X.X
   **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced 
   values and secrets management.
 - :construction:
+  **Integration with open-source AI models for project generation:**  
+  Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
+- :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
   Ensure that changes to the RMK codebase
   do not introduce errors or regressions during the CI/CD across all cluster providers.
@@ -304,7 +304,7 @@ rmk update --version vX.X.X
   [AKS](https://azure.microsoft.com/en-us/products/kubernetes-service/), etc._
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
-  Implement support for provisioning and destroy of on-premise Kubernetes clusters._
+  Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
