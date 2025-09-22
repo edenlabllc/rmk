@@ -1,2 +1,1 @@
-- Added On-Premise cluster provider support.
-- Added On-Premise cluster provider documentation.
+- Fixed kubeconfig context selection for local K3D clusters.
