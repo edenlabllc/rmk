@@ -320,7 +320,7 @@ func (cc *ClusterCommands) getKubeContext() (string, string, error) {
 	}
 
 	for key := range kubeConfig.Contexts {
-		if cc.Conf.Name == key {
+		if cc.Conf.Name == key || fmt.Sprintf("%s-%s", util.K3DPrefix, cc.Conf.Name) == key {
 			contextNames = append(contextNames, key)
 		}
 	}
