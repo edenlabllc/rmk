@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** dc3b7b7 <br />
-**Date:** 2025-09-19T09:24:38Z <br />
+**Commit:** 879e403 <br />
+**Date:** 2025-10-21T10:03:25Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -263,6 +263,30 @@ Destroy releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
+#### fetch, f
+
+Fetch charts from releases (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
+#### lint, n
+
+Lint charts from releases (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
 #### list, l
 
 List releases
@@ -282,6 +306,18 @@ List releases
 Rollback specific releases to latest stable state
 
 **--release-name, --rn**="": list release names for rollback status in Kubernetes
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
+#### show-dag, g
+
+Show simplified DAGs of releases combined into groups (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
