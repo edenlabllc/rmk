@@ -570,6 +570,9 @@ func releaseHelmfileAction(conf *config.Config) cli.ActionFunc {
 		}
 
 		args = append(args, c.Command.Name)
+		if c.Command.Name == "fetch" {
+			args = append(args, "--output-dir", util.GetPwdPath(""))
+		}
 
 		if c.IsSet("output") {
 			args = append(args, "--output", c.String("output"))
