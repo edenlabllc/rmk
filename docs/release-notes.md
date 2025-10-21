@@ -1,2 +1,1 @@
-- Added On-Premise cluster provider support.
-- Added On-Premise cluster provider documentation.
+- Extended release category to support Helmfile v1.1.X command set.
