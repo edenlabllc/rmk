@@ -303,7 +303,7 @@ rmk update --version vX.X.X
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
-- :construction:
+- :white_check_mark:
   _**Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
   values and secrets management._
 - :white_check_mark:
