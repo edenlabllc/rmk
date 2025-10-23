@@ -1,0 +1,5 @@
+nav:
+  - preparation-of-project-repository.md
+  - requirement-for-project-repository.md
+  - dependencies-management-and-project-inheritance.md
+collapse: false
