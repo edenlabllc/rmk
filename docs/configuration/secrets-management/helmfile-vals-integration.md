@@ -1,58 +1,55 @@
 # Integration with Helmfile vals
 
-## Classic secrets management via Git
+## Classic secrets management via Git, SOPS and Age
 
-RMK utilizes **SOPS** and **Age** for secrets management, ensuring secure encryption, storage, and access to sensitive
-data. This provides a consistent and auditable mechanism for handling secrets while maintaining security best
-practices.  
-See [Secrets Management](./secrets-management.md)
-for details.
+RMK utilizes [SOPS](https://github.com/mozilla/sops) and [Age](https://github.com/mozilla/sops#encrypting-using-age)
+for [secrets management](./secrets-management.md). This provides a consistent and auditable mechanism for handling
+secrets.
 
-RMK also includes **batch secret management**, a **Git-based manual approach** for generating and maintaining secrets
-under user control.  
-See [Batch Secrets Management](./batch-secrets-management.md)
-for details.
+RMK also promotes [batch secrets management](./batch-secrets-management.md), an approach for generating and
+maintaining secrets in batch mode.
 
-Key characteristics of the Git-based approach:
+Key characteristics of the **Git-based** approach:
 
-- Secrets are generated and encrypted using Golang templates and Sprig functions
-- Encrypted files are stored and versioned in Git
-- Encryption keys and secret rotation are managed by repository administrators or release managers
-- Operates per project, scope, and environment level
+- Secrets are generated and encrypted using [Golang templates](https://pkg.go.dev/text/template)
+  and [Sprig](https://masterminds.github.io/sprig) functions.
+- Encrypted files are stored and versioned in [Git](https://git-scm.com/).
+- Encryption keys and secret rotation are managed by repository administrators or release managers.
+- Operates per project, scope, and environment level.
 
-This Git-based secrets management remains the standard and fully manual method in RMK.
+This approach for secrets management remains the **standard** and fully **manual** method in RMK.
 
 ## Alternative secrets management via Helmfile vals and remote backends
 
 ### Introduction
 
-Helmfile is used by RMK as its declarative release management layer for Helm-based deployments.  
-It includes built-in integration with **vals**, allowing configuration parameters and secrets to be dynamically resolved
-from external backends during render time.
+[Helmfile](https://helmfile.readthedocs.io/en/latest/) is used by RMK as its declarative release management layer
+for [Helm](https://helm.sh/)-based deployments.  
+It includes built-in integration with [vals](https://github.com/helmfile/vals), allowing configuration parameters
+and secrets to be dynamically resolved from **external backends** during render time.
 
-This approach provides RMK with additional flexibility and extends its secret management capabilities — particularly
-useful when customers or release managers choose to leverage existing third-party secret management systems.
+This approach provides RMK with additional flexibility and extends its secrets management capabilities — particularly
+useful when customers or release managers choose to **leverage** existing **third-party** secrets management systems.
 
-**Popular backends include:**
+Popular _vals_ backends include:
 
-- `awssecrets` – AWS Secrets Manager
-- `gcpsecrets` – Google Secret Manager
-- `azurekeyvault` – Azure Key Vault
-- `vault` – HashiCorp Vault
-- `1password` – 1Password Connect
+- [awssecrets](https://github.com/helmfile/vals?tab=readme-ov-file#aws-secrets-manager) – [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)
+- [gcpsecrets](https://github.com/helmfile/vals?tab=readme-ov-file#gcp-secrets-manager) – [Google Secret Manager](https://cloud.google.com/security/products/secret-manager)
+- [azurekeyvault](https://github.com/helmfile/vals?tab=readme-ov-file#azure-key-vault) – [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault)
+- [vault](https://github.com/helmfile/vals?tab=readme-ov-file#vault) – [HashiCorp Vault](https://www.hashicorp.com/en/products/vault)
+- [1password](https://github.com/helmfile/vals?tab=readme-ov-file#1password) – [1Password Connect](https://1password.com/)
 
-See vals [Supported Backends](https://github.com/helmfile/vals#supported-backends) for the full list.
+See [Supported Backends](https://github.com/helmfile/vals#supported-backends) for the full list.
 
 ### Basic usage and full vals delegation
 
-In this mode, RMK does not process or transform secrets itself — the entire resolution flow is delegated to **Helmfile**
-and **vals**.  
-All references to secrets or configuration parameters are defined directly in Helmfile or its value files using the
-`ref+` syntax supported by vals.
+In this mode, RMK **does not process** or **transform** secrets itself — the entire resolution flow is **delegated** to
+Helmfile and vals. All references to secrets or configuration parameters are defined **directly** in Helmfile or
+its value files using the `ref+` syntax supported by vals.
 
-During rendering, **vals** recursively scans all YAML structures (maps, lists, scalar values) for strings that start
-with
-`ref+`. Each such value is resolved via the corresponding backend provider (e.g., AWS Secrets Manager, Vault, SOPS).  
+During rendering, vals **recursively** scans all [YAML structures](https://en.wikipedia.org/wiki/YAML#Syntax)
+(maps, lists, scalar values) for strings that start with `ref+`. Each such value is resolved via the corresponding
+backend provider (e.g., AWS Secrets Manager, Vault, SOPS).  
 If a `ref+` reference is found **inside a larger string**, vals **does not process it** — only standalone values are
 supported.
 
@@ -74,33 +71,34 @@ releases:
 
 In this example:
 
-- `Helmfile` automatically invokes vals before rendering.
-- `vals` recursively replaces all standalone `ref+...` strings with resolved values.
-- Inline references (like in `dbUrl`) remain untouched and must be constructed inside Helm templates instead.
-- RMK orchestrates the Helmfile execution without intercepting or modifying the secret resolution process.
+- `Helmfile` automatically invokes vals **before rendering**.
+- `vals` recursively **replaces** all standalone `ref+...` strings with resolved values.
+- Inline references (like in `dbUrl`) **remain untouched** and must be constructed inside Helm templates instead.
+- RMK orchestrates the Helmfile execution **without intercepting** or **modifying** the secret resolution process.
 
-This mode provides **full transparency** and **minimal coupling** — RMK delegates secret resolution entirely to vals,
+This mode provides full transparency and minimal coupling — RMK **delegates** secret resolution **entirely** to vals,
 relying on external backends for secret retrieval, access control, and rotation.
 
 ### Batch secrets management with vals integration
 
-RMK extends its classic **batch secret management** mechanism with the ability to fetch and resolve secrets from remote
-backends through **vals** during template generation.  
-This allows users to automatically populate secret templates from systems such as **AWS Secrets Manager**, **Google
-Secret Manager**, or **Azure Key Vault**, and
-then store the generated values locally in encrypted form via **SOPS**, following the standard Git-based workflow.
+RMK **extends** its classic batch secrets management mechanism with the ability to **fetch** and **resolve** secrets
+from **remote backends** through vals during template generation.  
+This allows users to **automatically** populate secret templates from systems such as AWS Secrets Manager, Google
+Secret Manager, or Azure Key Vault, and then **store** the generated values **locally** in encrypted form via SOPS,
+following the standard Git-based approach.
 
-Secrets are retrieved in batch using the `fetchSecretValue` function (equivalent to Helmfile’s implementation).  
-After resolution, the resulting files can be encrypted with SOPS and safely committed to Git — giving release managers
-full control and auditability while still leveraging remote backends for secret retrieval.
+Secrets are retrieved in batch using the `fetchSecretValue` template function (equivalent to Helmfile’s
+[implementation](https://helmfile.readthedocs.io/en/latest/remote-secrets/#fetching-single-key)).  
+After resolution, the resulting files are to be **encrypted** with SOPS and safely **committed** to Git — giving release
+managers full control and auditability while still leveraging remote backends for secret retrieval.
 
 This approach is particularly useful when:
 
-- teams prefer to maintain secrets in Git for visibility and versioning,
-- but want to avoid manual entry by pulling values automatically from external systems, and
+- teams prefer to maintain secrets in Git for **visibility** and **versioning**,
+- but want to **avoid manual** entry by pulling values **automatically** from external systems, and
 - may still keep `ref+` values in templates for dynamic runtime resolution.
 
-#### Example
+#### Example fetchSecretValue function usage
 
 ```yaml
 generation-rules:
@@ -110,27 +108,25 @@ generation-rules:
       username: {{ fetchSecretValue "ref+awssecrets://production/new-app/app#username?region=us-east-1" }}
       password: {{ fetchSecretValue "ref+awssecrets://production/new-app/app#password?region=us-east-1" }}
 
-      # Ref-style dynamic value — still resolved by vals at render time
+      # Ref-style dynamic value — still delegated to vals and resolved by it at Helmfile render time or release sync
       apiToken: ref+awssecrets://production/new-app/api#credentials/token?region=us-east-1
 ```
 
-#### How `fetchSecretValue` works and what happens after generation
-
 When `fetchSecretValue` is used:
 
-- RMK invokes **vals** to resolve each referenced secret during template generation.
-- vals connects to the appropriate backend (e.g., AWS, GCP, Azure) using the credentials available in the environment.
-- Each `ref+<backend>://...` reference points to a specific secret path and key within that backend.
-- Retrieved values are injected into the generated template prior to encryption.
+- RMK invokes vals to **resolve** each referenced secret during template generation.
+- vals **connects** to the appropriate backend (e.g., AWS, GCP, Azure) using the credentials available in the environment.
+- Each `ref+<backend>://...` reference **points** to a specific secret path and key within that backend.
+- Retrieved values are **injected** into the generated template prior to encryption.
 
 After the template is rendered:
 
-- RMK encrypts the generated secret files using **SOPS**, maintaining the Git-based workflow and audit history.
-- Any remaining `ref+` entries stay untouched and are dynamically resolved by vals at render time during Helmfile
-  execution.
+- RMK **encrypts** the generated secret files using **SOPS**, maintaining the Git-based workflow and audit history.
+- Any remaining `ref+` entries **stay untouched** and are **dynamically resolved** by vals at render time during 
+  Helmfile execution.
 
-This end-to-end flow ensures that secrets can be securely fetched, optionally stored in Git in encrypted form, and
-still benefit from runtime resolution for any remaining dynamic references.
+This end-to-end flow ensures that secrets can be **securely fetched**, optionally **stored** in Git in encrypted form, and
+still benefit from **runtime resolution** for any remaining dynamic references.
 
 #### Example secret structure in AWS Secrets Manager
 
@@ -161,7 +157,7 @@ password: '{{ fetchSecretValue "ref+awssecrets://production/new-app/app#password
 apiToken: '{{ fetchSecretValue "ref+awssecrets://production/new-app/api#credentials/token?region=us-east-1" }}'
 ```
 
-##### Required permissions (AWS)
+##### Required permissions
 
 **AWS SSM Parameter Store**
 
@@ -209,7 +205,7 @@ For encrypted secrets (KMS):
 
 #### Example secret structure in Google Secret Manager
 
-Secret name: `projects/my-project/secrets/new-app-db-password/versions/latest`
+Secret name: `my-secret`
 
 Secret value:
 
@@ -220,10 +216,10 @@ my-db-password-123
 Referenced in template:
 
 ```yaml
-dbPassword: '{{ fetchSecretValue "ref+gcpsecrets://projects/my-project/secrets/new-app-db-password/versions/latest" }}'
+dbPassword: '{{ fetchSecretValue "ref+gcpsecrets://my-secret" }}'
 ```
 
-##### Required permissions (GCP)
+##### Required permissions
 
 **Secret Manager**
 
@@ -262,31 +258,30 @@ Referenced in template:
 apiKey: '{{ fetchSecretValue "ref+azurekeyvault://my-keyvault/new-app-api-key" }}'
 ```
 
-##### Required permissions (Azure)
+##### Required permissions
 
 Minimum role: **Key Vault Secrets User**
 
 ```bash
-VAULT_NAME=my-vault
-PRINCIPAL_ID=<objectId of service principal or managed identity>
-SCOPE=$(az keyvault show -n "$VAULT_NAME" --query id -o tsv)
+AZURE_VAULT_NAME=my-vault
+AZURE_PRINCIPAL_ID=<object_ID_of_service_principal_or_managed_identity>
+AZURE_SCOPE=$(az keyvault show -n "${AZURE_VAULT_NAME}" --query id -o tsv)
 
 az role assignment create \
-  --assignee-object-id "$PRINCIPAL_ID" \
+  --assignee-object-id "${AZURE_PRINCIPAL_ID}" \
   --assignee-principal-type ServicePrincipal \
   --role "Key Vault Secrets User" \
-  --scope "$SCOPE"
+  --scope "${AZURE_SCOPE}"
 ```
 
 #### Automatic credential injection
 
-RMK automatically passes active **provider credentials** into the context of **template generation**,  
-allowing seamless secret resolution from remote backends (e.g., AWS Secrets Manager, Azure Key Vault, GCP Secret
-Manager)  
-without manual credential setup.
+RMK **automatically** passes active **provider credentials** into the context of template generation,  
+allowing **seamless** secret resolution from remote backends (e.g., AWS Secrets Manager, Azure Key Vault, GCP Secret
+Manager) **without manual** credential setup.
 
 For details about all supported cluster providers and their configuration attributes, see  
-[Configuration Management](../configuration-management/#list-of-main-attributes-of-the-rmk-configuration).
+[Configuration Management](../configuration-management/configuration-management.md#list-of-main-attributes-of-the-rmk-configuration).
 
 For example, when a cloud provider such as **AWS**, **Azure**, or **GCP** is initialized using:
 
@@ -294,28 +289,28 @@ For example, when a cloud provider such as **AWS**, **Azure**, or **GCP** is ini
 rmk config init --cluster-provider aws
 ```
 
-RMK stores the credentials for that provider and automatically injects them during  
-`rmk secret manager generate`, enabling vals to access the respective backend transparently.
+RMK stores the credentials for that provider and **automatically injects** them during  
+`rmk secret manager generate`, enabling vals to access the respective backend **transparently**.
 
 As a result, secret references such as  
 `ref+awssecrets://production/app#password`  
-are resolved automatically at generation time — no environment configuration required.
+are **resolved automatically** at generation time — no environment configuration required.
 
 #### Advanced multi-provider usage
 
-> Cross-provider access is supported but considered **advanced** and should be used only when explicitly required.
+> Cross-provider access is supported but considered **advanced** and should be used only when **explicitly** required.
 
-If you need to access secrets from an additional provider that differs from the active one,  
-export its credentials before running secret generation:
+If you need to access secrets from an **additional** provider that **differs** from the active one,  
+**export** its credentials before running secret generation:
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gcp-key.json
-export AZURE_CLIENT_ID=<client-id>
-export AZURE_CLIENT_SECRET=<client-secret>
-export AZURE_TENANT_ID=<tenant-id>
+export AZURE_CLIENT_ID=<azure_client_id>
+export AZURE_CLIENT_SECRET=<azure_client_secret>
+export AZURE_TENANT_ID=<azure_tenant_id>
 
-rmk secret manager generate --scope backend --environment production
+rmk secret manager generate --scope rmk-test --environment production
 ```
 
-RMK uses the active provider context by default but will detect and apply any exported credentials  
+RMK uses the active provider context by default but will **detect** and **apply** any exported credentials  
 for other providers when executing `fetchSecretValue` or resolving `ref+` URLs.
