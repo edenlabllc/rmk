@@ -56,6 +56,19 @@ aws_session_token = {{ .AwsCredentialsProfile.SessionToken }}
 
 	apiErrorAccessDeniedException = "AccessDeniedException"
 	apiErrorKeyPairDuplicate      = "InvalidKeyPair.Duplicate"
+
+	AWSAccessKeyID           = "AWS_ACCESS_KEY_ID"
+	AWSAccountID             = "AWS_ACCOUNT_ID"
+	AWSCluster               = "AWS_CLUSTER"
+	AWSConfigFile            = "AWS_CONFIG_FILE"
+	AWSDefaultRegion         = "AWS_DEFAULT_REGION"
+	AWSProfile               = "AWS_PROFILE"
+	AWSRegion                = "AWS_REGION"
+	AWSSDKGoLogLevel         = "AWS_SDK_GO_LOG_LEVEL"
+	AWSSDKLoadConfig         = "AWS_SDK_LOAD_CONFIG"
+	AWSSecretAccessKey       = "AWS_SECRET_ACCESS_KEY"
+	AWSSessionToken          = "AWS_SESSION_TOKEN"
+	AWSSharedCredentialsFile = "AWS_SHARED_CREDENTIALS_FILE"
 )
 
 type AwsConfigure struct {
@@ -317,7 +330,7 @@ func (a *AwsConfigure) GetAWSMFASessionToken() error {
 	return nil
 }
 
-func (a *AwsConfigure) GetAwsConfigure(profile string) (bool, error) {
+func (a *AwsConfigure) GetAWSConfigure(profile string) (bool, error) {
 	cfg, err := a.errorProxy(config.LoadDefaultConfig(a.Ctx,
 		config.WithSharedConfigFiles(a.AWSSharedConfigFile(profile)),
 		config.WithSharedCredentialsFiles(a.AWSSharedCredentialsFile(profile)),
@@ -337,6 +350,18 @@ func (a *AwsConfigure) GetAwsConfigure(profile string) (bool, error) {
 	a.AccountID = aws.ToString(identity.Account)
 
 	return true, nil
+}
+
+func (a *AwsConfigure) SetAWSCredentialsEnv(skipVarsExists bool) error {
+	awsEnvVars := map[string]string{
+		AWSConfigFile:            a.ConfigSource,
+		AWSSharedCredentialsFile: a.CredentialsSource,
+		AWSRegion:                a.Region,
+		AWSDefaultRegion:         a.Region,
+		AWSProfile:               a.Profile,
+	}
+
+	return util.SetOsEnvs(skipVarsExists, awsEnvVars)
 }
 
 func (a *AwsConfigure) GetAWSClusterContext(clusterName string) ([]byte, error) {
@@ -367,9 +392,9 @@ func (a *AwsConfigure) generateUserKubeconfig(cluster *eksType.Cluster) ([]byte,
 	}
 
 	execEnvVars = append(execEnvVars,
-		api.ExecEnvVar{Name: "AWS_PROFILE", Value: a.Profile},
-		api.ExecEnvVar{Name: "AWS_CONFIG_FILE", Value: strings.Join(a.AWSSharedConfigFile(a.Profile), "")},
-		api.ExecEnvVar{Name: "AWS_SHARED_CREDENTIALS_FILE", Value: strings.Join(a.AWSSharedCredentialsFile(a.Profile), "")},
+		api.ExecEnvVar{Name: AWSProfile, Value: a.Profile},
+		api.ExecEnvVar{Name: AWSConfigFile, Value: strings.Join(a.AWSSharedConfigFile(a.Profile), "")},
+		api.ExecEnvVar{Name: AWSSharedCredentialsFile, Value: strings.Join(a.AWSSharedCredentialsFile(a.Profile), "")},
 	)
 
 	// Version v1alpha1 was removed in Kubernetes v1.23.

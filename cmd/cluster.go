@@ -320,6 +320,12 @@ func (cc *ClusterCommands) getKubeContext() (string, string, error) {
 	}
 
 	for key := range kubeConfig.Contexts {
+		if cc.Conf.ClusterProvider == util.LocalClusterProvider {
+			if util.K3DPrefix+"-"+cc.Conf.Name == key {
+				contextNames = append(contextNames, key)
+			}
+		}
+
 		if cc.Conf.Name == key {
 			contextNames = append(contextNames, key)
 		}

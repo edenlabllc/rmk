@@ -1,1 +1,4 @@
 - Extended release category to support Helmfile v1.1.X command set.
+- Added fetchSecretValue function for using Vals in secret spec templates.
+- Bumped Go version to v1.24.2.
+- Added cluster provider credentials environment variables for runtime Helmfile.

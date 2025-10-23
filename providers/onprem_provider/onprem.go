@@ -16,6 +16,8 @@ import (
 
 const (
 	OnPremClusterProvider = "onprem"
+
+	OnPremCluster = "ONPREM_CLUSTER"
 )
 
 type OnPremConfigure struct {

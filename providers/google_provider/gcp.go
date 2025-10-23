@@ -39,6 +39,11 @@ const (
 	apiErrorNotFound          = "notFound"
 	gRPCErrorAlreadyExists    = "AlreadyExists"
 	gRPCErrorPermissionDenied = "PermissionDenied"
+
+	GCPCluster                   = "GCP_CLUSTER"
+	GCPProject                   = "GCP_PROJECT"
+	GCPRegion                    = "GCP_REGION"
+	GoogleApplicationCredentials = "GOOGLE_APPLICATION_CREDENTIALS"
 )
 
 type GCPConfigure struct {
@@ -203,6 +208,15 @@ func (gcp *GCPConfigure) SetGCPSecret(tenant, region, keyName string, value []by
 	return nil
 }
 
+func (gcp *GCPConfigure) SetGCPCredentialsEnv(skipVarsExists bool) error {
+	azureEnvVars := map[string]string{
+		GoogleApplicationCredentials: gcp.AppCredentialsPath,
+		GCPProject:                   gcp.ProjectID,
+	}
+
+	return util.SetOsEnvs(skipVarsExists, azureEnvVars)
+}
+
 func (gcp *GCPConfigure) CreateGCPCloudNATGateway(region string) error {
 	if err := gcp.ReadSACredentials(); err != nil {
 		return err
@@ -329,7 +343,7 @@ func (gcp *GCPConfigure) generateUserKubeconfig(cluster *container.Cluster) ([]b
 	}
 
 	execEnvVars = append(execEnvVars,
-		api.ExecEnvVar{Name: "GOOGLE_APPLICATION_CREDENTIALS", Value: gcp.AppCredentialsPath},
+		api.ExecEnvVar{Name: GoogleApplicationCredentials, Value: gcp.AppCredentialsPath},
 	)
 
 	// Version v1alpha1 was removed in Kubernetes v1.23.
