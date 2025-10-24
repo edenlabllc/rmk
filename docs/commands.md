@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 879e403 <br />
-**Date:** 2025-10-21T10:03:25Z <br />
+**Commit:** b82121a <br />
+**Date:** 2025-10-24T12:36:27Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -295,7 +295,7 @@ List releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--output, -o**="": output format, available: short, yaml (default: "short")
+**--output, -o**="": output format, available: short, json (default: "short")
 
 **--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
