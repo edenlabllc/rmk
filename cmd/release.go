@@ -164,7 +164,7 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	var sensKeyWords []string
 
-	defaultArgs := []string{"--environment", rc.Conf.Environment}
+	defaultArgs := []string{"--environment", rc.Conf.Environment, "--enable-live-output"}
 
 	// generating common environment variables
 	envs := append([]string{},

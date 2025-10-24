@@ -338,7 +338,7 @@ func flagsReleaseHelmfile(output bool) []cli.Flag {
 		flags = append(flags,
 			&cli.StringFlag{
 				Name:    "output",
-				Usage:   "output format, available: short, yaml",
+				Usage:   "output format, available: short, json",
 				Aliases: []string{"o"},
 				EnvVars: []string{"RMK_RELEASE_OUTPUT"},
 				Value:   "short",
