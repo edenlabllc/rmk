@@ -311,7 +311,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		return err
 	}
 
-	if ok, err := conf.AwsConfigure.GetAwsConfigure(profile); err != nil && ok {
+	if ok, err := conf.AwsConfigure.GetAWSConfigure(profile); err != nil && ok {
 		zap.S().Warnf("%s", err.Error())
 	} else if !ok && err != nil {
 		return err
@@ -615,7 +615,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			if err := initGCPProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-		case util.LocalClusterProvider:
+		case util.K3DClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil

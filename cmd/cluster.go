@@ -320,7 +320,7 @@ func (cc *ClusterCommands) getKubeContext() (string, string, error) {
 	}
 
 	for key := range kubeConfig.Contexts {
-		if cc.Conf.Name == key {
+		if cc.Conf.Name == key || fmt.Sprintf("%s-%s", util.K3DPrefix, cc.Conf.Name) == key {
 			contextNames = append(contextNames, key)
 		}
 	}
@@ -373,7 +373,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		return nil
 	}
 
-	if strings.Contains(contextName, util.K3DPrefix) && cc.UpdateContext {
+	if strings.HasPrefix(contextName, util.K3DPrefix) && cc.UpdateContext {
 		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
 

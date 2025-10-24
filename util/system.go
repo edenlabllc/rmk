@@ -358,6 +358,26 @@ func ReadStdin(text string) string {
 	return string(value)
 }
 
+func SetOSEnvs(skipVarsExists bool, envMap map[string]string) error {
+	for key, value := range envMap {
+		if skipVarsExists {
+			if v, ok := os.LookupEnv(key); ok && len(v) > 0 {
+				continue
+			}
+		}
+
+		if value == "" {
+			continue
+		}
+
+		if err := os.Setenv(key, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // UnTar takes a destination path and a reader; a tar reader loops over the tar file
 // creating the file structure at 'dst' along the way, and writing any files
 func UnTar(dst, excludeRegexp string, r io.Reader) error {

@@ -27,6 +27,10 @@ import (
 	"rmk/util"
 )
 
+const (
+	maskRMKSensitive = "[rmk_sensitive]"
+)
+
 type releaseRunner interface {
 	runCMD() error
 }
@@ -106,13 +110,36 @@ func (rc *ReleaseCommands) runCMD() error {
 	return nil
 }
 
+func generateSensEnvs(sens ...string) []string {
+	var oldNew []string
+
+	for _, val := range sens {
+		oldNew = append(oldNew, val, maskRMKSensitive)
+	}
+
+	return oldNew
+}
+
 func (rc *ReleaseCommands) debugLevel() {
+	sens := generateSensEnvs()
 	if rc.SpecCMD.Debug {
 		zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
 		zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
 		for _, val := range rc.SpecCMD.Envs {
+			if rc.Conf.AzureConfigure != nil {
+				sens = append(sens, generateSensEnvs(
+					rc.Conf.AzureConfigure.ClientID,
+					rc.Conf.AzureConfigure.ClientSecret,
+					rc.Conf.AzureConfigure.TenantID)...,
+				)
+			}
+
 			if len(rc.Conf.GitHubToken) > 0 {
-				zap.S().Debugf("env: %s", strings.ReplaceAll(val, rc.Conf.GitHubToken, "[rmk_sensitive]"))
+				sens = append(sens, generateSensEnvs(rc.Conf.GitHubToken)...)
+			}
+
+			if len(sens) > 0 {
+				zap.S().Debugf("env: %s", strings.NewReplacer(sens...).Replace(val))
 			} else {
 				zap.S().Debugf("env: %s", val)
 			}
@@ -137,7 +164,7 @@ func (rc *ReleaseCommands) nestedHelmfiles(envs ...string) []string {
 func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	var sensKeyWords []string
 
-	defaultArgs := []string{"--environment", rc.Conf.Environment}
+	defaultArgs := []string{"--environment", rc.Conf.Environment, "--enable-live-output"}
 
 	// generating common environment variables
 	envs := append([]string{},
@@ -158,29 +185,38 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 	switch rc.Conf.ClusterProvider {
 	case aws_provider.AWSClusterProvider:
 		envs = append(envs,
-			"AWS_ACCOUNT_ID="+rc.Conf.AccountID,
-			"AWS_CLUSTER=true",
-			"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
-			"AWS_PROFILE="+rc.Conf.Profile,
-			"AWS_REGION="+rc.Conf.Region,
-			"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
+			aws_provider.AWSAccountID+"="+rc.Conf.AccountID,
+			aws_provider.AWSCluster+"=true",
+			aws_provider.AWSConfigFile+"="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
+			aws_provider.AWSProfile+"="+rc.Conf.Profile,
+			aws_provider.AWSRegion+"="+rc.Conf.Region,
+			aws_provider.AWSSharedCredentialsFile+"="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
 		)
 	case azure_provider.AzureClusterProvider:
-		envs = append(envs,
-			"AZURE_CLUSTER=true",
-			"AZURE_LOCATION="+rc.Conf.AzureConfigure.Location,
-			"AZURE_SUBSCRIPTION_ID="+rc.Conf.AzureConfigure.SubscriptionID,
-		)
+		if rc.Conf.AzureConfigure != nil {
+			if err := rc.Conf.ReadSPCredentials(rc.Conf.Name); err != nil {
+				return nil
+			}
+
+			envs = append(envs,
+				azure_provider.AzureClientID+"="+rc.Conf.AzureConfigure.ClientID,
+				azure_provider.AzureClientSecret+"="+rc.Conf.AzureConfigure.ClientSecret,
+				azure_provider.AzureCluster+"=true",
+				azure_provider.AzureLocation+"="+rc.Conf.AzureConfigure.Location,
+				azure_provider.AzureSubscriptionID+"="+rc.Conf.AzureConfigure.SubscriptionID,
+				azure_provider.AzureTenantID+"="+rc.Conf.AzureConfigure.TenantID,
+			)
+		}
 	case google_provider.GoogleClusterProvider:
 		envs = append(envs,
-			"GCP_CLUSTER=true",
-			"GCP_PROJECT_ID="+rc.Conf.GCPConfigure.ProjectID,
-			"GCP_REGION="+rc.Conf.GCPRegion,
-			"GOOGLE_APPLICATION_CREDENTIALS="+rc.Conf.GCPConfigure.AppCredentialsPath,
+			google_provider.GCPCluster+"=true",
+			google_provider.GCPProject+"="+rc.Conf.GCPConfigure.ProjectID,
+			google_provider.GCPRegion+"="+rc.Conf.GCPRegion,
+			google_provider.GoogleApplicationCredentials+"="+rc.Conf.GCPConfigure.AppCredentialsPath,
 		)
 	case onprem_provider.OnPremClusterProvider:
 		envs = append(envs,
-			"ONPREM_CLUSTER=true",
+			onprem_provider.OnPremCluster+"=true",
 		)
 	}
 
@@ -229,9 +265,9 @@ func (rc *ReleaseCommands) releaseMiddleware() error {
 		return err
 	} else {
 		switch {
-		case strings.Contains(currentContext, util.K3DPrefix) && !strings.Contains(currentContext, util.CAPI):
+		case strings.HasPrefix(currentContext, util.K3DPrefix) && rc.Conf.ClusterProvider == util.K3DClusterProvider:
 			rc.K3DCluster = true
-		case currentContext == util.K3DPrefix+"-"+util.CAPI:
+		case currentContext == util.CAPIContextName:
 			rc.APICluster = true
 		}
 	}
@@ -420,11 +456,6 @@ func (rc *ReleaseCommands) helmCommands(args ...string) *util.SpecCMD {
 		Dir:           rc.WorkDir,
 		Debug:         true,
 		DisableStdOut: true,
-		Envs: append(rc.SpecCMD.Envs,
-			"AWS_PROFILE="+rc.Conf.Profile,
-			"AWS_CONFIG_FILE="+strings.Join(rc.Conf.AWSSharedConfigFile(rc.Conf.Profile), ""),
-			"AWS_SHARED_CREDENTIALS_FILE="+strings.Join(rc.Conf.AWSSharedCredentialsFile(rc.Conf.Profile), ""),
-		),
 	}
 }
 

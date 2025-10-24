@@ -31,6 +31,14 @@ const (
 	AzureHomeDir         = "." + AzureClusterProvider
 	AzurePrefix          = "service-principal-credentials_"
 	AzureKeyVaultRole    = "Key Vault Secrets Officer"
+
+	AzureClientID                  = "AZURE_CLIENT_ID"
+	AzureClientSecret              = "AZURE_CLIENT_SECRET"
+	AzureCluster                   = "AZURE_CLUSTER"
+	AzureKeyVaultResourceGroupName = "AZURE_KEY_VAULT_RESOURCE_GROUP_NAME"
+	AzureLocation                  = "AZURE_LOCATION"
+	AzureSubscriptionID            = "AZURE_SUBSCRIPTION_ID"
+	AzureTenantID                  = "AZURE_TENANT_ID"
 )
 
 type AzureRawServicePrincipal struct {
@@ -184,6 +192,16 @@ func (ac *AzureConfigure) NewAzureClient(ctx context.Context, fileName string) e
 	ac.VaultsClient = VaultFactory.NewVaultsClient()
 
 	return nil
+}
+
+func (ac *AzureConfigure) SetAzureCredentialsEnv(skipVarsExists bool) error {
+	azureEnvVars := map[string]string{
+		AzureTenantID:     ac.TenantID,
+		AzureClientID:     ac.ClientID,
+		AzureClientSecret: ac.ClientSecret,
+	}
+
+	return util.SetOSEnvs(skipVarsExists, azureEnvVars)
 }
 
 func (ac *AzureConfigure) GetAzureClusterContext(previousRG, clusterName string) ([]byte, error) {
