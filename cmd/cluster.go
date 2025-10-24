@@ -373,7 +373,7 @@ func (cc *ClusterCommands) switchKubeContext() error {
 		return nil
 	}
 
-	if strings.Contains(contextName, util.K3DPrefix) && cc.UpdateContext {
+	if strings.HasPrefix(contextName, util.K3DPrefix) && cc.UpdateContext {
 		return fmt.Errorf("current context %s already used for K3D cluster, --force flag cannot be used", contextName)
 	}
 

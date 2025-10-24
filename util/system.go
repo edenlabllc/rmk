@@ -358,7 +358,7 @@ func ReadStdin(text string) string {
 	return string(value)
 }
 
-func SetOsEnvs(skipVarsExists bool, envMap map[string]string) error {
+func SetOSEnvs(skipVarsExists bool, envMap map[string]string) error {
 	for key, value := range envMap {
 		if skipVarsExists {
 			if v, ok := os.LookupEnv(key); ok && len(v) > 0 {

@@ -214,7 +214,7 @@ func (gcp *GCPConfigure) SetGCPCredentialsEnv(skipVarsExists bool) error {
 		GCPProject:                   gcp.ProjectID,
 	}
 
-	return util.SetOsEnvs(skipVarsExists, azureEnvVars)
+	return util.SetOSEnvs(skipVarsExists, azureEnvVars)
 }
 
 func (gcp *GCPConfigure) CreateGCPCloudNATGateway(region string) error {

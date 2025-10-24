@@ -27,7 +27,8 @@ const (
 	FetchSecretValue = "fetchSecretValue"
 	Prompt           = "prompt"
 	RequiredEnv      = "requiredEnv"
-	valsCacheSize    = 256
+
+	valsCacheSize = 256
 )
 
 type GenerationSpec struct {
@@ -104,7 +105,7 @@ func expandSecretRefs(values map[string]any) (map[string]any, error) {
 		aws_provider.AWSSDKGoLogLevel: "off",
 	}
 
-	if err := util.SetOsEnvs(false, awsEnvs); err != nil {
+	if err := util.SetOSEnvs(false, awsEnvs); err != nil {
 		return nil, err
 	}
 

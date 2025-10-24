@@ -361,7 +361,7 @@ func (a *AwsConfigure) SetAWSCredentialsEnv(skipVarsExists bool) error {
 		AWSProfile:               a.Profile,
 	}
 
-	return util.SetOsEnvs(skipVarsExists, awsEnvVars)
+	return util.SetOSEnvs(skipVarsExists, awsEnvVars)
 }
 
 func (a *AwsConfigure) GetAWSClusterContext(clusterName string) ([]byte, error) {

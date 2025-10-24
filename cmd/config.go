@@ -615,7 +615,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			if err := initGCPProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-		case util.LocalClusterProvider:
+		case util.K3DClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil

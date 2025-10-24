@@ -108,7 +108,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "cluster provider for provisioning",
 				Aliases: []string{"cp"},
 				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   util.LocalClusterProvider,
+				Value:   util.K3DClusterProvider,
 			},
 		),
 		&cli.StringFlag{

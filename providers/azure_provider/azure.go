@@ -201,7 +201,7 @@ func (ac *AzureConfigure) SetAzureCredentialsEnv(skipVarsExists bool) error {
 		AzureClientSecret: ac.ClientSecret,
 	}
 
-	return util.SetOsEnvs(skipVarsExists, azureEnvVars)
+	return util.SetOSEnvs(skipVarsExists, azureEnvVars)
 }
 
 func (ac *AzureConfigure) GetAzureClusterContext(previousRG, clusterName string) ([]byte, error) {
