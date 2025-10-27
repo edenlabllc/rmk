@@ -1,0 +1,4 @@
+nav:
+  - release-management.md
+  - ci-cd-integration.md
+collapse: false

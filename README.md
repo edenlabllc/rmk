@@ -187,9 +187,6 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ## Roadmap
 
 - :construction:
-  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
-  values and secrets management.
-- :construction:
   **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
   for project generation:**  
   Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
@@ -208,6 +205,9 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
+- :white_check_mark:
+  _**Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
+  values and secrets management._
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
@@ -228,6 +228,6 @@ the [Apache 2.0 License](https://github.com/edenlabllc/rmk/blob/master/LICENSE).
 This project adheres to the Contributor
 Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
-Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for
 
+Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for
 further information.

@@ -285,9 +285,6 @@ rmk update --version vX.X.X
 ## Roadmap
 
 - :construction:
-  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced 
-  values and secrets management.
-- :construction:
   **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
   for project generation:**  
   Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
@@ -306,6 +303,9 @@ rmk update --version vX.X.X
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
+- :white_check_mark:
+  _**Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
+  values and secrets management._
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
