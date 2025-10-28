@@ -207,7 +207,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
 - :white_check_mark:
   _**Integration with Helmfile [Vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
-  values and secrets management._
+  values and secrets management via third-party backends._
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
