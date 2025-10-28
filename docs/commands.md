@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 02fe08a <br />
-**Date:** 2025-10-28T13:27:40Z <br />
+**Commit:** 480fef0 <br />
+**Date:** 2025-10-28T14:01:27Z <br />
 **Target:** linux_amd64
 
 **Usage**:
