@@ -79,9 +79,10 @@ type Project struct {
 	Dependencies []Package     `yaml:"dependencies,omitempty"`
 	HooksMapping []HookMapping `yaml:"hooks-mapping,omitempty"`
 	Spec         struct {
-		Environments map[string]*ProjectRootDomain `yaml:"environments,omitempty"`
-		Owners       []string                      `yaml:"owners,omitempty"`
-		Scopes       []string                      `yaml:"scopes,omitempty"`
+		Environments       map[string]*ProjectRootDomain `yaml:"environments,omitempty"`
+		Owners             []string                      `yaml:"owners,omitempty"`
+		Scopes             []string                      `yaml:"scopes,omitempty"`
+		ProjectSopsAgeKeys []string                      `yaml:"sops-age-keys,omitempty"`
 	} `yaml:"spec,omitempty"`
 }
 
@@ -182,6 +183,35 @@ func (conf *Config) SetRootDomain(gitSpecID string) error {
 	}
 
 	return nil
+}
+
+func (conf *Config) GetSOPSAgeKeys(tenant string) (map[string][]byte, error) {
+	var (
+		foundKeys = make(map[string]string)
+		ageKeys   = make(map[string][]byte)
+	)
+
+	for _, scope := range conf.Spec.Scopes {
+		for _, refs := range conf.Spec.ProjectSopsAgeKeys {
+			if util.ValsContainsRefPart(refs, tenant+"-"+scope) {
+				foundKeys[refs] = tenant + "-" + scope
+			}
+		}
+	}
+
+	for _, refs := range conf.Spec.ProjectSopsAgeKeys {
+		if keyName, ok := foundKeys[refs]; ok {
+			if value, err := util.ValsFetchSecretValue(refs); err != nil {
+				return nil, err
+			} else {
+				ageKeys[keyName] = []byte(value)
+			}
+		} else {
+			return nil, fmt.Errorf("invalid SOPS age key name in %s", refs)
+		}
+	}
+
+	return ageKeys, nil
 }
 
 func (pf *ProjectFile) ReadProjectFile(path string) error {
