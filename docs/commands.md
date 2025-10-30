@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 8662cf2 <br />
-**Date:** 2025-10-30T09:17:57Z <br />
+**Commit:** 8bca7c3 <br />
+**Date:** 2025-10-30T17:02:06Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -223,7 +223,7 @@ Generate project directories and files structure
 
 **--scope, -s**="": list of project scopes
 
-**--sops-age-keys, -k**="": list of project SOPS age keys resolved via Vals backends
+**--sops-age-key, -k**="": list of project SOPS age keys resolved via Vals backends
 
 #### update, u
 
