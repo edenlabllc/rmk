@@ -272,6 +272,11 @@ func flagsProjectGenerate() []cli.Flag {
 			Usage:   "list of project scopes",
 			Aliases: []string{"s"},
 		},
+		&cli.StringSliceFlag{
+			Name:    "sops-age-keys",
+			Usage:   "list of project SOPS age keys resolved via Vals backends",
+			Aliases: []string{"k"},
+		},
 	)
 }
 
