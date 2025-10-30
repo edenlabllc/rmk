@@ -327,7 +327,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(secrets, "AWS Secrets Manager")
+		WriteKeysToRootDir(secrets, "AWS Secrets Manager")
 }
 
 func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -409,7 +409,7 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 		}
 
 		if err := newSecretCommands(conf, c, util.GetPwdPath("")).
-			WriteKeysInRootDir(secrets, "Azure Key Vault"); err != nil {
+			WriteKeysToRootDir(secrets, "Azure Key Vault"); err != nil {
 			return err
 		}
 	}
@@ -449,17 +449,17 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(secrets, "GCP Secrets Manager")
+		WriteKeysToRootDir(secrets, "GCP Secrets Manager")
 }
 
-func initK3dProfile(c *cli.Context, conf *config.Config) error {
+func initK3DProfile(c *cli.Context, conf *config.Config) error {
 	ageKeys, err := conf.InitConfig().GetSOPSAgeKeys(conf.Tenant)
 	if err != nil {
 		return err
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(ageKeys, "Vals backend")
+		WriteKeysToRootDir(ageKeys, "project.yaml Vals backend")
 }
 
 func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -523,7 +523,7 @@ func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(ageKeys, "Vals backend")
+		WriteKeysToRootDir(ageKeys, "project.yaml Vals backend")
 }
 
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
@@ -636,7 +636,7 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil
 			conf.OnPremConfigure = nil
-			if err := initK3dProfile(c, conf); err != nil {
+			if err := initK3DProfile(c, conf); err != nil {
 				return err
 			}
 		case onprem_provider.OnPremClusterProvider:

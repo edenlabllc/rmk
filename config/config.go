@@ -207,7 +207,7 @@ func (conf *Config) GetSOPSAgeKeys(tenant string) (map[string][]byte, error) {
 				ageKeys[keyName] = []byte(value)
 			}
 		} else {
-			return nil, fmt.Errorf("invalid SOPS age key name in %s", refs)
+			return nil, fmt.Errorf("invalid SOPS Age key name in %s", refs)
 		}
 	}
 
