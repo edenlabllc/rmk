@@ -142,8 +142,8 @@ func (p *ProjectCommands) createProjectFile() error {
 
 	p.appendScopes()
 
-	if p.Ctx.IsSet("sops-age-keys") {
-		p.projectFile.Spec.ProjectSopsAgeKeys = p.Ctx.StringSlice("sops-age-keys")
+	if p.Ctx.IsSet("sops-age-key") {
+		p.projectFile.Spec.ProjectSopsAgeKeys = p.Ctx.StringSlice("sops-age-key")
 	}
 
 	client, err := github.NewClient(clusterDepsRepoOwner, clusterDepsRepo, "", github.APIBaseURL)
