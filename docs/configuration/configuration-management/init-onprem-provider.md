@@ -100,6 +100,14 @@ SSH location (using the **same** file name), and will use it for subsequent oper
 
 If CLI flags are provided, RMK will prioritize them over environment variables, as **CLI flags take precedence**.
 
+> If SOPS Age keys are **already created** and defined in
+> [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) using
+> [Vals](https://github.com/helmfile/vals),
+> they will be **fetched automatically** during configuration initialization — just ensure that the required environment
+> variables are **exported**. See the
+> [following page](../secrets-management/helmfile-vals-integration.md#configuration-initialization)
+> for details.
+
 ## Reconfiguration of the On-Premise SSH private key
 
 Modify the value of a specific flag if changes are needed:
