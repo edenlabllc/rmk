@@ -19,7 +19,8 @@ cluster-provider: k3d # Selected cluster provider.
 
 ## Configuration
 
-K3D is the default cluster provider in RMK.
+K3D is the default cluster provider in RMK. It is intended for provisioning **local** clusters,
+primarily for **development** environments.
 
 To initialize RMK configuration for a K3D cluster, run:
 
@@ -27,5 +28,10 @@ To initialize RMK configuration for a K3D cluster, run:
 rmk config init
 ```
 
-> K3D is intended for provisioning **local** clusters, primarily for **development** environments.
-
+> If SOPS Age keys are **already created** and defined in 
+> [project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) using 
+> [Vals](https://github.com/helmfile/vals),
+> they will be **fetched automatically** during configuration initialization — just ensure that the required environment
+> variables are **exported**. See the
+> [following page](../secrets-management/helmfile-vals-integration.md#configuration-initialization)
+> for details.

@@ -128,7 +128,7 @@ and the public keys of the secret keys used for encryption.
 
 > Manual editing of the encrypted secrets files is **strictly forbidden**, because SOPS automatically controls the
 > checksums of the secret files. To safely modify encrypted secrets, always use the
-> specialized [edit](#creating-or-editing-a-secret) command.
+> specialized [edit](secrets-management.md#creating-or-editing-a-secret) command.
 
 ## Create a new secret later
 

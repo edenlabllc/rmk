@@ -54,9 +54,8 @@ advantages:
   [dependency management](docs/configuration/project-management/dependencies-management-and-project-inheritance.md)**:
   Enables rapid project setup and hierarchical project inheritance, e.g., "parent-child" or "upstream-downstream"
   relationships) between sibling projects to enable release configuration reuse.
-- **[Batch](docs/configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
-  management**: Automates templating, generation, and encryption of secrets across all environments
-  in batch mode.
+- **[Batch secret management](docs/configuration/secrets-management/batch-secrets-management.md#generating-all-secrets-from-scratch)**: 
+  Automates templating, generation, and encryption of secrets across all environments in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
@@ -159,7 +158,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   A collection of shell scripts used as [Helmfile hooks](https://helmfile.readthedocs.io/en/latest/#hooks) in
   dependencies, Kodjin, or any other project,
   e.g.,
-  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16)).
+  check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16).
 - **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra)**:
   Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
   using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).

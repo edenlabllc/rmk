@@ -122,7 +122,7 @@ is `origin`.
       ```
    </details>
 
-4. [Generate and encrypt secrets](configuration/secrets-management/secrets-management.md#batch-secrets-management) for
+4. [Generate and encrypt secrets](configuration/secrets-management/batch-secrets-management.md) for
    the Helmfile releases, including [Nginx](https://nginx.org/):
 
    ```shell

@@ -47,7 +47,7 @@ See [Supported Backends](https://github.com/helmfile/vals#supported-backends) fo
 
 ### Basic usage with full Vals delegation
 
-During Helmfile rendering via RMK, Vals **recursively** scans all 
+During Helmfile rendering via RMK, Vals **recursively** scans all
 [YAML structures](https://en.wikipedia.org/wiki/YAML#Syntax)
 (maps, lists, scalar values) for strings that start with `ref+`. Each such value is resolved via the corresponding
 backend provider (e.g., AWS Secrets Manager, Vault, SOPS).  
@@ -64,10 +64,10 @@ releases:
     values:
       - values.yaml
       - secrets:
-          dbUser: ref+awssecrets://production/my-app/database#username
-          dbPassword: ref+awssecrets://production/my-app/database#password
+          dbUser: ref+awssecrets://my-app#username
+          dbPassword: ref+awssecrets://my-app#password
           # This line will NOT be resolved by Vals
-          dbUrl: "postgres://user:ref+awssecrets://production/my-app/database#password@db"
+          dbUrl: "postgres://user:ref+awssecrets://my-app#password@db"
 ```
 
 In this example:
@@ -77,7 +77,7 @@ In this example:
 - Inline references (like in `dbUrl`) **remain untouched** and must be constructed inside Helm templates instead.
 - RMK orchestrates the Helmfile execution **without intercepting** or **modifying** the secret resolution process.
 
-> This mode provides full transparency and minimal coupling. RMK **does not process** or **transform** secrets 
+> This mode provides full transparency and minimal coupling. RMK **does not process** or **transform** secrets
 > itself, it instead **delegates** secret resolution **entirely** to Vals,
 > relying on Vals backends for secret retrieval, access control, and rotation.
 
@@ -95,7 +95,7 @@ After resolution, the resulting files are to be **encrypted** with SOPS and safe
 managers full control and auditability while still leveraging Vals backends for secret retrieval.
 
 > This approach is particularly useful when teams:
-> 
+>
 > - prefer to maintain secrets in Git for **visibility** and **versioning**,
 > - want to **avoid manual** entry by pulling values **automatically** from third-party systems,
 > - may still keep `ref+` values in templates for **dynamic runtime resolution**.
@@ -104,14 +104,14 @@ managers full control and auditability while still leveraging Vals backends for 
 
 ```yaml
 generation-rules:
-  - name: new-app
+  - name: my-app
     template: |
       # Secrets fetched during generation via Vals
-      username: {{ fetchSecretValue "ref+awssecrets://production/new-app/app#username?region=us-east-1" }}
-      password: {{ fetchSecretValue "ref+awssecrets://production/new-app/app#password?region=us-east-1" }}
+      username: {{ fetchSecretValue "ref+awssecrets://my-app#username?region=us-east-1" }}
+      password: {{ fetchSecretValue "ref+awssecrets://my-app#password?region=us-east-1" }}
 
       # Ref-style dynamic value — still delegated to Vals and resolved by it at Helmfile render time or release sync
-      apiToken: ref+awssecrets://production/new-app/api#credentials/token?region=us-east-1
+      apiToken: ref+awssecrets://my-app#token?region=us-east-1
 ```
 
 When `fetchSecretValue` is used:
@@ -119,7 +119,7 @@ When `fetchSecretValue` is used:
 - RMK invokes Vals to **resolve** each referenced secret during template generation.
 - Vals **connects** to the appropriate backend (e.g., AWS, GCP, Azure) using the credentials available in the
   environment.
-- Each `ref+<backend>://...` reference **points** to a specific secret path and key within that backend.
+- Each `ref+<vals_backend>://...` reference **points** to a specific secret path and key within that backend.
 - Retrieved values are **injected** into the generated template prior to encryption.
 
 After the template is rendered:
@@ -133,7 +133,7 @@ After the template is rendered:
 
 #### Example secret structure in AWS Secrets Manager
 
-Secret name: `production/new-app/app`
+Secret name: `production/my-app/app`
 
 ```json
 {
@@ -142,7 +142,7 @@ Secret name: `production/new-app/app`
 }
 ```
 
-Secret name: `production/new-app/api`
+Secret name: `production/my-app/api`
 
 ```json
 {
@@ -155,9 +155,9 @@ Secret name: `production/new-app/api`
 Referenced in template:
 
 ```yaml
-username: '{{ fetchSecretValue "ref+awssecrets://production/new-app/app#username?region=us-east-1" }}'
-password: '{{ fetchSecretValue "ref+awssecrets://production/new-app/app#password?region=us-east-1" }}'
-apiToken: '{{ fetchSecretValue "ref+awssecrets://production/new-app/api#credentials/token?region=us-east-1" }}'
+username: '{{ fetchSecretValue "ref+awssecrets://my-app#username?region=us-east-1" }}'
+password: '{{ fetchSecretValue "ref+awssecrets://my-app#password?region=us-east-1" }}'
+apiToken: '{{ fetchSecretValue "ref+awssecrets://my-app#token?region=us-east-1" }}'
 ```
 
 ##### Required permissions
@@ -243,14 +243,14 @@ gcloud kms keys add-iam-policy-binding KEY_NAME \
 
 #### Example secret structure in Azure Key Vault
 
-Secret name: `new-app-api-key`
+Secret name: `my-app-api-key`
 
 Secret value: `abc123xyz987`
 
 Referenced in template:
 
 ```yaml
-apiKey: '{{ fetchSecretValue "ref+azurekeyvault://my-keyvault/new-app-api-key" }}'
+apiKey: '{{ fetchSecretValue "ref+azurekeyvault://my-keyvault/my-app-api-key" }}'
 ```
 
 ##### Required permissions
@@ -272,8 +272,8 @@ az role assignment create \
 #### Automatic credential injection during template generation
 
 RMK **automatically** passes active **provider credentials** into the context of template generation,  
-allowing **seamless** secret resolution from third-party backends (e.g., AWS Secrets Manager, Azure Key Vault, GCP Secret
-Manager) **without manual** credential setup.
+allowing **seamless** secret resolution from third-party backends (e.g., AWS Secrets Manager, Azure Key Vault, GCP
+Secret Manager) **without manual** credential setup.
 
 For details about all supported cluster providers and their configuration attributes, see  
 [Configuration Management](../configuration-management/configuration-management.md#list-of-main-attributes-of-the-rmk-configuration).
@@ -285,8 +285,8 @@ rmk config init --cluster-provider aws
 ```
 
 RMK stores the credentials for that provider and **automatically injects** them during  
-`rmk secret manager generate`, enabling Vals to access the respective backend **transparently**. 
-As a result, secret references such as `ref+awssecrets://production/app#password` are **resolved automatically** at 
+`rmk secret manager generate`, enabling Vals to access the respective backend **transparently**.
+As a result, secret references such as `ref+awssecrets://app#password` are **resolved automatically** at
 generation time — no environment configuration required.
 
 #### Cross-provider access in a single secrets template
@@ -308,8 +308,8 @@ generation-rules:
     template: |
       # AWS-provided secrets (default provider context)
       database:
-        username: {{ fetchSecretValue "ref+awssecrets://production/app-db#username?region=us-east-1" }}
-        password: {{ fetchSecretValue "ref+awssecrets://production/app-db#password?region=us-east-1" }}
+        username: {{ fetchSecretValue "ref+awssecrets://my-app#username?region=us-east-1" }}
+        password: {{ fetchSecretValue "ref+awssecrets://my-app#password?region=us-east-1" }}
 
       # GCP-provided secret (requires GOOGLE_APPLICATION_CREDENTIALS)
       gcp:
@@ -327,7 +327,7 @@ generation-rules:
 You should explicitly export the variables, e.g.:
 
 ```bash
-# AWS variables are exported automatically and always take priority over any exports
+# AWS variables will be exported automatically and always take priority over any exports
 # Extra variables are required to be exported manually
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gcp-key.json
 export AZURE_CLIENT_ID=<azure_client_id>
@@ -339,4 +339,85 @@ rmk secret manager generate --scope rmk-test --environment production
 
 > While the functionality is fully supported, it is considered **advanced** and should be used only when **explicitly
 > required**.
- 
+
+### SOPS Age key fetching via Vals backend references in project.yaml
+
+#### Overview
+
+RMK supports fetching **SOPS Age keys** via 
+[Vals backend references](https://github.com/helmfile/vals?tab=readme-ov-file#expression-syntax) defined in 
+[project.yaml](../project-management/preparation-of-project-repository.md#projectyaml) under 
+`project.spec.sops-age-keys`. Each entry corresponds to a project scope - the number of scopes 
+**should equal** the number of references.
+
+> This functionality is available for [k3d](../configuration-management/init-k3d-provider.md) and 
+> [onprem](../configuration-management/init-onprem-provider.md) cluster providers **only**, as they do not use any 
+> third-party secret storage out of the box.
+
+#### Project generation example
+
+```bash
+rmk project generate \
+  --sops-age-key="ref+awssecrets://rmk-test-deps?region=us-east-1" \
+  --sops-age-key="ref+awssecrets://rmk-test-rmk-test?region=us-east-1" \
+  --environment="develop.root-domain=*.edenlab.dev" \
+  --owner=gh-user1 \
+  --scope=deps \
+  --scope=rmk-test
+```
+
+> This command **generates** a RMK project structure with two scopes (`deps`, `rmk-test`) and automatically **links**
+> them to the corresponding SOPS Age keys **stored** in AWS Secrets Manager.
+
+#### Example `project.yaml`
+
+```yaml
+project:
+  dependencies:
+    - name: cluster-deps.bootstrap.infra
+      version: v0.16.0
+      url: git::https://github.com/edenlabllc/{{.Name}}.git?ref={{.Version}}
+  spec:
+    environments:
+      develop:
+        root-domain: '*.edenlab.dev'
+    owners:
+      - gh-user1
+    # Logical scopes representing individual project components
+    # Each scope will have its own secrets, releases, and structure
+    scopes:
+      - deps
+      - rmk-test
+    # SOPS Age keys defined as Vals backend references
+    # Each reference corresponds to one project scope
+    # In this example: keys are stored in AWS Secrets Manager (region: us-east-1)
+    sops-age-keys:
+      - ref+awssecrets://rmk-test-deps?region=us-east-1
+      - ref+awssecrets://rmk-test-rmk-test?region=us-east-1
+```
+
+#### Configuration initialization
+
+When there are any Vals backend references in `project.yaml`, **export** credentials for the Vals backend defined in the
+references (in this example — AWS) before initializing configuration, e.g. for AWS Secrets Manager:
+
+```bash
+export AWS_ACCESS_KEY_ID=<aws_access_key_id>
+export AWS_SECRET_ACCESS_KEY=<aws_secret_access_key>
+# Export AWS_REGION only if it is not specified in the Vals backend reference, e.g.:
+#   ref+awssecrets://rmk-test-deps?region=us-east-1
+export AWS_REGION=<aws_region>
+```
+
+Then initialize configuration for the desired provider:
+
+```bash
+# For k3d cluster provider (default)
+rmk config init
+
+# For onprem cluster provider
+rmk config init --cluster-provider=onprem
+```
+
+RMK automatically **resolves** the secrets at initialization time to securely **fetch** existing Age keys from the
+third-party Vals backends.
