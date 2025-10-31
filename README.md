@@ -54,9 +54,8 @@ advantages:
   [dependency management](docs/configuration/project-management/dependencies-management-and-project-inheritance.md)**:
   Enables rapid project setup and hierarchical project inheritance, e.g., "parent-child" or "upstream-downstream"
   relationships) between sibling projects to enable release configuration reuse.
-- **[Batch](docs/configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
-  management**: Automates templating, generation, and encryption of secrets across all environments
-  in batch mode.
+- **[Batch secret management](docs/configuration/secrets-management/batch-secrets-management.md#generating-all-secrets-from-scratch)**: 
+  Automates templating, generation, and encryption of secrets across all environments in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements

@@ -8,14 +8,14 @@
 - Clone the existing project repository:
   
   ```shell
-  git clone <repo_url>
+  git clone <github_repo_url>
   ```
   
   Alternatively, initialize a new repository manually:
   
   ```shell
   git init
-  git remote add <repo_name> <repo_url>
+  git remote add <github_repo_name> <github_repo_url>
   git commit --allow-empty --message "Initial commit"
   ```
   
@@ -39,18 +39,17 @@ rmk project generate \
   --scope=<downstream_project_name>
 ```
 
-> Add the `--create-sops-age-keys` flag if you want to generate the project structure along with **new SOPS Age private
-> keys**.
+> Add the `--create-sops-age-keys` flag if you want to generate the project structure along with **new**
+> SOPS Age private keys. See the [following page](../secrets-management/secrets-management.md#secret-keys) for details.
 >
 > Add one or more `--sops-age-key=<vals_backend_reference_scopeN>` flags if you want to define Vals backend
-references to previously created and stored SOPS Age keys, the keys will automatically be fetched by other users later 
-> during RMK configuration initialization.
-> This functionality is available for `k3d` and `onprem` cluster providers only, as they do not use any third-party
-> secret storage out of the box.
->
-> The reference format follows:  
->   `ref+BACKEND://PATH[?PARAMS][#FRAGMENT][+]`  
-> See the [vals expression syntax](https://github.com/helmfile/vals?tab=readme-ov-file#expression-syntax) for details.
+> references to **previously created** SOPS Age keys, the keys will **automatically be fetched** by other users later 
+> during 
+> [configuration initialization](../secrets-management/helmfile-vals-integration.md#configuration-initialization). 
+> This functionality is available for `k3d` and `onprem` cluster providers **only**, as they do not use 
+> any third-party secret storage out of the box. See the 
+> [following page](../secrets-management/helmfile-vals-integration.md#sops-age-key-fetching-via-vals-backend-references-in-projectyaml) 
+> for details.
 
 This command will create a default project structure and configure an example release based
 on [Nginx](https://nginx.org/). See the [Quickstart](../../quickstart.md) guide for a simple usage example.
@@ -97,7 +96,6 @@ and contains the following main sections:
       # Each reference must follow the vals format:
       #   ref+BACKEND://PATH[?PARAMS][#FRAGMENT][+]
       # The uploaded key must follow the naming convention: <project_name>-<scope>
-      # It is strongly recommended to define one key per scope to fully automate the fetch process.
       # Examples:
       #   ref+awssecrets://rmk-test-deps?region=us-east-1
       #   ref+azurekeyvault://rmk-test-deps
