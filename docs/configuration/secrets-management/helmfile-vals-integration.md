@@ -404,6 +404,8 @@ references (in this example — AWS) before initializing configuration, e.g. for
 ```bash
 export AWS_ACCESS_KEY_ID=<aws_access_key_id>
 export AWS_SECRET_ACCESS_KEY=<aws_secret_access_key>
+# Export AWS_REGION only if it is not specified in the Vals backend reference, e.g.:
+#   ref+awssecrets://rmk-test-deps?region=us-east-1
 export AWS_REGION=<aws_region>
 ```
 
