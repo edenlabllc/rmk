@@ -311,7 +311,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 		return err
 	}
 
-	if ok, err := conf.AwsConfigure.GetAwsConfigure(profile); err != nil && ok {
+	if ok, err := conf.AwsConfigure.GetAWSConfigure(profile); err != nil && ok {
 		zap.S().Warnf("%s", err.Error())
 	} else if !ok && err != nil {
 		return err
@@ -327,7 +327,7 @@ func initAWSProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(secrets, "AWS Secrets Manager")
+		WriteKeysToRootDir(secrets, "AWS Secrets Manager")
 }
 
 func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -409,7 +409,7 @@ func initAzureProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.
 		}
 
 		if err := newSecretCommands(conf, c, util.GetPwdPath("")).
-			WriteKeysInRootDir(secrets, "Azure Key Vault"); err != nil {
+			WriteKeysToRootDir(secrets, "Azure Key Vault"); err != nil {
 			return err
 		}
 	}
@@ -449,7 +449,17 @@ func initGCPProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.Gi
 	}
 
 	return newSecretCommands(conf, c, util.GetPwdPath("")).
-		WriteKeysInRootDir(secrets, "GCP Secrets Manager")
+		WriteKeysToRootDir(secrets, "GCP Secrets Manager")
+}
+
+func initK3DProfile(c *cli.Context, conf *config.Config) error {
+	ageKeys, err := conf.InitConfig().GetSOPSAgeKeys(conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	return newSecretCommands(conf, c, util.GetPwdPath("")).
+		WriteKeysToRootDir(ageKeys, "project.yaml Vals backend")
 }
 
 func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler.GitSpec) error {
@@ -507,7 +517,13 @@ func initOnPremProfile(c *cli.Context, conf *config.Config, gitSpec *git_handler
 		return err
 	}
 
-	return nil
+	ageKeys, err := conf.InitConfig().GetSOPSAgeKeys(conf.Tenant)
+	if err != nil {
+		return err
+	}
+
+	return newSecretCommands(conf, c, util.GetPwdPath("")).
+		WriteKeysToRootDir(ageKeys, "project.yaml Vals backend")
 }
 
 func configDeleteAction(conf *config.Config) cli.ActionFunc {
@@ -615,11 +631,14 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 			if err := initGCPProfile(c, conf, gitSpec); err != nil {
 				return err
 			}
-		case util.LocalClusterProvider:
+		case util.K3DClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil
 			conf.GCPConfigure = nil
 			conf.OnPremConfigure = nil
+			if err := initK3DProfile(c, conf); err != nil {
+				return err
+			}
 		case onprem_provider.OnPremClusterProvider:
 			conf.AwsConfigure = nil
 			conf.AzureConfigure = nil

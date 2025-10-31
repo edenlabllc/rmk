@@ -13,13 +13,17 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v3"
 
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
 // Custom name function for parsing template
 const (
-	Prompt      = "prompt"
-	RequiredEnv = "requiredEnv"
+	FetchSecretValue = "fetchSecretValue"
+	Prompt           = "prompt"
+	RequiredEnv      = "requiredEnv"
 )
 
 type GenerationSpec struct {
@@ -59,7 +63,11 @@ func requiredEnv(name string) (string, error) {
 
 func (gf *GenerationFuncMap) createFuncMap() {
 	gf.funcMap = sprig.TxtFuncMap()
-	for key, val := range map[string]interface{}{RequiredEnv: requiredEnv, Prompt: prompt} {
+	for key, val := range map[string]interface{}{
+		FetchSecretValue: util.ValsFetchSecretValue,
+		Prompt:           prompt,
+		RequiredEnv:      requiredEnv,
+	} {
 		gf.funcMap[key] = val
 	}
 }
@@ -133,6 +141,31 @@ func (g *GenerationSpec) writeSpecSecrets(force bool) error {
 }
 
 func (sc *SecretCommands) genSpecSecrets(specFiles []string) error {
+	switch sc.Conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		if sc.Conf.AwsConfigure != nil {
+			if err := sc.Conf.SetAWSCredentialsEnv(false); err != nil {
+				return err
+			}
+		}
+	case azure_provider.AzureClusterProvider:
+		if sc.Conf.AzureConfigure != nil {
+			if err := sc.Conf.AzureConfigure.ReadSPCredentials(sc.Conf.Name); err != nil {
+				return err
+			}
+
+			if err := sc.Conf.SetAzureCredentialsEnv(false); err != nil {
+				return err
+			}
+		}
+	case google_provider.GoogleClusterProvider:
+		if sc.Conf.GCPConfigure != nil {
+			if err := sc.Conf.SetGCPCredentialsEnv(false); err != nil {
+				return err
+			}
+		}
+	}
+
 	genSpec := &GenerationSpec{}
 
 	for _, spec := range specFiles {

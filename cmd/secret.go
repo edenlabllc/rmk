@@ -153,13 +153,13 @@ func (sc *SecretCommands) CreateKeys() error {
 	return nil
 }
 
-func (sc *SecretCommands) WriteKeysInRootDir(secrets map[string][]byte, logOutput string) error {
+func (sc *SecretCommands) WriteKeysToRootDir(secrets map[string][]byte, logOutput string) error {
 	if err := os.MkdirAll(sc.Conf.SopsAgeKeys, 0775); err != nil {
 		return err
 	}
 
 	if len(secrets) == 0 {
-		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s secrets",
+		zap.S().Warnf("SOPS Age keys contents for tenant %s not found in %s",
 			sc.Conf.Tenant, logOutput)
 	}
 
@@ -182,7 +182,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		return sc.WriteKeysInRootDir(secrets, "AWS Secrets Manager")
+		return sc.WriteKeysToRootDir(secrets, "AWS Secrets Manager")
 	case azure_provider.AzureClusterProvider:
 		if err := sc.Conf.NewAzureClient(sc.Ctx.Context, sc.Conf.Name); err != nil {
 			return err
@@ -193,7 +193,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		return sc.WriteKeysInRootDir(secrets, "Azure Key Vault")
+		return sc.WriteKeysToRootDir(secrets, "Azure Key Vault")
 	case google_provider.GoogleClusterProvider:
 		gcp := google_provider.NewGCPConfigure(sc.Ctx.Context, sc.Conf.GCPConfigure.AppCredentialsPath)
 
@@ -202,7 +202,7 @@ func (sc *SecretCommands) DownloadKeys() error {
 			return err
 		}
 
-		return sc.WriteKeysInRootDir(secrets, "GCP Secrets Manager")
+		return sc.WriteKeysToRootDir(secrets, "GCP Secrets Manager")
 	default:
 		return nil
 	}

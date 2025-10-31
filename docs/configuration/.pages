@@ -1,7 +1,7 @@
 nav:
+  - project-management
   - configuration-management
   - cluster-management
-  - project-management
   - release-management
   - secrets-management
 collapse: false

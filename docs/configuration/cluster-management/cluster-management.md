@@ -34,11 +34,11 @@ Switching to an existing Kubernetes cluster depends on how it has been provision
   ```
   
   For example, if you are in
-  the [`project1` repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository)
+  the [`rmk-test` repository](../project-management/requirement-for-project-repository.md#requirement-for-project-repository)
   in the `develop` branch, any of the following Kubernetes context will be accepted:
   
   ```
-  project1-develop
+  rmk-test-develop
   ```
 
 * **Using RMK cluster providers**:

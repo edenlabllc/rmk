@@ -18,8 +18,8 @@ rmk
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
 **BuiltBy:** goreleaser <br />
-**Commit:** 92a29b7 <br />
-**Date:** 2025-09-22T07:32:29Z <br />
+**Commit:** 8bca7c3 <br />
+**Date:** 2025-10-30T17:02:06Z <br />
 **Target:** linux_amd64
 
 **Usage**:
@@ -223,6 +223,8 @@ Generate project directories and files structure
 
 **--scope, -s**="": list of project scopes
 
+**--sops-age-key, -k**="": list of project SOPS age keys resolved via Vals backends
+
 #### update, u
 
 Update project file with specific dependencies version
@@ -263,6 +265,30 @@ Destroy releases
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 
+#### fetch, f
+
+Fetch charts from releases (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
+#### lint, n
+
+Lint charts from releases (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
 #### list, l
 
 List releases
@@ -271,7 +297,7 @@ List releases
 
 **--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
 
-**--output, -o**="": output format, available: short, yaml (default: "short")
+**--output, -o**="": output format, available: short, json (default: "short")
 
 **--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
@@ -282,6 +308,18 @@ List releases
 Rollback specific releases to latest stable state
 
 **--release-name, --rn**="": list release names for rollback status in Kubernetes
+
+**--skip-context-switch, -s**: skip context switch for not provisioned cluster
+
+#### show-dag, g
+
+Show simplified DAGs of releases combined into groups (Helmfile v1.1.x only)
+
+**--helmfile-args, --ha**="": Helmfile additional arguments
+
+**--helmfile-log-level, --hll**="": Helmfile log level severity, available: debug, info, warn, error (default: "error")
+
+**--selector, -l**="": list of release labels, used as selector, selector can take form of foo=bar or foo!=bar
 
 **--skip-context-switch, -s**: skip context switch for not provisioned cluster
 

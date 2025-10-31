@@ -155,7 +155,7 @@ To ensure a successful migration, the following the steps should be executed in 
    > be sure to replace the scalar strings with the new `spec.environments` objects containing the respective root 
    > domains.
 
-6. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration-of-aws) a new configuration
+6. [Initialize](configuration/configuration-management/init-aws-provider.md#configuration) a new configuration
    specifying the AWS cluster provider.
 
    ```shell

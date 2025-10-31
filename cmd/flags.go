@@ -4,6 +4,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"rmk/providers/aws_provider"
+	"rmk/providers/azure_provider"
+	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -14,28 +17,28 @@ func flagsConfig() []cli.Flag {
 			Name:     "aws-access-key-id",
 			Usage:    "AWS access key ID for IAM user",
 			Aliases:  []string{"awid"},
-			EnvVars:  []string{"RMK_AWS_ACCESS_KEY_ID", "AWS_ACCESS_KEY_ID"},
+			EnvVars:  []string{"RMK_AWS_ACCESS_KEY_ID", aws_provider.AWSAccessKeyID},
 		},
 		&cli.StringFlag{
 			Category: awsFlagsCategory,
 			Name:     "aws-region",
 			Usage:    "AWS region for current AWS account",
 			Aliases:  []string{"awr"},
-			EnvVars:  []string{"RMK_AWS_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"},
+			EnvVars:  []string{"RMK_AWS_REGION", aws_provider.AWSRegion, aws_provider.AWSDefaultRegion},
 		},
 		&cli.StringFlag{
 			Category: awsFlagsCategory,
 			Name:     "aws-secret-access-key",
 			Usage:    "AWS secret access key for IAM user",
 			Aliases:  []string{"awsk"},
-			EnvVars:  []string{"RMK_AWS_SECRET_ACCESS_KEY", "AWS_SECRET_ACCESS_KEY"},
+			EnvVars:  []string{"RMK_AWS_SECRET_ACCESS_KEY", aws_provider.AWSSecretAccessKey},
 		},
 		&cli.StringFlag{
 			Category: awsFlagsCategory,
 			Name:     "aws-session-token",
 			Usage:    "AWS session token for IAM user",
 			Aliases:  []string{"awst"},
-			EnvVars:  []string{"RMK_AWS_SESSION_TOKEN", "AWS_SESSION_TOKEN"},
+			EnvVars:  []string{"RMK_AWS_SESSION_TOKEN", aws_provider.AWSSessionToken},
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -54,14 +57,14 @@ func flagsConfig() []cli.Flag {
 			Name:     "azure-client-id",
 			Usage:    "Azure client ID for Service Principal",
 			Aliases:  []string{"azid"},
-			EnvVars:  []string{"RMK_AZURE_CLIENT_ID", "AZURE_CLIENT_ID"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_ID", azure_provider.AzureClientID},
 		},
 		&cli.StringFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-client-secret",
 			Usage:    "Azure client secret for Service Principal",
 			Aliases:  []string{"azp"},
-			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", "AZURE_CLIENT_SECRET"},
+			EnvVars:  []string{"RMK_AZURE_CLIENT_SECRET", azure_provider.AzureClientSecret},
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -69,7 +72,7 @@ func flagsConfig() []cli.Flag {
 				Name:     "azure-key-vault-resource-group-name",
 				Usage:    "Azure Key Vault custom resource group name",
 				Aliases:  []string{"azkvrg"},
-				EnvVars:  []string{"RMK_AZURE_KEY_VAULT_RESOURCE_GROUP_NAME", "AZURE_KEY_VAULT_RESOURCE_GROUP_NAME"},
+				EnvVars:  []string{"RMK_AZURE_KEY_VAULT_RESOURCE_GROUP_NAME", azure_provider.AzureKeyVaultResourceGroupName},
 			},
 		),
 		&cli.StringFlag{
@@ -77,7 +80,7 @@ func flagsConfig() []cli.Flag {
 			Name:     "azure-location",
 			Usage:    "Azure location",
 			Aliases:  []string{"azl"},
-			EnvVars:  []string{"RMK_AZURE_LOCATION", "AZURE_LOCATION"},
+			EnvVars:  []string{"RMK_AZURE_LOCATION", azure_provider.AzureLocation},
 		},
 		&cli.BoolFlag{
 			Category: azureFlagsCategory,
@@ -90,14 +93,14 @@ func flagsConfig() []cli.Flag {
 			Name:     "azure-subscription-id",
 			Usage:    "Azure subscription ID for current platform domain",
 			Aliases:  []string{"azs"},
-			EnvVars:  []string{"RMK_AZURE_SUBSCRIPTION_ID", "AZURE_SUBSCRIPTION_ID"},
+			EnvVars:  []string{"RMK_AZURE_SUBSCRIPTION_ID", azure_provider.AzureSubscriptionID},
 		},
 		&cli.StringFlag{
 			Category: azureFlagsCategory,
 			Name:     "azure-tenant-id",
 			Usage:    "Azure tenant ID for Service Principal",
 			Aliases:  []string{"azt"},
-			EnvVars:  []string{"RMK_AZURE_TENANT_ID", "AZURE_TENANT_ID"},
+			EnvVars:  []string{"RMK_AZURE_TENANT_ID", azure_provider.AzureTenantID},
 		},
 		altsrc.NewStringFlag(
 			&cli.StringFlag{
@@ -105,7 +108,7 @@ func flagsConfig() []cli.Flag {
 				Usage:   "cluster provider for provisioning",
 				Aliases: []string{"cp"},
 				EnvVars: []string{"RMK_CLUSTER_PROVIDER"},
-				Value:   util.LocalClusterProvider,
+				Value:   util.K3DClusterProvider,
 			},
 		),
 		&cli.StringFlag{
@@ -126,7 +129,7 @@ func flagsConfig() []cli.Flag {
 				Name:     "gcp-region",
 				Usage:    "GCP region",
 				Aliases:  []string{"gr"},
-				EnvVars:  []string{"RMK_GCP_REGION", "GCP_REGION"},
+				EnvVars:  []string{"RMK_GCP_REGION", google_provider.GCPRegion},
 			},
 		),
 		&cli.StringFlag{
@@ -134,7 +137,7 @@ func flagsConfig() []cli.Flag {
 			Name:     "google-application-credentials",
 			Usage:    "path to GCP service account credentials JSON file",
 			Aliases:  []string{"gac"},
-			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_APPLICATION_CREDENTIALS"},
+			EnvVars:  []string{"RMK_GOOGLE_APPLICATION_CREDENTIALS", google_provider.GoogleApplicationCredentials},
 		},
 		&cli.StringFlag{
 			Category: onPremFlagsCategory,
@@ -269,6 +272,11 @@ func flagsProjectGenerate() []cli.Flag {
 			Usage:   "list of project scopes",
 			Aliases: []string{"s"},
 		},
+		&cli.StringSliceFlag{
+			Name:    "sops-age-key",
+			Usage:   "list of project SOPS age keys resolved via Vals backends",
+			Aliases: []string{"k"},
+		},
 	)
 }
 
@@ -335,7 +343,7 @@ func flagsReleaseHelmfile(output bool) []cli.Flag {
 		flags = append(flags,
 			&cli.StringFlag{
 				Name:    "output",
-				Usage:   "output format, available: short, yaml",
+				Usage:   "output format, available: short, json",
 				Aliases: []string{"o"},
 				EnvVars: []string{"RMK_RELEASE_OUTPUT"},
 				Value:   "short",

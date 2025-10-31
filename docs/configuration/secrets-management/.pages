@@ -1,0 +1,5 @@
+nav:
+  - secrets-management.md
+  - batch-secrets-management.md
+  - helmfile-vals-integration.md
+collapse: false

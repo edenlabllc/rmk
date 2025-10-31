@@ -98,9 +98,8 @@ advantages:
   [dependency management](configuration/project-management/dependencies-management-and-project-inheritance.md)**:
   Enables rapid project setup and hierarchical project inheritance, e.g., "parent-child" or "upstream-downstream"
   relationships between sibling projects to enable release configuration reuse.
-- **[Batch](configuration/secrets-management/secrets-management.md#generating-all-secrets-from-scratch) secret
-  management**: Automates templating, generation, and encryption of secrets across all environments
-  in batch mode.
+- **[Batch secret management](configuration/secrets-management/batch-secrets-management.md#generating-all-secrets-from-scratch)**:
+  Automates templating, generation, and encryption of secrets across all environments in batch mode.
 - **Adheres to the [GitOps](https://www.gitops.tech/) approach**: Uses Git branches as unique identifiers for
   environments, clusters, configurations, and project management in Kubernetes.
 - **Follows the [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) model**: Implements
@@ -285,9 +284,6 @@ rmk update --version vX.X.X
 ## Roadmap
 
 - :construction:
-  **Integration with Helmfile [vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced 
-  values and secrets management.
-- :construction:
   **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
   for project generation:**  
   Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
@@ -306,6 +302,9 @@ rmk update --version vX.X.X
 - :white_check_mark:
   _**Implementation of on-premise [Kubernetes Cluster API](https://cluster-api.sigs.k8s.io/) provider:**
   Implement support for provisioning and destroying remote bare-metal or virtual machine–based Kubernetes clusters._
+- :white_check_mark:
+  _**Integration with Helmfile [Vals](https://github.com/helmfile/vals)**: Integrate RMK with a tool for advanced
+  values and secrets management via third-party backends._
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
