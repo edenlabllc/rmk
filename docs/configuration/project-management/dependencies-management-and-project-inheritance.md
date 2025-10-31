@@ -20,7 +20,7 @@ the [project.yaml](preparation-of-project-repository.md#projectyaml) file.
 >   hooks:
 >     helmfile.hooks.infra:
 >       version: v1.18.0
->       url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
+>       url: git::https://github.com/<github_repo_owner>/{{.Name}}.git?ref={{.Version}}
 >   # ...
 > ```
 
@@ -39,7 +39,7 @@ project:
     # ...
     - name: <upstream_repository_prefix>.bootstrap.infra
       version: v2.17.0 # e.g., a different version of the dependency is required by this project
-      url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
+      url: git::https://github.com/<github_repo_owner>/{{.Name}}.git?ref={{.Version}}
     # ...
 ```
 

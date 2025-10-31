@@ -6,19 +6,19 @@
   according to the [requirements](requirement-for-project-repository.md#requirement-for-project-repository). For
   example: `rmk-test.bootstrap.infra`
 - Clone the existing project repository:
-
+  
   ```shell
   git clone <repo_url>
   ```
-
+  
   Alternatively, initialize a new repository manually:
-
+  
   ```shell
   git init
   git remote add <repo_name> <repo_url>
   git commit --allow-empty --message "Initial commit"
   ```
-
+  
   > RMK requires a Git branch with at least one commit and a configured `origin` remote  
   > to correctly resolve the project name and environment.
 
@@ -26,22 +26,36 @@
 
 ## Automatic generation of the project structure from scratch
 
-RMK supports automatic generation of the project structure from scratch, according to the presented project
-specification described in [project.yaml](#projectyaml) file.
+RMK supports automatic generation of a complete project structure  
+based on the project specification defined in the [project.yaml](#projectyaml) file.
 
-Use the following command:
+Use the following command with the recommended flags:
 
-```shell
-rmk project generate --environment="develop.root-domain=<custom_root_domain_name>" \
-  --owner=gh_user --scope=<upstream_project_name> \
-  --scope=<downstream_project_name> 
+```bash
+rmk project generate \
+  --environment="develop.root-domain=<custom_root_domain_name>" \
+  --owner=gh-user1 \
+  --scope=<upstream_project_name> \
+  --scope=<downstream_project_name>
 ```
 
-> Add the `--create-sops-age-keys` flag if you want to create the project structure along with SOPS age private keys.
+> Add the `--create-sops-age-keys` flag if you want to generate the project structure along with **new SOPS Age private
+> keys**.
+>
+> Add one or more `--sops-age-key=<vals_backend_reference_scopeN>` flags if you want to define Vals backend
+references to previously created and stored SOPS Age keys, the keys will automatically be fetched by other users later 
+> during RMK configuration initialization.
+> This functionality is available for `k3d` and `onprem` cluster providers only, as they do not use any third-party
+> secret storage out of the box.
+>
+> The reference format follows:  
+>   `ref+BACKEND://PATH[?PARAMS][#FRAGMENT][+]`  
+> See the [vals expression syntax](https://github.com/helmfile/vals?tab=readme-ov-file#expression-syntax) for details.
 
-This will create a default project structure and set up an example release based on [Nginx](https://nginx.org/).
+This command will create a default project structure and configure an example release based
+on [Nginx](https://nginx.org/). See the [Quickstart](../../quickstart.md) guide for a simple usage example.
 
-> If the `project.yaml` file is missing, it will be automatically created by the command.
+> If the `project.yaml` file does not exist, it will be created automatically.
 
 ## project.yaml
 
@@ -50,17 +64,17 @@ and contains the following main sections:
 
 * `project`: Optional, contains a list of dependencies of the upstream project's repositories and the project
   specification.
-
+  
   ```yaml
   project:
     # Optional, needed if you want to add the dependencies with upstream projects to the downstream project.
     dependencies:
         # Required, dependencies upstream project's repository name.
-      - name: <upstream_repository_prefix>.bootstrap.infra
+      - name: <upstream_project_name>.bootstrap.infra
         # Required, dependencies upstream project's repository version in `SemVer2` format, also can be a branch name or a commit hash.
         version: <SemVer2>
         # Required, dependencies upstream project's repository URL.
-        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}    
+        url: git::https://github.com/<github_repo_owner>/{{.Name}}.git?ref={{.Version}}    
     # Optional, needed if you want automatic generation of the project structure from scratch.
     spec:
       # Required, list of available environments with specific root domain name (Git branches). 
@@ -73,17 +87,29 @@ and contains the following main sections:
             root-domain: <custom_name>.example.com
       # Optional, list of owners of the project.
       owners:
-        - <owner_1>
-        - <owner_2>
+        - <gh_user1>
+        - <gh_user2>
       # Required, list of available scope of the project.
       scopes:
         - <upstream_project_name>
         - <downstream_project_name>
+      # Optional, list of SOPS Age keys defined as vals backend references.
+      # Each reference must follow the vals format:
+      #   ref+BACKEND://PATH[?PARAMS][#FRAGMENT][+]
+      # The uploaded key must follow the naming convention: <project_name>-<scope>
+      # It is strongly recommended to define one key per scope to fully automate the fetch process.
+      # Examples:
+      #   ref+awssecrets://rmk-test-deps?region=us-east-1
+      #   ref+azurekeyvault://rmk-test-deps
+      #   ref+gcpsecrets://rmk-test-rmk-test
+      sops-age-keys:
+        - ref+<vals_backend>://<project_name>-<scope0>?<vals_backend_parameters>
+        - ref+<vals_backend>://<project_name>-<scope1>?<vals_backend_parameters>
   # ... 
   ```
 
 * `inventory`: Optional, contains a map of the extra configurations required to launch the project.
-
+  
   ```yaml
   inventory:
     # Optional, contains a map of the Helm plugins repositories.
@@ -93,7 +119,7 @@ and contains the following main sections:
         # Required, Helm plugin version in the `SemVer2` format.
         version: <SemVer2>
         # Required, Helm plugin repository URL.
-        url: https://github.com/<owner>/helm-diff
+        url: https://github.com/<github_repo_owner>/helm-diff
       # ...
     # Optional, contains a map of the Helmfile hooks repositories with shell scripts.
     hooks:
@@ -102,7 +128,7 @@ and contains the following main sections:
         # Required, Helmfile hooks repository version in the `SemVer2` format.
         version: <SemVer2>
         # Required, Helmfile hooks repository URL.
-        url: git::https://github.com/<owner>/{{.Name}}.git?ref={{.Version}}
+        url: git::https://github.com/<github_repo_owner>/{{.Name}}.git?ref={{.Version}}
     # Optional, contains a map of the sources of binary file tools.
     tools:
       # Optional, tool name.
@@ -137,11 +163,11 @@ project:
       - staging:
           root-domain: localhost
     owners:
-      - owner1
-      - owner2
+      - gh-user1
+      - gh-user2
     scopes:
       - deps
-      - project1
+      - rmk-test
 inventory:
   helm-plugins:
     diff:
