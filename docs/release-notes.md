@@ -1,5 +1,2 @@
-- Bumped Go version to v1.24.2.
-- Extended release category to support Helmfile v1.1.X command set.
-- Added fetchSecretValue function for using Vals in secret spec templates.
-- Added cluster provider credentials environment variables for runtime Helmfile.
-- Added project.yaml option spec.sops-age-keys to fetch SOPS age keys via Vals backends.
+- Added detailed and user-friendly YAML decoding errors, including line and column indicators.
+- Added full support for preserving YAML comments during decode/encode cycles.
