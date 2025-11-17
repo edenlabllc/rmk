@@ -300,7 +300,7 @@ func (sr *SpecRelease) readReleasesFile(path string) error {
 		return err
 	}
 
-	sr.Comments, err = util.YamlDecodeWithComments(path, data, &sr.Releases)
+	sr.Comments, err = util.YAMLDecodeWithComments(path, data, &sr.Releases)
 	if err != nil {
 		return err
 	}
@@ -338,13 +338,13 @@ func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
 
 		for key, val := range sr.Changes.List {
 			if key == path {
-				data, err := util.YamlEncodeWithComments(path, sr.Releases, sr.Comments)
+				data, err := util.YAMLEncodeWithComments(path, sr.Releases, sr.Comments)
 				if err != nil {
 					return err
 				}
 
 				zap.S().Infof("tag changed for next releases %s, "+
-					"affected file: %s", strings.Join(val, " "), util.YamlRelativePath(path))
+					"affected file: %s", strings.Join(val, " "), util.YAMLRelativePath(path))
 
 				if err := os.WriteFile(path, data, 0644); err != nil {
 					return err

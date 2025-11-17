@@ -179,7 +179,7 @@ func (sc *SecretCommands) genSpecSecrets(specFiles []string) error {
 			return err
 		}
 
-		_, err = util.YamlDecodeWithComments(spec, genFunc.tplString.Bytes(), genSpec)
+		_, err = util.YAMLDecodeWithComments(spec, genFunc.tplString.Bytes(), genSpec)
 		if err != nil {
 			return err
 		}

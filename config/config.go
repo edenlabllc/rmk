@@ -222,7 +222,7 @@ func (pf *ProjectFile) ReadProjectFile(path string) error {
 		return err
 	}
 
-	pf.Comments, err = util.YamlDecodeWithComments(path, data, pf)
+	pf.Comments, err = util.YAMLDecodeWithComments(path, data, pf)
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func (conf *Config) ReadConfigFile(path string) error {
 		return err
 	}
 
-	if _, err := util.YamlDecodeWithComments(path, data, conf); err != nil {
+	if _, err := util.YAMLDecodeWithComments(path, data, conf); err != nil {
 		return err
 	}
 

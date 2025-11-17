@@ -182,7 +182,7 @@ func (p *ProjectCommands) readProjectFile() error {
 		return err
 	}
 
-	p.projectFile.Comments, err = util.YamlDecodeWithComments(util.GetPwdPath(util.TenantProjectFile), data, p.projectFile)
+	p.projectFile.Comments, err = util.YAMLDecodeWithComments(util.GetPwdPath(util.TenantProjectFile), data, p.projectFile)
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func (p *ProjectCommands) serializeProjectFile() ([]byte, error) {
 		return nil, nil
 	}
 
-	return util.YamlEncodeWithComments(util.GetPwdPath(util.TenantProjectFile), p.projectFile, p.projectFile.Comments)
+	return util.YAMLEncodeWithComments(util.GetPwdPath(util.TenantProjectFile), p.projectFile, p.projectFile.Comments)
 }
 
 func (p *ProjectCommands) genMsgCommit() string {
