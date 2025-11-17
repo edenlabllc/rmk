@@ -25,7 +25,7 @@ func YAMLRelativePath(filePath string) string {
 }
 
 func YAMLDecodeWithComments(filePath string, raw []byte, out any) (goyaml.CommentMap, error) {
-	if err := YamlValidate(filePath, raw, out); err != nil {
+	if err := YAMLValidate(filePath, raw, out); err != nil {
 		return nil, err
 	}
 

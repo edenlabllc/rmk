@@ -15,7 +15,7 @@ func ValidateNArg(c *cli.Context, expectedNArg int) error {
 	return nil
 }
 
-func YamlValidate(filePath string, raw []byte, out any) error {
+func YAMLValidate(filePath string, raw []byte, out any) error {
 	if err := goyaml.UnmarshalWithOptions(raw, out, goyaml.Strict()); err != nil {
 		return fmt.Errorf("file %s, line %w", YAMLRelativePath(filePath), err)
 	}
