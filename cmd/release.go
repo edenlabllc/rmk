@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,9 +11,9 @@ import (
 	"strings"
 	"time"
 
+	goyaml "github.com/goccy/go-yaml"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
-	"gopkg.in/yaml.v3"
 	"mvdan.cc/sh/v3/shell"
 
 	"rmk/config"
@@ -56,7 +55,7 @@ type ReleaseStruct struct {
 }
 
 type ReleasesList struct {
-	NodeYAML yaml.Node
+	Comments goyaml.CommentMap
 	Releases map[string]*ReleaseStruct
 	Changes  struct {
 		List  map[string][]string
@@ -301,11 +300,8 @@ func (sr *SpecRelease) readReleasesFile(path string) error {
 		return err
 	}
 
-	if err := yaml.Unmarshal(data, &sr.NodeYAML); err != nil {
-		return err
-	}
-
-	if err := sr.NodeYAML.Decode(&sr.Releases); err != nil {
+	sr.Comments, err = util.YAMLDecodeWithComments(path, data, &sr.Releases)
+	if err != nil {
 		return err
 	}
 
@@ -321,25 +317,6 @@ func (sr *SpecRelease) readReleasesFile(path string) error {
 	sort.Strings(sr.Changes.List[path])
 
 	return nil
-}
-
-func (sr *SpecRelease) serializeReleasesStruct() ([]byte, error) {
-	headComment := sr.NodeYAML.HeadComment
-	footComment := sr.NodeYAML.FootComment
-
-	if err := sr.NodeYAML.Encode(&sr.Releases); err != nil {
-		return nil, err
-	}
-
-	sr.NodeYAML.HeadComment = fmt.Sprintf("%s\r\n\n", headComment)
-	sr.NodeYAML.FootComment = footComment
-
-	var data bytes.Buffer
-
-	encoder := yaml.NewEncoder(&data)
-	encoder.SetIndent(2)
-	err := encoder.Encode(&sr.NodeYAML)
-	return data.Bytes(), err
 }
 
 func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
@@ -361,13 +338,13 @@ func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
 
 		for key, val := range sr.Changes.List {
 			if key == path {
-				data, err := sr.serializeReleasesStruct()
+				data, err := util.YAMLEncodeWithComments(path, sr.Releases, sr.Comments)
 				if err != nil {
 					return err
 				}
 
 				zap.S().Infof("tag changed for next releases %s, "+
-					"affected file: %s", strings.Join(val, " "), path)
+					"affected file: %s", strings.Join(val, " "), util.YAMLRelativePath(path))
 
 				if err := os.WriteFile(path, data, 0644); err != nil {
 					return err
