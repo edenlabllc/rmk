@@ -14,6 +14,13 @@ jobs:
     name: Build, validate, publish, version documentation for GitHub Pages
     runs-on: ubuntu-22.04
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-android: true
+          remove-dotnet: true
+          remove-haskell: true
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
