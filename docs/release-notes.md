@@ -1,1 +1,2 @@
 - Fixed correct kubeconfig merge order after the client-go upgrade, which fixes the behavior of rmk cluster switch --force.
+- Increased available disk space on GitHub runners by removing unused toolchains.
