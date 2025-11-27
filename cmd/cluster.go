@@ -271,7 +271,7 @@ func (cc *ClusterCommands) mergeKubeConfigs(clusterContext []byte) error {
 	}
 
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	loadingRules.Precedence = append(loadingRules.Precedence, file)
+	loadingRules.Precedence = append([]string{file}, loadingRules.Precedence...)
 
 	mergeConfig, err := loadingRules.Load()
 	if err != nil {

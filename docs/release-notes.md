@@ -1,2 +1,1 @@
-- Added detailed and user-friendly YAML decoding errors, including line and column indicators.
-- Added full support for preserving YAML comments during decode/encode cycles.
+- Fixed correct kubeconfig merge order after the client-go upgrade, which fixes the behavior of rmk cluster switch --force.
