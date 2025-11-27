@@ -37,6 +37,7 @@ builds:
     binary: rmk
     env:
       - CGO_ENABLED=0
+      - GOFLAGS=-tags=netgo,osusergo
     builder: go
     gobinary: go
 archives:

@@ -12,6 +12,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/semver"
+	goyaml "github.com/goccy/go-yaml"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
@@ -87,6 +88,7 @@ type Project struct {
 }
 
 type ProjectFile struct {
+	Comments  goyaml.CommentMap `yaml:"-"`
 	Project   `yaml:"project,omitempty"`
 	Inventory `yaml:"inventory,omitempty"`
 }
@@ -220,7 +222,8 @@ func (pf *ProjectFile) ReadProjectFile(path string) error {
 		return err
 	}
 
-	if err := yaml.Unmarshal(data, &pf); err != nil {
+	pf.Comments, err = util.YAMLDecodeWithComments(path, data, pf)
+	if err != nil {
 		return err
 	}
 
@@ -314,7 +317,11 @@ func (conf *Config) ReadConfigFile(path string) error {
 		return err
 	}
 
-	return yaml.Unmarshal(data, &conf)
+	if _, err := util.YAMLDecodeWithComments(path, data, conf); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (conf *Config) CreateConfigFile() error {

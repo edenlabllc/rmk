@@ -182,7 +182,8 @@ func (p *ProjectCommands) readProjectFile() error {
 		return err
 	}
 
-	if err := yaml.Unmarshal(data, &p.projectFile); err != nil {
+	p.projectFile.Comments, err = util.YAMLDecodeWithComments(util.GetPwdPath(util.TenantProjectFile), data, p.projectFile)
+	if err != nil {
 		return err
 	}
 
@@ -202,7 +203,7 @@ func (p *ProjectCommands) serializeProjectFile() ([]byte, error) {
 			count++
 			zap.S().Infof("version changed for dependency %s, affected file: %s",
 				pkg.Name,
-				util.GetPwdPath(util.TenantProjectFile))
+				util.TenantProjectFile)
 			break
 		}
 	}
@@ -213,15 +214,7 @@ func (p *ProjectCommands) serializeProjectFile() ([]byte, error) {
 		return nil, nil
 	}
 
-	var buf bytes.Buffer
-
-	encoder := yaml.NewEncoder(&buf)
-	encoder.SetIndent(2)
-	if err := encoder.Encode(&p.projectFile); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
+	return util.YAMLEncodeWithComments(util.GetPwdPath(util.TenantProjectFile), p.projectFile, p.projectFile.Comments)
 }
 
 func (p *ProjectCommands) genMsgCommit() string {

@@ -11,8 +11,6 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh/terminal"
-	"gopkg.in/yaml.v3"
-
 	"rmk/providers/aws_provider"
 	"rmk/providers/azure_provider"
 	"rmk/providers/google_provider"
@@ -181,7 +179,8 @@ func (sc *SecretCommands) genSpecSecrets(specFiles []string) error {
 			return err
 		}
 
-		if err := yaml.Unmarshal(genFunc.tplString.Bytes(), &genSpec); err != nil {
+		_, err = util.YAMLDecodeWithComments(spec, genFunc.tplString.Bytes(), genSpec)
+		if err != nil {
 			return err
 		}
 
