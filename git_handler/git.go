@@ -49,7 +49,13 @@ type GitSpec struct {
 func (g *GitSpec) checkIntermediateBranchName(branch, prefix string) (int, error) {
 	g.IntermediateBranch = strings.ReplaceAll(branch, prefix, "")
 	patternTaskNum := regexp.MustCompile(`^[a-z]+-\d+`)
-	patternSemVer := regexp.MustCompile(`^v\d+\.\d+\.\d+(-[a-z]+)?$`)
+	// Examples:
+	// - v1.2.3 (OK)
+	// - v1.2.3-rc (OK)
+	// - v1.2.3-rc.1 (OK)
+	// - v1.2.3-beta (OK)
+	// - v1.2.3-.rc (NOT OK)
+	patternSemVer := regexp.MustCompile(`^v\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z-]*(?:\.[0-9A-Za-z][0-9A-Za-z-]*)*)?$`)
 
 	switch {
 	case len(patternTaskNum.FindString(strings.ToLower(g.IntermediateBranch))) > 0:

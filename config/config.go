@@ -135,7 +135,14 @@ func (conf *Config) GetConfigs(all bool) error {
 
 		patternBranch = regexp.MustCompile(`^` + patternTenant +
 			`-(` + git_handler.DefaultDevelop + `|` + git_handler.DefaultStaging + `|` + git_handler.DefaultProduction + `)$`)
-		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(-[a-z]+)?$`)
+		// Config names are generated from branch semver by replacing dots with dashes.
+		// Examples:
+		// - tenant-v1-2-3 (OK)
+		// - tenant-v1-2-3-rc (OK)
+		// - tenant-v1-2-3-rc-1 (OK, from v1.2.3-rc.1)
+		// - tenant-v1-2-3-beta (OK)
+		// - tenant-v1-2-3--rc (NOT OK)
+		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(?:-[0-9A-Za-z][0-9A-Za-z-]*(?:-[0-9A-Za-z][0-9A-Za-z-]*)*)?$`)
 		patternTaskNum = regexp.MustCompile(`^` + patternTenant + `-[a-z]+-\d+$`)
 	}
 
