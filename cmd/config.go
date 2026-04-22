@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 
@@ -677,7 +677,7 @@ func configListAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		}
 
 		conf.Tenant = gitSpec.RepoPrefixName
-		return conf.GetConfigs(c.Bool("all"))
+		return conf.GetConfigs(c.Bool("all"), gitSpec.SemVerObj)
 	}
 }
 
