@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -40,6 +41,7 @@ type GitSpec struct {
 	RepoName           string
 	RepoPrefixName     string
 	ID                 string
+	SemVerObj          *semver.Version
 	repo               *git.Repository
 	auth               transport.AuthMethod
 	workTree           *git.Worktree
@@ -47,20 +49,24 @@ type GitSpec struct {
 }
 
 func (g *GitSpec) checkIntermediateBranchName(branch, prefix string) (int, error) {
+	var err error
+
 	g.IntermediateBranch = strings.ReplaceAll(branch, prefix, "")
 	patternTaskNum := regexp.MustCompile(`^[a-z]+-\d+`)
-	patternSemVer := regexp.MustCompile(`^v\d+\.\d+\.\d+(-[a-z]+)?$`)
 
 	switch {
 	case len(patternTaskNum.FindString(strings.ToLower(g.IntermediateBranch))) > 0:
 		g.IntermediateBranch = patternTaskNum.FindString(strings.ToLower(g.IntermediateBranch))
 		return TaskNum, nil
-	case len(patternSemVer.FindString(strings.ToLower(g.IntermediateBranch))) > 0:
-		g.IntermediateBranch = strings.ReplaceAll(patternSemVer.FindString(strings.ToLower(g.IntermediateBranch)),
-			".", "-")
-		return SemVer, nil
 	default:
-		return 0, fmt.Errorf("selected branch %s cannot be used as environment name", branch)
+		g.SemVerObj, err = semver.NewVersion(g.IntermediateBranch)
+		if err != nil || g.SemVerObj.String() != strings.TrimPrefix(g.SemVerObj.Original(), "v") {
+			return 0, fmt.Errorf("selected branch %s cannot be used as environment name", branch)
+		}
+
+		g.IntermediateBranch = strings.ReplaceAll(g.SemVerObj.Original(), ".", "-")
+		g.IntermediateBranch = strings.ReplaceAll(g.IntermediateBranch, "+", "-")
+		return SemVer, nil
 	}
 }
 
@@ -84,7 +90,7 @@ func (g *GitSpec) checkBranchName(branch string) error {
 				case TaskNum:
 					g.DefaultBranch = DefaultStaging
 				case SemVer:
-					if strings.Contains(g.IntermediateBranch, "rc") {
+					if strings.HasPrefix(g.SemVerObj.Prerelease(), "rc") {
 						g.DefaultBranch = DefaultStaging
 						break
 					}

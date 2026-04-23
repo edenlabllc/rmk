@@ -1,2 +1,1 @@
-- Fixed correct kubeconfig merge order after the client-go upgrade, which fixes the behavior of rmk cluster switch --force.
-- Increased available disk space on GitHub runners by removing unused toolchains.
+- Extended SemVer-style branch and config name matching to support dotted prereleases (for example v1.2.3-rc.1) while rejecting empty prerelease segments such as v1.2.3-.rc.

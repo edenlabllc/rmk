@@ -11,7 +11,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	goyaml "github.com/goccy/go-yaml"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
@@ -118,11 +118,10 @@ func (conf *Config) SerializeJsonConfig() ([]byte, error) {
 	return json.Marshal(&conf)
 }
 
-func (conf *Config) GetConfigs(all bool) error {
+func (conf *Config) GetConfigs(all bool, semVer *semver.Version) error {
 	var (
 		patternTenant  string
 		patternTaskNum *regexp.Regexp
-		patternSemVer  *regexp.Regexp
 		patternBranch  *regexp.Regexp
 	)
 
@@ -132,10 +131,8 @@ func (conf *Config) GetConfigs(all bool) error {
 		patternTenant = ""
 	} else {
 		patternTenant = conf.Tenant
-
 		patternBranch = regexp.MustCompile(`^` + patternTenant +
 			`-(` + git_handler.DefaultDevelop + `|` + git_handler.DefaultStaging + `|` + git_handler.DefaultProduction + `)$`)
-		patternSemVer = regexp.MustCompile(`^` + patternTenant + `-v\d+-\d+-\d+(-[a-z]+)?$`)
 		patternTaskNum = regexp.MustCompile(`^` + patternTenant + `-[a-z]+-\d+$`)
 	}
 
@@ -153,7 +150,7 @@ func (conf *Config) GetConfigs(all bool) error {
 			switch {
 			case patternBranch != nil && patternBranch.MatchString(rmkConfig):
 				fmt.Printf("- %s\n", rmkConfig)
-			case patternSemVer != nil && patternSemVer.MatchString(rmkConfig):
+			case semVer != nil && rmkConfig == conf.Tenant+"-"+strings.ReplaceAll(semVer.Original(), ".", "-"):
 				fmt.Printf("- %s\n", rmkConfig)
 			case patternTaskNum != nil && patternTaskNum.MatchString(rmkConfig):
 				fmt.Printf("- %s\n", rmkConfig)
