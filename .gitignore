@@ -5,3 +5,6 @@
 etc/
 dist/
 metadata.json
+site/
+**/__pycache__/
+*.py[cod]

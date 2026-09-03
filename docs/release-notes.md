@@ -1,1 +1,1 @@
-- Extended SemVer-style branch and config name matching to support dotted prereleases (for example v1.2.3-rc.1) while rejecting empty prerelease segments such as v1.2.3-.rc.
+- Set the documentation copyright end year dynamically at build time via an MkDocs hook.
