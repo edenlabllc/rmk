@@ -10,8 +10,6 @@ jobs:
   docs-commands-update:
     if: "!contains(github.event.head_commit.message, '[skip docs commands update]')"
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write
     steps:
       - name: Maximize build space
         uses: AdityaGarg8/remove-unwanted-software@v5
@@ -23,7 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_REPO_FULL_ACCESS }}
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -35,7 +34,7 @@ jobs:
         with:
           distribution: goreleaser
           version: v1.23.0
-          args: build --clean --skip=validate --snapshot
+          args: build --clean --skip=validate
 
       - name: Update and commit new commands documentation
         run: |
