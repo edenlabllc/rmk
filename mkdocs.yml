@@ -3,11 +3,16 @@ site_name: RMK
 site_description: RMK CLI - Reduced Management for Kubernetes by Edenlab LLC
 site_url: https://edenlabllc.github.io/rmk
 
-copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021 - 2025
+# End year is set at build time by docs/hooks.py
+copyright: © EDENLAB. ALL RIGHTS RESERVED, 2021
 
 # Repo Information
 repo_name: edenlabllc/rmk
 repo_url: https://github.com/edenlabllc/rmk
+
+# Build hooks (dynamic copyright year, etc.)
+hooks:
+  - docs/hooks.py
 
 # Theme
 theme:
