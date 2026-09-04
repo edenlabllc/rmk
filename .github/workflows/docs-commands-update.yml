@@ -34,7 +34,7 @@ jobs:
         with:
           distribution: goreleaser
           version: v1.23.0
-          args: build --clean --skip=validate --single
+          args: build --clean --skip=validate --single-target
 
       - name: Update and commit new commands documentation
         run: |
