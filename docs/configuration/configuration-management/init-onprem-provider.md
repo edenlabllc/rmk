@@ -68,7 +68,7 @@ onprem:
 
    * If hostnames are used in the operator/K3S's configuration, they must resolve to correct internal IPs using
      [DNS](https://en.wikipedia.org/wiki/Domain_Name_System).
-   * Alternatively, configure [/etc/hosts](https://en.wikipedia.org/wiki/Hosts_(file)) on **all cluster nodes**.
+   * Alternatively, configure [/etc/hosts](https://en.wikipedia.org/wiki/Hosts_%28file%29) on **all cluster nodes**.
 
 7. **K3S init server host**:
 

@@ -1,1 +1,3 @@
-- Set the documentation copyright end year dynamically at build time via an MkDocs hook.
+- Fixed broken and incorrect documentation links (404s, GCP TOC, localhost URLs, command anchors).
+- Updated outdated docs (on-premise availability, SemVer dotted prereleases, Kodjin demo example).
+- Minor documentation cleanups.

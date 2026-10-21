@@ -2,7 +2,7 @@
 
 ## Release update
 
-The [rmk release update](../../commands.md#update-u-2) command automates the process of **updating and
+The [rmk release update](../../commands.md#update-u_2) command automates the process of **updating and
 delivering releases** according to the version changes of artifacts, e.g., container images, following
 the [GitOps](https://www.gitops.tech) methodology.
 

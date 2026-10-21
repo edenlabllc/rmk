@@ -4,7 +4,7 @@
 
 1. The name of the project repository should consist of the following parts: `<project_name>`.`<custom_suffix>`.
    For example: `rmk-test.bootstrap.infra` or `rmk-test.infra`.
-2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.co.jp/ee/topics/gitlab_flow.html) only
+2. The project's repository exists within the [GitLab Flow](https://docs.gitlab.com/ee/topics/gitlab_flow.html) only
    and therefore supports the following set of static branches:
 
    - `develop`
@@ -23,8 +23,10 @@
      > RMK will use `<issue_key>` and `<issue_number>` as the cluster name.
    - A `release` branch should have the following naming: `release/<SemVer2>-rc` (`staging` configuration will be used)
      or `release/<SemVer2>` (`production` configuration will be used).
+     Dotted prerelease segments are also supported (for example `release/v1.2.3-rc.1`); empty segments such as
+     `release/v1.2.3-.rc` are rejected.
   
-     For example: `release/v1.0.0`. 
+     For example: `release/v1.0.0`, `release/v1.0.0-rc`, `release/v1.2.3-rc.1`. 
   
      > RMK will use the project name and the `<SemVer2>` tag as the cluster name.
    - A `hotfix` branch should have the following naming: `hotfix/<SemVer2>` (`production` configuration will be used).
@@ -212,5 +214,5 @@ releases:
 ```
 </details>
 
-> You can use the [rmk project generate](../../commands.md#generate-g-1)
+> You can use the [rmk project generate](../../commands.md#generate-g_1)
 > command to view the full example of the contents of all the project files.
