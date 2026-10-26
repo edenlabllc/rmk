@@ -184,9 +184,17 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ## Roadmap
 
 - :construction:
-  **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
-  for project generation:**  
-  Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
+  **[AI-assisted](https://en.wikipedia.org/wiki/Generative_artificial_intelligence) configuration generation:**  
+  Leverage a vector knowledge base of proven patterns from [Kodjin FHIR Server](https://kodjin.com/) production customer installations and internal [Edenlab LLC](https://edenlab.io/) clusters to generate and tune project configuration from natural-language intent.
+- :construction:
+  **[MCP](https://modelcontextprotocol.io/) server mode for RMK:**  
+  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base.
+- :construction:
+  **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) (Apple Silicon) builds:**  
+  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
+- :construction:
+  **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
+  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler out-of-the-box setup, while keeping the ability to extend.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
   Ensure that changes to the RMK codebase
