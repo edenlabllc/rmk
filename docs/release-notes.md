@@ -1,3 +1,4 @@
 - Fixed broken and incorrect documentation links (404s, GCP TOC, localhost URLs, command anchors).
 - Updated outdated docs (on-premise availability, SemVer dotted prereleases, Kodjin demo example).
+- Extended the product roadmap (AI-assisted generation, MCP server, darwin/arm64, embedding cluster-deps).
 - Minor documentation cleanups.
