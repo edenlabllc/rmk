@@ -288,6 +288,9 @@ rmk update --version vX.X.X
   **[MCP](https://modelcontextprotocol.io/) server mode for RMK:**  
   Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base.
 - :construction:
+  **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
+  Thin plugins that wrap the RMK [MCP](https://modelcontextprotocol.io/) server for easy install in both clients, with optional commands and skills, on top of one shared RMK binary.
+- :construction:
   **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**  
   Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
 - :construction:
