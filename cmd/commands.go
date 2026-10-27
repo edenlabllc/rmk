@@ -257,6 +257,7 @@ func Commands() []*cli.Command {
 				},
 			},
 		},
+		mcpCommands(),
 		{
 			Name:  "doc",
 			Usage: "Documentation management",

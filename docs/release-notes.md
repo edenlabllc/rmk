@@ -1,4 +1,3 @@
-- Fixed broken and incorrect documentation links (404s, GCP TOC, localhost URLs, command anchors).
-- Updated outdated docs (on-premise availability, SemVer dotted prereleases, Kodjin demo example).
-- Extended the product roadmap (AI-assisted generation, MCP server, Claude/Cursor plugins, darwin/arm64, embedding cluster-deps).
-- Minor documentation cleanups.
+- Added MCP server mode: `rmk mcp serve` (stdio) exposes a small, safe set of tools (`project_status`, `config_view`, `release_list`, `release_template`, `release_show_dag`, `project_generate`) for Cursor, Claude Desktop, and other MCP clients.
+- Added `rmk mcp status` to show binary/project readiness and print client config snippets.
+- Documented MCP setup for Cursor and Claude Desktop (see [MCP server mode](mcp.md)).

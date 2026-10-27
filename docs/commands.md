@@ -17,10 +17,10 @@ rmk
 
 Command line tool for reduced management of the provision of Kubernetes clusters in different environments and management of service releases.
 
-**BuiltBy:** goreleaser <br />
-**Commit:** 16dd2cf <br />
-**Date:** 2026-10-27T10:56:03Z <br />
-**Target:** linux_amd64
+**BuiltBy:** local <br />
+**Commit:**  <br />
+**Date:**  <br />
+**Target:** local
 
 **Usage**:
 
@@ -206,6 +206,18 @@ Shows a list of commands or help for one command
 #### help, h
 
 Shows a list of commands or help for one command
+
+### mcp
+
+Model Context Protocol (MCP) server for AI assistants
+
+#### serve, s
+
+Start MCP server over stdio (for Cursor, Claude Desktop, and other MCP clients)
+
+#### status
+
+Show MCP readiness (binary path, project detection) and client config snippets
 
 ### project
 

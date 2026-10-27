@@ -50,6 +50,7 @@ in [CI/CD](https://www.redhat.com/en/topics/devops/what-is-ci-cd) and [DevOps](h
   * [Release management](configuration/release-management/release-management.md)
   * [Secrets management](configuration/secrets-management/secrets-management.md)
 * [Commands](commands.md)
+* [MCP server mode](mcp.md)
 * [Roadmap](#roadmap)
 * [Development and release](development-and-release.md)
 * [License](#license)
@@ -286,7 +287,7 @@ rmk update --version vX.X.X
   Leverage a vector knowledge base of proven patterns from [Kodjin FHIR Server](https://kodjin.com/) production customer installations and internal [Edenlab LLC](https://edenlab.io/) clusters to generate and tune project configuration from natural-language intent.
 - :construction:
   **[MCP](https://modelcontextprotocol.io/) server mode for RMK:**  
-  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base.
+  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base. See [MCP server mode](mcp.md) for `rmk mcp serve` setup.
 - :construction:
   **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
   Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary.

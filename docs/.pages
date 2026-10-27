@@ -4,5 +4,6 @@ nav:
   - backward-compatibility.md
   - Configuration and management: configuration
   - Commands: commands.md
+  - mcp.md
   - development-and-release.md
 collapse: false
