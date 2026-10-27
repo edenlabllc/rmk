@@ -98,7 +98,7 @@ rmk-test-sops-age-keys
 ```
 
 If the service principal used for authorization has the 
-[Key Vault Secrets Officer](https://learn.microsoft. com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer)
+[Key Vault Secrets Officer](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-officer)
 role with a scope, e.g.:
 
 ```shell
