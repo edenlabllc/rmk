@@ -295,7 +295,7 @@ rmk update --version vX.X.X
   Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
 - :construction:
   **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
-  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler out-of-the-box setup, while keeping the ability to extend.
+  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler [out-of-the-box setup](quickstart.md), while keeping the ability to extend.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
   Ensure that changes to the RMK codebase

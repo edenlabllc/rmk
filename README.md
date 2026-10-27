@@ -197,7 +197,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
 - :construction:
   **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
-  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler out-of-the-box setup, while keeping the ability to extend.
+  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler [out-of-the-box setup](docs/quickstart.md), while keeping the ability to extend.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
   Ensure that changes to the RMK codebase
@@ -224,7 +224,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Development and release
 
-The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/.
+The guidelines are available at the [link](docs/development-and-release.md).
 
 ## License
 
