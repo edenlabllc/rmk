@@ -140,9 +140,7 @@ A standard Kodjin-based cluster follows a **4-level inheritance** structure:
   A set of [Rust](https://www.rust-lang.org/) microservices that form the Kodjin FHIR
   API ([REST](https://en.wikipedia.org/wiki/REST)).
 - **Target project (tenant) (downstream#2)**:
-  Encompasses products built on top of Kodjin, including UI components, user portals, and middleware services, such as
-  the
-  e.g., [Kodjin Demo FHIR Server](https://demo.kodjin.com/)
+  Encompasses products built on top of Kodjin, including UI components, user portals, and middleware services.
 
 Each project repository **follows** a
 standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-gitlab-flow/) branching model.
@@ -161,7 +159,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   check [cluster-deps global configuration](https://github.com/edenlabllc/cluster-deps.bootstrap.infra/blob/develop/etc/deps/develop/globals.yaml.gotmpl#L16).
 - **[aws-iam-provisioner.operators.infra](https://github.com/edenlabllc/aws-iam-provisioner.operators.infra)**:
   Kubernetes operator for automatic provisioning of IAM roles on the fly for the Kubernetes clusters managed
-  using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/getting-started).
+  using [Kubernetes Cluster API Provider AWS](https://cluster-api-aws.sigs.k8s.io/).
 - **[ebs-snapshot-provision.operators.infra](https://github.com/edenlabllc/ebs-snapshot-provision.operators.infra)**:
   Kubernetes operator for automatic provisioning of Amazon [EBS](https://aws.amazon.com/ebs/) snapshots to be reused
   in existing Kubernetes clusters.
@@ -186,9 +184,20 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 ## Roadmap
 
 - :construction:
-  **Integration with open-source [AI models](https://en.wikipedia.org/wiki/Generative_artificial_intelligence)
-  for project generation:**  
-  Generate project structure, machine setup, and resource configuration directly from natural-language prompts.
+  **[AI-assisted](https://en.wikipedia.org/wiki/Generative_artificial_intelligence) configuration generation:**  
+  Leverage a vector knowledge base of proven patterns from [Kodjin FHIR Server](https://kodjin.com/) production customer installations and internal [Edenlab LLC](https://edenlab.io/) clusters to generate and tune project configuration from natural-language intent.
+- :construction:
+  **[MCP](https://modelcontextprotocol.io/) server mode for RMK:**  
+  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base.
+- :construction:
+  **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
+  Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary.
+- :construction:
+  **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**  
+  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
+- :construction:
+  **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
+  Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler [out-of-the-box setup](docs/quickstart.md), while keeping the ability to extend.
 - :construction:
   **Enhanced automatic testing of RMK during the [CI/CD](https://github.com/edenlabllc/rmk/actions) pipeline:**
   Ensure that changes to the RMK codebase
@@ -215,7 +224,7 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 ## Development and release
 
-The guidelines are available at https://edenlabllc.github.io/rmk/latest/development-and-release/.
+The guidelines are available at the [link](docs/development-and-release.md).
 
 ## License
 
@@ -225,7 +234,7 @@ the [Apache 2.0 License](https://github.com/edenlabllc/rmk/blob/master/LICENSE).
 ## Code of Conduct
 
 This project adheres to the Contributor
-Covenant [Сode of Сonduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md).
+Covenant [Code of Conduct](https://github.com/edenlabllc/rmk/blob/master/docs/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
 
 Please refer to our [Contributing Guidelines](https://github.com/edenlabllc/rmk/blob/master/docs/CONTRIBUTING.md) for

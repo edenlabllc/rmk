@@ -68,7 +68,7 @@ is `origin`.
    rmk config init
    ```
 
-   > The [default cluster provider](http://localhost:8000/rmk/commands/#init-i) is `k3d`.
+   > The [default cluster provider](commands.md#init-i) is `k3d`.
 
    <details>
       <summary>Example output</summary>
@@ -194,9 +194,9 @@ You should see the **Nginx welcome page**.
    <p>If you see this page, the nginx web server is successfully installed and
    working. Further configuration is required.</p>
    <p>For online documentation and support please refer to
-   <a href="http://nginx.org/">nginx.org</a>.<br>
+   <a href="https://nginx.org/">nginx.org</a>.<br>
    Commercial support is available at
-   <a href="http://nginx.com/">nginx.com</a>.</p>
+   <a href="https://nginx.com/">nginx.com</a>.</p>
    <p><em>Thank you for using nginx.</em></p>
 </details>
 

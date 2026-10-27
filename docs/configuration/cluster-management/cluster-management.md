@@ -170,17 +170,14 @@ Currently, the following cluster providers are supported by RMK:
   deployments).
   
   Such Kubernetes clusters can be created from scratch and deleted via the
-  [rmk cluster k3d create](../../commands.md#create-c) and
-  [rmk cluster k3d delete](../../commands.md#delete-d) commands.
+  [rmk cluster k3d create](../../commands.md#create-c_1) and
+  [rmk cluster k3d delete](../../commands.md#delete-d_1) commands.
 
 When using the [rmk cluster capi](../../commands.md#capi-c) category commands, RMK **automatically switches** the
 Kubernetes context between the CAPI management cluster and the target Kubernetes cluster.
 
-> **On-premise** support is expected in [upcoming releases](../../index.md#roadmap). This enhancement might include the
-> introduction of additional Kubernetes Cluster API providers and
-> [Kubernetes operators](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
->
-> The main infrastructure configuration can always be checked in the
+> **On-premise** clusters are supported via the
+> [On-Premise provider](usage-onprem-provider.md). The main infrastructure configuration can always be checked in the
 > [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) repository.
 
 ## Using RMK to update CAPI management cluster configuration for different providers

@@ -30,9 +30,11 @@ This change was driven by several **key factors**:
    [AWS](configuration/configuration-management/init-aws-provider.md),
    [Azure](configuration/configuration-management/init-azure-provider.md),
    [GCP](configuration/configuration-management/init-gcp-provider.md),
-   [K3D](configuration/configuration-management/init-k3d-provider.md) (local installation).
+   [K3D](configuration/configuration-management/init-k3d-provider.md) (local installation),
+   [On-Premise](configuration/configuration-management/init-onprem-provider.md).
 
-   > **On-premise** support is expected in [upcoming releases](index.md#roadmap).
+   > **On-premise** support was later added in
+   > [v0.46.0](https://github.com/edenlabllc/rmk/releases/tag/v0.46.0).
 
 3. **Simplified configuration management**:
 

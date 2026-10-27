@@ -141,7 +141,7 @@ repository you can add the required number of machines depending on the requirem
 > cluster can be managed concurrently. To switch to another cluster,
 > [reconfigure](../configuration-management/init-onprem-provider.md#reconfiguration-of-the-on-premise-ssh-private-key)
 > the provider with the corresponding SSH key, which will **replace** the existing secret, then
-> [update](http://localhost:8000/rmk/configuration/configuration-management/init-onprem-provider/#reconfiguration-of-the-on-premise-ssh-private-key)
+> [update](../../commands.md#update-u)
 > the CAPI Management cluster to apply the changes.
 
 To start provisioning a Kubernetes cluster, run the commands:
