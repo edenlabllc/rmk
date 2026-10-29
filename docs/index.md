@@ -286,12 +286,6 @@ rmk update --version vX.X.X
   **[AI-assisted](https://en.wikipedia.org/wiki/Generative_artificial_intelligence) configuration generation:**  
   Leverage a vector knowledge base of proven patterns from [Kodjin FHIR Server](https://kodjin.com/) production customer installations and internal [Edenlab LLC](https://edenlab.io/) clusters to generate and tune project configuration from natural-language intent.
 - :construction:
-  **[MCP](https://modelcontextprotocol.io/) server mode for RMK:**  
-  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or any MCP-compatible client so agents can call structured tools for project/release inspection and generation, reusing the same CLI workflows and vector knowledge base. See [MCP server mode](mcp.md) for `rmk mcp serve` setup.
-- :construction:
-  **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
-  Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary.
-- :construction:
   **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**  
   Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
 - :construction:
@@ -318,6 +312,12 @@ rmk update --version vX.X.X
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
+- :white_check_mark:
+  _**[MCP](https://modelcontextprotocol.io/) server mode for RMK:**
+  Run RMK as an MCP server for [Claude](https://claude.ai/), [Cursor](https://cursor.com/), or other clients so agents can call tools for project/release inspection and generation via the same CLI. See [MCP server mode](mcp.md)._
+- :white_check_mark:
+  _**[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**
+  Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 

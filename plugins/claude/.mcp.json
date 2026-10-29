@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "rmk": {
+      "type": "stdio",
+      "command": "rmk",
+      "args": ["mcp", "serve"]
+    }
+  }
+}

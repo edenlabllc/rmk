@@ -69,7 +69,8 @@ func mcpServeAction() cli.ActionFunc {
 			return err
 		}
 
-		// MCP stdio uses stdout for JSON-RPC; keep all RMK logs on stderr.
+		// MCP owns stdout (JSON-RPC). Zap info/debug also write to stdout and would
+		// corrupt the protocol, so force error-only logging (stderr) and print startup on stderr.
 		logger.Init(c.String("log-format"), "error")
 
 		version := mcpAppVersion(c)

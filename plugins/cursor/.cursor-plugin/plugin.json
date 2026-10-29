@@ -1,0 +1,13 @@
+{
+  "name": "rmk",
+  "version": "0.1.0",
+  "description": "RMK MCP tools for project and release inspection and gated project generation",
+  "author": {
+    "name": "Edenlab LLC",
+    "email": "support@edenlab.io"
+  },
+  "homepage": "https://edenlabllc.github.io/rmk/latest/mcp/",
+  "repository": "https://github.com/edenlabllc/rmk",
+  "license": "Apache-2.0",
+  "keywords": ["rmk", "kubernetes", "helmfile", "mcp", "devops"]
+}

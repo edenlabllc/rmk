@@ -1,3 +1,4 @@
 - Added MCP server mode: `rmk mcp serve` (stdio) exposes a small, safe set of tools (`project_status`, `config_view`, `release_list`, `release_template`, `release_show_dag`, `project_generate`) for Cursor, Claude Desktop, and other MCP clients.
 - Added `rmk mcp status` to show binary/project readiness and print client config snippets.
-- Documented MCP setup for Cursor and Claude Desktop (see [MCP server mode](mcp.md)).
+- Added thin Claude and Cursor plugins under `plugins/` that wrap `rmk mcp serve`, with starter skills and commands.
+- Documented MCP and plugin setup (see [MCP server mode](mcp.md) and [plugins/README.md](https://github.com/edenlabllc/rmk/blob/master/plugins/README.md)).

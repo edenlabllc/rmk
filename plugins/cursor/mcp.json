@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rmk": {
+      "command": "rmk",
+      "args": ["mcp", "serve"]
+    }
+  }
+}
