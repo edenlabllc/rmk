@@ -7,3 +7,7 @@
 - Updated Go to 1.27.3 and switched the CI to the Go version from go.mod.
 - Updated go-git, kiota-http-go and xpath to fix vulnerabilities (GO-2026-6214, GO-2026-6213, GO-2026-5224, GO-2026-4526).
 - Fixed download error handling and error formatting in rmk secret.
+
+Additional information
+
+Starting with v0.49.0, rmk update installs the binary for the hardware architecture. RMK versions earlier than v0.49.0 update to the same architecture, so to switch from amd64 to the native arm64 version on Apple Silicon, run rmk update twice (the first run installs v0.49.0, the second one installs arm64) or reinstall RMK with the installer.
