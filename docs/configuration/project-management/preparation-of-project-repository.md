@@ -134,10 +134,19 @@ and contains the following main sections:
         # Required, tool version in `SemVer2` format.
         version: <SemVer2>
         # Required, tool source URL.
-        url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
+        url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-{{.Arch}}
         # Optional, specific key overrides for the described OS name.
         os-linux: linux
         os-mac: darwin
+        # Optional, specific key overrides for the described CPU architecture name (`{{.Arch}}`),
+        # by default, the hardware architecture name is used: `amd64` or `arm64`.
+        # The value depends on how the tool authors name the release artifacts, for example:
+        #   amd64 / arm64   - kubectl, helm, k3d, yq (the default, can be omitted)
+        #   x86_64 / arm64  - gke-auth-plugin
+        #   x86_64 / aarch64 - tools built with Rust or C toolchains
+        #   64bit / ARM64   - some archives with the human-readable names
+        arch-amd64: amd64
+        arch-arm64: arm64
         # Optional, an option that allows to rename the downloaded binary file by the tool name.
         rename: true
       # ...
@@ -184,62 +193,64 @@ inventory:
   tools:
     clusterctl:
       version: 1.7.4
-      url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
+      url: https://github.com/kubernetes-sigs/cluster-api/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-{{.Arch}}
       os-linux: linux
       os-mac: darwin
       rename: true
     kubectl:
       version: 1.28.13
-      url: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}
-      checksum: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/amd64/{{.Name}}.sha256
+      url: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/{{.Arch}}/{{.Name}}
+      checksum: https://dl.k8s.io/release/v{{.Version}}/bin/{{.Os}}/{{.Arch}}/{{.Name}}.sha256
       os-linux: linux
       os-mac: darwin
     helm:
       version: 3.10.3
-      url: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz
-      checksum: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz.sha256sum
+      url: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-{{.Arch}}.tar.gz
+      checksum: https://get.helm.sh/{{.Name}}-v{{.Version}}-{{.Os}}-{{.Arch}}.tar.gz.sha256sum
       os-linux: linux
       os-mac: darwin
     helmfile:
       version: 0.157.0
-      url: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64.tar.gz
+      url: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_{{.Arch}}.tar.gz
       checksum: https://github.com/{{.Name}}/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_checksums.txt
       os-linux: linux
       os-mac: darwin
     sops:
       version: 3.8.1
-      url: https://github.com/getsops/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}.{{.Os}}
-      os-linux: linux.amd64
+      url: https://github.com/getsops/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}.{{.Os}}.{{.Arch}}
+      os-linux: linux
       os-mac: darwin
       rename: true
     age:
       version: 1.1.1
-      url: https://github.com/FiloSottile/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}-{{.Os}}-amd64.tar.gz
+      url: https://github.com/FiloSottile/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-v{{.Version}}-{{.Os}}-{{.Arch}}.tar.gz
       os-linux: linux
       os-mac: darwin
     k3d:
       version: 5.7.3
-      url: https://github.com/k3d-io/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-amd64
+      url: https://github.com/k3d-io/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}-{{.Os}}-{{.Arch}}
       os-linux: linux
       os-mac: darwin
       rename: true
     yq:
       version: 4.35.2
-      url: https://github.com/mikefarah/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Os}}_amd64
+      url: https://github.com/mikefarah/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Os}}_{{.Arch}}
       os-linux: linux
       os-mac: darwin
       rename: true
     aws-iam-authenticator:
       version: 0.6.27
-      url: https://github.com/kubernetes-sigs/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_amd64
+      url: https://github.com/kubernetes-sigs/{{.Name}}/releases/download/v{{.Version}}/{{.Name}}_{{.Version}}_{{.Os}}_{{.Arch}}
       os-linux: linux
       os-mac: darwin
       rename: true
     gke-auth-plugin:
       version: 0.1.1
-      url: https://github.com/traviswt/{{.Name}}/releases/download/{{.Version}}/{{.Name}}_{{.Os}}_x86_64.tar.gz
+      url: https://github.com/traviswt/{{.Name}}/releases/download/{{.Version}}/{{.Name}}_{{.Os}}_{{.Arch}}.tar.gz
       os-linux: Linux
       os-mac: Darwin
+      arch-amd64: x86_64
+      arch-arm64: arm64
 ```
 
 </details>
@@ -250,7 +261,10 @@ The project file's `inventory` section supports placeholders, they are required 
 * **{{.Version}}:** Replaced with the `version` field.
 * **{{.HelmfileTenant}}:** Replaced with the tenant (project) name for the Helmfile selected from the list.
 * **{{.Os}}:** Replaced with the values from the `os-linux`, `os-mac` fields according to the specific operating system,
-  where RMK is run.
+  where RMK is run (`inventory.tools` only).
+* **{{.Arch}}:** Replaced with the values from the `arch-amd64`, `arch-arm64` fields according to the CPU architecture
+  of the hardware, where RMK is run (`inventory.tools` only). If the field is not set, the hardware architecture name
+  (`amd64` or `arm64`) is used.
 
 > The field `rename` of the boolean type is required to correct the name of the binary file of the downloaded tool
 > according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the

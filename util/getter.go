@@ -121,17 +121,24 @@ func DownloadArtifact(src, dst, name string, header *http.Header, silent, progre
 		}
 	}()
 
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
+	defer signal.Stop(c)
 
 	select {
 	case sig := <-c:
-		signal.Reset(os.Interrupt)
 		cancel()
 		wg.Wait()
 		return fmt.Errorf("signal: %v", sig)
 	case <-ctx.Done():
 		wg.Wait()
+		// the goroutine cancels the context right after sending the error, so both cases can be ready at once
+		select {
+		case err := <-errChan:
+			return fmt.Errorf("error downloading: %s", err)
+		default:
+		}
+
 		if !silent {
 			zap.S().Infof("downloaded: %s", name)
 		}

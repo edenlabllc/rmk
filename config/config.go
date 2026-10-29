@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"text/template"
 
@@ -65,6 +64,9 @@ type Package struct {
 	OsLinux        string   `yaml:"os-linux,omitempty"`
 	OsMac          string   `yaml:"os-mac,omitempty"`
 	Os             string   `yaml:"-"`
+	ArchAmd64      string   `yaml:"arch-amd64,omitempty"`
+	ArchArm64      string   `yaml:"arch-arm64,omitempty"`
+	Arch           string   `yaml:"-"`
 	Rename         bool     `yaml:"rename,omitempty"`
 	GitHubToken    string   `yaml:"-"`
 	DstPath        string   `yaml:"dst-path,omitempty"`
@@ -282,7 +284,12 @@ func (pf *ProjectFile) parseProjectFileData() error {
 			return fmt.Errorf("%s %s for section inventory.tools", strings.ToLower(err.Error()), tool.Version)
 		}
 
-		osDetect := runtime.GOOS
+		var osDetect, archDetect string
+		osDetect, archDetect, err = util.DetectPlatform()
+		if err != nil {
+			return err
+		}
+
 		pf.Tools[key].Name = key
 
 		switch osDetect {
@@ -290,8 +297,18 @@ func (pf *ProjectFile) parseProjectFileData() error {
 			pf.Tools[key].Os = pf.Tools[key].OsMac
 		case "linux":
 			pf.Tools[key].Os = pf.Tools[key].OsLinux
-		default:
-			return fmt.Errorf("OS %s is not supported by RMK", osDetect)
+		}
+
+		// if the arch-* value is not set in project.yaml, the Go architecture name is used as is
+		switch archDetect {
+		case "amd64":
+			pf.Tools[key].Arch = pf.Tools[key].ArchAmd64
+		case "arm64":
+			pf.Tools[key].Arch = pf.Tools[key].ArchArm64
+		}
+
+		if pf.Tools[key].Arch == "" {
+			pf.Tools[key].Arch = archDetect
 		}
 
 		pf.Tools[key].Url, err = pf.ParseTemplate(template.New("Tools"), pf.Tools[key], tool.Url)

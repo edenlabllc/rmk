@@ -231,9 +231,20 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 
 Currently, RMK only supports [Unix-like](https://en.wikipedia.org/wiki/Unix) operating systems (OS):
 
-- **MacOS**: amd64, arm64 ([M series](https://en.wikipedia.org/wiki/Apple_silicon#M_series) processors
-  require [Rosetta](https://support.apple.com/en-us/HT211861))
+- **MacOS**: amd64, arm64 ([M series](https://en.wikipedia.org/wiki/Apple_silicon#M_series) processors)
 - **Linux**: amd64
+
+> **Note:** RMK provides a native `darwin/arm64` binary for Apple Silicon (M series) processors, the self-installer
+> selects it automatically.
+> [Rosetta](https://support.apple.com/en-us/HT211861) is required only to run the `darwin/amd64` binary on M series
+> processors and for the tools that do not publish native arm64 builds.
+> Apple has announced that [Rosetta](https://support.apple.com/en-us/HT211861) remains a general-purpose translation
+> tool through macOS 27, and starting with macOS 28 (expected in fall 2027) only a limited subset of it is kept for
+> older unmaintained games. After that, Intel-only (`amd64`) binaries will no longer run on macOS, so it is
+> recommended to use the native `darwin/arm64` binary and the arm64 builds of the tools
+> (see the `arch-amd64`, `arch-arm64` fields in the
+> [project file](configuration/project-management/preparation-of-project-repository.md)).
+> Native `linux/arm64` builds are not supported yet.
 
 ### Software
 
@@ -252,6 +263,9 @@ To install RMK, run the self-installer script using the following command:
 ```shell
 curl -sL "https://edenlabllc-rmk.s3.eu-north-1.amazonaws.com/rmk/s3-installer" | bash
 ```
+
+The installer detects the OS and the CPU architecture automatically (including Apple Silicon, even when the terminal
+runs under Rosetta) and downloads the matching binary.
 
 Alternatively, you can go directly to the [releases](https://github.com/edenlabllc/rmk/releases) and download the
 binary or [build from source](development-and-release.md#building-from-source).
@@ -279,6 +293,9 @@ To update to a specific version, use the following command:
 rmk update --version vX.X.X 
 ```
 
+> RMK installs the binary for the hardware architecture, so RMK run under Rosetta is updated to the native `arm64`
+> version. If the requested version has no `arm64` build, `amd64` is installed instead (Rosetta is required to run it).
+
 ## Roadmap
 
 - :construction:
@@ -290,9 +307,6 @@ rmk update --version vX.X.X
 - :construction:
   **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
   Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary.
-- :construction:
-  **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**  
-  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
 - :construction:
   **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
   Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler [out-of-the-box setup](quickstart.md), while keeping the ability to extend.
@@ -317,6 +331,10 @@ rmk update --version vX.X.X
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
+- :white_check_mark:
+  _**Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**
+  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside
+  existing linux/amd64 and darwin/amd64 targets._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 

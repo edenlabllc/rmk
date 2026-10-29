@@ -562,13 +562,15 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 		version, _ := semver.NewVersion(val.Version)
 		spec.PkgUrl = val.Url
 		spec.PkgName = val.Name + "-" + version.String()
-		if !util.IsExists(filepath.Join(toolsVersionPath, spec.PkgName), true) {
+		// the marker contains the architecture to download the tool again when it changes, e.g., amd64 -> arm64
+		marker := spec.PkgName + "-" + val.Arch
+		if !util.IsExists(filepath.Join(toolsVersionPath, marker), true) {
 			err := spec.download(silent)
 			if err != nil {
 				return err
 			}
 
-			if err := overwriteFiles(toolsVersionPath, val.Name+"-*", spec.PkgName); err != nil {
+			if err := overwriteFiles(toolsVersionPath, val.Name+"-*", marker); err != nil {
 				return err
 			}
 

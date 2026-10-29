@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -173,6 +174,24 @@ func GetPwdPath(path ...string) string {
 	}
 
 	return filepath.Join(append(append(absPath, pwd), path...)...)
+}
+
+// hostArch returns the architecture of the hardware, it is overridden for macOS in system_darwin.go.
+var hostArch = func() string { return runtime.GOARCH }
+
+// DetectPlatform returns the Go names of the OS and the CPU architecture of the host RMK is running on.
+// On macOS the architecture is taken from the hardware, since runtime.GOARCH reports amd64
+// when RMK is run under Rosetta on Apple Silicon.
+func DetectPlatform() (goos, goarch string, err error) {
+	goos = runtime.GOOS
+
+	switch goos {
+	case "darwin", "linux":
+	default:
+		return "", "", fmt.Errorf("OS %s is not supported by RMK", goos)
+	}
+
+	return goos, hostArch(), nil
 }
 
 func IsExists(path string, file bool) bool {
