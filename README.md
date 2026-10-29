@@ -193,9 +193,6 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
   **[Claude](https://claude.com/docs/plugins/overview) and [Cursor](https://cursor.com/docs/plugins) plugins for RMK:**  
   Thin plugins that wrap the RMK MCP server for easy install in both clients, with optional commands and [skills](https://agentskills.io/), on top of one shared RMK binary.
 - :construction:
-  **Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**  
-  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside existing linux/amd64 and darwin/amd64 targets.
-- :construction:
   **Embed [cluster-deps](https://github.com/edenlabllc/cluster-deps.bootstrap.infra) into RMK:**  
   Fold cluster-deps configs and required project.yaml tool definitions into RMK for a simpler [out-of-the-box setup](docs/quickstart.md), while keeping the ability to extend.
 - :construction:
@@ -219,6 +216,10 @@ standard [GitLab Flow](https://about.gitlab.com/topics/version-control/what-is-g
 - :white_check_mark:
   _**Web documentation generation using [MkDocs](https://www.mkdocs.org/):** Add an HTML documentation generator
   based on the .md files._
+- :white_check_mark:
+  _**Native [darwin/arm64](https://en.wikipedia.org/wiki/Apple_silicon#M_series) Apple Silicon builds:**
+  Publish and support RMK [binaries](https://github.com/edenlabllc/rmk/releases/latest) for macOS arm64 alongside
+  existing linux/amd64 and darwin/amd64 targets._
 
 > Please refer to [GitHub issues](https://github.com/edenlabllc/rmk/issues) for more information.
 

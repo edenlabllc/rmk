@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -125,6 +126,20 @@ func updateRMK(pkgName, version string, silent, progressBar bool, ctx *cli.Conte
 	return nil
 }
 
+// updateRMKForPlatform installs the RMK binary built for the hardware architecture. If an arm64 binary does not exist
+// for the requested version (e.g., downgrade to a release before native arm64 support), amd64 is installed instead.
+func updateRMKForPlatform(goos, goarch, version string, ctx *cli.Context) error {
+	err := updateRMK(fmt.Sprintf("%s_%s_%s", ctx.App.Name, goos, goarch), version, false, true, ctx)
+	if err != nil && goarch == "arm64" && strings.Contains(err.Error(), "404") {
+		zap.S().Warnf("RMK %s for %s_%s was not found, installing %s_amd64, Rosetta is required to run it",
+			version, goos, goarch, goos)
+
+		return updateRMK(fmt.Sprintf("%s_%s_amd64", ctx.App.Name, goos), version, false, true, ctx)
+	}
+
+	return err
+}
+
 func updateAction() cli.ActionFunc {
 	return func(c *cli.Context) error {
 		if err := util.ValidateNArg(c, 0); err != nil {
@@ -152,18 +167,30 @@ func updateAction() cli.ActionFunc {
 			version = v.Original()
 		}
 
+		goos, goarch, err := util.DetectPlatform()
+		if err != nil {
+			return err
+		}
+
 		verCurrent, _ := semver.NewVersion(fmt.Sprintf("%v", c.App.Metadata["version"]))
 		verFound, _ := semver.NewVersion(metadata.Version)
-		binaryName := fmt.Sprintf("%s", c.App.Metadata["binaryName"])
-		if verCurrent.LessThan(verFound) && len(version) == 0 {
-			zap.S().Infof("newer release version RMK available: %s", verFound.Original())
-			if err := updateRMK(binaryName, latestPath, false, true, c); err != nil {
+		// the process architecture differs from the hardware one, e.g., amd64 RMK is run under Rosetta
+		translated := runtime.GOARCH != goarch
+		if len(version) == 0 && (verCurrent.LessThan(verFound) || translated) {
+			if verCurrent.LessThan(verFound) {
+				zap.S().Infof("newer release version RMK available: %s", verFound.Original())
+			} else {
+				zap.S().Infof("RMK %s is run under Rosetta, installing native %s version",
+					verCurrent.Original(), goarch)
+			}
+
+			if err := updateRMKForPlatform(goos, goarch, latestPath, c); err != nil {
 				return err
 			}
 		} else if len(version) > 0 {
 			zap.S().Infof("update current RMK version from %s to %s",
 				c.App.Metadata["version"], version)
-			if err := updateRMK(binaryName, version, false, true, c); err != nil {
+			if err := updateRMKForPlatform(goos, goarch, version, c); err != nil {
 				return err
 			}
 		} else {

@@ -7,12 +7,16 @@ LOCAL_BIN_DIR="${HOME}"/.local/bin
 
 case "${OSTYPE}" in
   darwin*)
-    FILE=rmk_darwin_amd64
-    ;;
-  linux*)
-    FILE=rmk_linux_amd64
+    # uname -m reports x86_64 when the shell runs under Rosetta, so ask the hardware instead
+    ARCH=amd64
+    if [[ "$(/usr/sbin/sysctl -n hw.optional.arm64 2> /dev/null)" == "1" ]]; then
+      ARCH=arm64
+    fi
+
+    FILE="rmk_darwin_${ARCH}"
     ;;
   *)
+    # Native linux/arm64 builds are not published yet
     FILE=rmk_linux_amd64
     ;;
 esac
