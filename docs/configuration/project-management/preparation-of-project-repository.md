@@ -264,7 +264,8 @@ The project file's `inventory` section supports placeholders, they are required 
   where RMK is run (`inventory.tools` only).
 * **{{.Arch}}:** Replaced with the values from the `arch-amd64`, `arch-arm64` fields according to the CPU architecture
   of the hardware, where RMK is run (`inventory.tools` only). If the field is not set, the hardware architecture name
-  (`amd64` or `arm64`) is used.
+  (`amd64` or `arm64`) is used. If the URL of a tool on an arm64 system contains only the amd64 architecture name,
+  RMK prints a warning, since the tool is downloaded for amd64 (Rosetta is required to run it).
 
 > The field `rename` of the boolean type is required to correct the name of the binary file of the downloaded tool
 > according to the value of the `name` field. This is mainly required for the cases, when the artifact is not the
