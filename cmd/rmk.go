@@ -130,7 +130,9 @@ func updateRMK(pkgName, version string, silent, progressBar bool, ctx *cli.Conte
 // for the requested version (e.g., downgrade to a release before native arm64 support), amd64 is installed instead.
 func updateRMKForPlatform(goos, goarch, version string, ctx *cli.Context) error {
 	err := updateRMK(fmt.Sprintf("%s_%s_%s", ctx.App.Name, goos, goarch), version, false, true, ctx)
-	if err != nil && goarch == "arm64" && strings.Contains(err.Error(), "404") {
+	// S3 responds with 403 instead of 404 for a missing object when the bucket does not allow listing
+	if err != nil && goarch == "arm64" &&
+		(strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "403")) {
 		zap.S().Warnf("RMK %s for %s_%s was not found, installing %s_amd64, Rosetta is required to run it",
 			version, goos, goarch, goos)
 

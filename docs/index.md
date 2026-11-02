@@ -296,6 +296,10 @@ rmk update --version vX.X.X
 > RMK installs the binary for the hardware architecture, so RMK run under Rosetta is updated to the native `arm64`
 > version. If the requested version has no `arm64` build, `amd64` is installed instead (Rosetta is required to run it).
 
+> RMK versions earlier than v0.49.0 update to the same architecture. To switch from `amd64` to the native `arm64`
+> version, run `rmk update` twice (the first run installs v0.49.0 or later, the second one installs `arm64`) or
+> reinstall RMK with the [installer](#installation).
+
 ## Roadmap
 
 - :construction:
