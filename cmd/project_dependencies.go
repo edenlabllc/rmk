@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
@@ -537,6 +538,23 @@ func overwriteFiles(path, pattern, name string) error {
 	return os.WriteFile(filepath.Join(path, name), data, 0755)
 }
 
+// urlArch returns the architecture (amd64 or arm64) the URL points to,
+// or an empty string if it cannot be determined, e.g., there are no architecture names or both of them.
+func urlArch(pkgUrl string) string {
+	amd64Regexp := regexp.MustCompile(`(?i)amd64|x86[_-]64|x64`)
+	arm64Regexp := regexp.MustCompile(`(?i)arm64|aarch64`)
+
+	isAmd64, isArm64 := amd64Regexp.MatchString(pkgUrl), arm64Regexp.MatchString(pkgUrl)
+	switch {
+	case isAmd64 && !isArm64:
+		return "amd64"
+	case isArm64 && !isAmd64:
+		return "arm64"
+	}
+
+	return ""
+}
+
 func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 	spec := &SpecDownload{
 		Conf:   conf,
@@ -562,13 +580,26 @@ func updateTools(conf *config.Config, ctx *cli.Context, silent bool) error {
 		version, _ := semver.NewVersion(val.Version)
 		spec.PkgUrl = val.Url
 		spec.PkgName = val.Name + "-" + version.String()
-		if !util.IsExists(filepath.Join(toolsVersionPath, spec.PkgName), true) {
+		// the marker contains the architecture to download the tool again when it changes, e.g., amd64 -> arm64
+		marker := spec.PkgName + "-" + val.Arch
+		if !util.IsExists(filepath.Join(toolsVersionPath, marker), true) {
+			// the package name in the logs contains the architecture of the artifact the URL points to
+			artifactArch := urlArch(val.Url)
+			if artifactArch != "" {
+				spec.PkgName += "-" + artifactArch
+			}
+
+			if _, goarch, err := util.DetectPlatform(); err == nil && goarch == "arm64" && artifactArch == "amd64" {
+				zap.S().Warnf("package %s is downloaded for amd64, but the system is arm64, "+
+					"check the url or arch-arm64 in the project file, Rosetta is required to run it", val.Name)
+			}
+
 			err := spec.download(silent)
 			if err != nil {
 				return err
 			}
 
-			if err := overwriteFiles(toolsVersionPath, val.Name+"-*", spec.PkgName); err != nil {
+			if err := overwriteFiles(toolsVersionPath, val.Name+"-*", marker); err != nil {
 				return err
 			}
 

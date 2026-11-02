@@ -8,3 +8,7 @@ metadata.json
 site/
 **/__pycache__/
 *.py[cod]
+
+# Claude Code event log
+.claude/logs/
+.claude/settings.local.json

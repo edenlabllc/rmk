@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -404,7 +405,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 					zap.S().Warnf(strings.ToLower(util.HelmSecretsIsNotEncrypted)+"%s", secret)
 					continue
 				} else {
-					return fmt.Errorf(sc.SpecCMD.StderrBuf.String())
+					return errors.New(sc.SpecCMD.StderrBuf.String())
 				}
 			}
 
@@ -416,7 +417,7 @@ func (sc *SecretCommands) SecretManager(option string) error {
 					zap.S().Warnf(strings.ToLower(util.HelmSecretsAlreadyEncrypted)+"%s", secret)
 					continue
 				} else {
-					return fmt.Errorf(sc.SpecCMD.StderrBuf.String())
+					return errors.New(sc.SpecCMD.StderrBuf.String())
 				}
 			}
 
@@ -505,7 +506,7 @@ func (sc *SecretCommands) runHelmSecretsCMD(secretFilePath string, returnCMDErro
 		outRunes[0] = unicode.ToLower(outRunes[0])
 		out = string(outRunes)
 
-		return fmt.Errorf(out)
+		return errors.New(out)
 	}
 
 	return nil
