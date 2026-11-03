@@ -693,7 +693,8 @@ func configViewAction(conf *config.Config) cli.ActionFunc {
 				return err
 			}
 
-			zap.L().Info("RMK", zap.Any("config", json.RawMessage(serializeJsonConfig)))
+			// zap.Any treats json.RawMessage as fmt.Stringer since Go 1.27 (jsonv2) and logs it as a string
+			zap.L().Info("RMK", zap.Reflect("config", json.RawMessage(serializeJsonConfig)))
 			return nil
 		}
 
