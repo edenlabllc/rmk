@@ -91,6 +91,11 @@ file, and the configuration contains only the path to this file (`github-token-f
 environments of the tenant: the file is created or updated by `rmk config init --github-token=<token>`, and it is not
 deleted by `rmk config delete`.
 
+The `--github-token` value can also be a [Vals](../secrets-management/helmfile-vals-integration.md) backend reference,
+for example `ref+awssecrets://<secret_name>?region=us-east-1`. In this case, only the reference is saved to the file, and
+the token is fetched from the backend each time it is needed. The credentials of the selected cluster provider are used
+for the backend of the same cloud, in other cases export the credentials for the backend before running the command.
+
 ### Initialization of RMK configuration for different cluster providers
 
 - [AWS](init-aws-provider.md#prerequisites)

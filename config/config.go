@@ -375,18 +375,60 @@ func (conf *Config) SaveGitHubToken(token string) error {
 // GetGitHubToken returns the GitHub token from the token file, empty if the token is not set.
 // The GitHubToken field is set only by configs created by RMK versions that stored the token in plain text,
 // such a token is moved to the token file by the next 'rmk config init'.
+// If the token is a Vals backend reference, it is resolved to the secret value.
 func (conf *Config) GetGitHubToken() (string, error) {
-	if len(conf.GitHubTokenFile) == 0 {
-		return conf.GitHubToken, nil
+	token := conf.GitHubToken
+
+	if len(conf.GitHubTokenFile) > 0 {
+		data, err := os.ReadFile(conf.GitHubTokenFile)
+		if err != nil {
+			return "", fmt.Errorf("failed to read GitHub token file %s, run 'rmk config init' to create it again: %w",
+				conf.GitHubTokenFile, err)
+		}
+
+		token = strings.TrimSpace(string(data))
 	}
 
-	data, err := os.ReadFile(conf.GitHubTokenFile)
+	if !util.ValsIsRef(token) {
+		return token, nil
+	}
+
+	if err := conf.SetProviderCredentialsEnv(); err != nil {
+		return "", err
+	}
+
+	value, err := util.ValsFetchSecretValue(token)
 	if err != nil {
-		return "", fmt.Errorf("failed to read GitHub token file %s, run 'rmk config init' to create it again: %w",
-			conf.GitHubTokenFile, err)
+		return "", fmt.Errorf("failed to resolve GitHub token from Vals reference, "+
+			"export credentials for the backend before running the command: %w", err)
 	}
 
-	return strings.TrimSpace(string(data)), nil
+	return strings.TrimSpace(value), nil
+}
+
+// SetProviderCredentialsEnv exports the credentials of the cluster provider to the process environment,
+// they are used by the Vals backends of the same cloud.
+func (conf *Config) SetProviderCredentialsEnv() error {
+	switch conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		if conf.AwsConfigure != nil {
+			return conf.SetAWSCredentialsEnv(false)
+		}
+	case azure_provider.AzureClusterProvider:
+		if conf.AzureConfigure != nil {
+			if err := conf.AzureConfigure.ReadSPCredentials(conf.Name); err != nil {
+				return err
+			}
+
+			return conf.SetAzureCredentialsEnv(false)
+		}
+	case google_provider.GoogleClusterProvider:
+		if conf.GCPConfigure != nil {
+			return conf.SetGCPCredentialsEnv(false)
+		}
+	}
+
+	return nil
 }
 
 func (conf *Config) CreateConfigFile() error {

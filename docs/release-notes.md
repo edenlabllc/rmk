@@ -1,2 +1,3 @@
-- Changed rmk config init to store the GitHub token in a separate file next to the SOPS Age keys instead of the configuration file, the token is shared by all environments of the tenant.
 - Added migration of the GitHub token stored in plain text in an existing configuration file, the token is moved to the file by the next rmk config init.
+- Added support for a Vals backend reference as the --github-token value, the token is fetched from the backend each time it is needed.
+- Changed rmk config init to store the GitHub token in a separate file next to the SOPS Age keys instead of the configuration file, the token is shared by all environments of the tenant.
