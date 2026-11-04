@@ -122,6 +122,7 @@ func generateSensEnvs(sens ...string) []string {
 func (rc *ReleaseCommands) debugLevel() {
 	sens := generateSensEnvs()
 	if rc.SpecCMD.Debug {
+		githubToken, _ := rc.Conf.GetGitHubToken()
 		zap.S().Debugf("command: %s", rc.SpecCMD.CommandStr)
 		zap.S().Debugf("path: %s", rc.SpecCMD.Dir)
 		for _, val := range rc.SpecCMD.Envs {
@@ -133,8 +134,8 @@ func (rc *ReleaseCommands) debugLevel() {
 				)
 			}
 
-			if len(rc.Conf.GitHubToken) > 0 {
-				sens = append(sens, generateSensEnvs(rc.Conf.GitHubToken)...)
+			if len(githubToken) > 0 {
+				sens = append(sens, generateSensEnvs(githubToken)...)
 			}
 
 			if len(sens) > 0 {
@@ -173,9 +174,14 @@ func (rc *ReleaseCommands) prepareHelmfile(args ...string) *util.SpecCMD {
 		"TENANT="+rc.Conf.Tenant,
 	)
 
-	if len(rc.Conf.GitHubToken) > 0 {
-		sensKeyWords = []string{rc.Conf.GitHubToken}
-		envs = append(envs, "GITHUB_TOKEN="+rc.Conf.GitHubToken)
+	githubToken, err := rc.Conf.GetGitHubToken()
+	if err != nil {
+		zap.S().Fatal(err)
+	}
+
+	if len(githubToken) > 0 {
+		sensKeyWords = []string{githubToken}
+		envs = append(envs, "GITHUB_TOKEN="+githubToken)
 	} else {
 		sensKeyWords = []string{}
 	}
@@ -357,9 +363,14 @@ func (sr *SpecRelease) updateReleasesFile(g *git_handler.GitSpec) error {
 		zap.S().Info("no image tag found to update by repositories URL")
 		return nil
 	} else if sr.Ctx.Bool("deploy") || sr.Ctx.Bool("commit") {
+		githubToken, err := sr.Conf.GetGitHubToken()
+		if err != nil {
+			return err
+		}
+
 		tmp := &notification.TmpUpdate{Config: sr.Conf, Context: sr.Ctx}
 		for key := range sr.Changes.List {
-			if err := g.GitCommitPush(key, sr.genMsgCommit(key), sr.Conf.GitHubToken); err != nil {
+			if err := g.GitCommitPush(key, sr.genMsgCommit(key), githubToken); err != nil {
 				return err
 			}
 

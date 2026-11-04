@@ -86,6 +86,11 @@ rmk config init
 rmk config init --github-token=<github_personal_access_token>
 ```
 
+The token is not stored in the RMK configuration file. It is saved in the `~/.rmk/sops-age-keys/<tenant>/ght_<tenant>`
+file, and the configuration contains only the path to this file (`github-token-file`). The token is shared by all
+environments of the tenant: the file is created or updated by `rmk config init --github-token=<token>`, and it is not
+deleted by `rmk config delete`.
+
 ### Initialization of RMK configuration for different cluster providers
 
 - [AWS](init-aws-provider.md#prerequisites)

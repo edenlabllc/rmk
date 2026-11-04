@@ -29,6 +29,7 @@ type Config struct {
 	Environment                      string   `yaml:"environment,omitempty"`
 	RootDomain                       string   `yaml:"root-domain,omitempty"`
 	GitHubToken                      string   `yaml:"github-token,omitempty"`
+	GitHubTokenFile                  string   `yaml:"github-token-file,omitempty"`
 	ClusterProvider                  string   `yaml:"cluster-provider"`
 	SlackNotifications               bool     `yaml:"slack-notifications"`
 	SlackWebHook                     string   `yaml:"slack-webhook,omitempty"`
@@ -336,6 +337,56 @@ func (conf *Config) ReadConfigFile(path string) error {
 	}
 
 	return nil
+}
+
+// SaveGitHubToken creates or updates the token file next to the SOPS Age keys, only the path to the file is kept
+// in the config. The token is shared by all environments of the tenant. An empty token keeps the existing token file.
+func (conf *Config) SaveGitHubToken(token string) error {
+	path := filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Tenant)
+
+	if len(token) == 0 {
+		if _, err := os.Stat(path); err == nil {
+			conf.GitHubToken = ""
+			conf.GitHubTokenFile = path
+		}
+
+		return nil
+	}
+
+	if err := os.MkdirAll(conf.SopsAgeKeys, 0775); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(path, []byte(token), 0600); err != nil {
+		return err
+	}
+
+	// the mode of an already existing file is not changed by WriteFile
+	if err := os.Chmod(path, 0600); err != nil {
+		return err
+	}
+
+	conf.GitHubToken = ""
+	conf.GitHubTokenFile = path
+
+	return nil
+}
+
+// GetGitHubToken returns the GitHub token from the token file, empty if the token is not set.
+// The GitHubToken field is set only by configs created by RMK versions that stored the token in plain text,
+// such a token is moved to the token file by the next 'rmk config init'.
+func (conf *Config) GetGitHubToken() (string, error) {
+	if len(conf.GitHubTokenFile) == 0 {
+		return conf.GitHubToken, nil
+	}
+
+	data, err := os.ReadFile(conf.GitHubTokenFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to read GitHub token file %s, run 'rmk config init' to create it again: %w",
+			conf.GitHubTokenFile, err)
+	}
+
+	return strings.TrimSpace(string(data)), nil
 }
 
 func (conf *Config) CreateConfigFile() error {

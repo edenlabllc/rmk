@@ -3,6 +3,7 @@ package util
 const (
 	CAPI                    = "capi"
 	CAPIContextName         = K3DPrefix + "-" + CAPI
+	GitHubTokenFilePrefix   = "ght_"
 	GitSSHPrivateKey        = ".ssh/id_rsa"
 	GlobalsFileName         = "globals.yaml.gotmpl"
 	HelmfileFileName        = "helmfile.yaml"

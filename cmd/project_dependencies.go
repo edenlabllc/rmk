@@ -65,9 +65,14 @@ func (s *SpecDownload) parseUrlByType() error {
 			return fmt.Errorf("for Git provider in project file %s repository only 'ref' argument can be used", s.PkgName)
 		}
 
+		token, err := s.Conf.GetGitHubToken()
+		if err != nil {
+			return err
+		}
+
 		query := parse.Query()
 		query.Add("depth", "1")
-		s.PkgUrl = getter + parse.Scheme + "://user:" + s.Conf.GitHubToken + "@" + parse.Host + parse.Path + "?" + query.Encode()
+		s.PkgUrl = getter + parse.Scheme + "://user:" + token + "@" + parse.Host + parse.Path + "?" + query.Encode()
 	}
 
 	return nil
