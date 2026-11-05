@@ -79,13 +79,24 @@ func (s *SpecDownload) parseUrlByType() error {
 }
 
 func (s *SpecDownload) downloadErrorHandler(err error) error {
-	switch {
-	case err != nil && s.Type == gitProvider:
+	if err == nil {
+		return nil
+	}
+
+	// the error text, e.g. the output of git, must not contain the GitHub token
+	msg := err.Error()
+	if token, tokenErr := s.Conf.GetGitHubToken(); tokenErr == nil && len(token) > 0 {
+		msg = strings.NewReplacer(generateSensEnvs(token)...).Replace(msg)
+	}
+
+	switch s.Type {
+	case gitProvider:
 		return fmt.Errorf("failed to download %s object %s, potential reasons: "+
-			"object not found, permission denied, credentials expired, URL format in project file not correct", s.Type, s.PkgName)
-	case err != nil && s.Type == httpProvider:
+			"object not found, permission denied, credentials expired, URL format in project file not correct: %s",
+			s.Type, s.PkgName, msg)
+	case httpProvider:
 		return fmt.Errorf("failed to download %s object %s, potential reasons: "+
-			"object not found, URL format in project file not correct", s.Type, s.PkgName)
+			"object not found, URL format in project file not correct: %s", s.Type, s.PkgName, msg)
 	}
 
 	return err

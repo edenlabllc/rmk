@@ -135,7 +135,7 @@ func DownloadArtifact(src, dst, name string, header *http.Header, silent, progre
 		// the goroutine cancels the context right after sending the error, so both cases can be ready at once
 		select {
 		case err := <-errChan:
-			return fmt.Errorf("error downloading: %s", err)
+			return err
 		default:
 		}
 
@@ -144,7 +144,7 @@ func DownloadArtifact(src, dst, name string, header *http.Header, silent, progre
 		}
 	case err := <-errChan:
 		wg.Wait()
-		return fmt.Errorf("error downloading: %s", err)
+		return err
 	}
 
 	return nil
