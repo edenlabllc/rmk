@@ -65,6 +65,10 @@ func ValsExpandSecretRefs(values map[string]any) (map[string]any, error) {
 	return runtime.Eval(values)
 }
 
+func ValsIsRef(value string) bool {
+	return strings.HasPrefix(value, "ref+")
+}
+
 func ValsContainsRefPart(u, part string) bool {
 	if !strings.HasPrefix(u, "ref+") {
 		return false

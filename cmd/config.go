@@ -593,8 +593,12 @@ func configInitAction(conf *config.Config, gitSpec *git_handler.GitSpec) cli.Act
 		conf.Environment = gitSpec.DefaultBranch
 		conf.ClusterProvider = c.String("cluster-provider")
 		conf.ProgressBar = c.Bool("progress-bar")
-		conf.GitHubToken = c.String("github-token")
 		conf.SopsAgeKeys = util.GetHomePath(util.RMKDir, util.SopsRootName, conf.Tenant)
+		// the token is stored next to the SOPS Age keys, only the path to the token file is saved in the config
+		if err := conf.SaveGitHubToken(c.String("github-token")); err != nil {
+			return err
+		}
+
 		zap.S().Infof("RMK will use values for %s environment", conf.Environment)
 
 		if c.Bool("slack-notifications") {

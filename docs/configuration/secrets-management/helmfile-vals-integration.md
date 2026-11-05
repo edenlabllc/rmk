@@ -421,3 +421,104 @@ rmk config init --cluster-provider=onprem
 
 RMK automatically **resolves** the secrets at initialization time to securely **fetch** existing Age keys from the
 third-party Vals backends.
+
+### GitHub token fetching via Vals backend references
+
+The `--github-token` flag (or the `RMK_GITHUB_TOKEN` variable) of `rmk config init` accepts a Vals backend reference
+instead of the token itself. Only the reference is saved in the
+`~/.rmk/sops-age-keys/<tenant>/ght_<tenant>` file, the token is fetched from the backend each time it is needed.
+
+> Unlike the SOPS Age keys, which are fetched once during `rmk config init`, the token is resolved by every command that
+> uses it (dependencies download, `rmk project update`, `rmk release ...`). The credentials for the backend must be
+> available for each of these commands.
+
+#### Create the secret in AWS Secrets Manager
+
+1. Open the [AWS Management Console](https://console.aws.amazon.com/secretsmanager/) → **Secrets Manager** and select
+   the **region** in the upper-right corner. Use the region of your RMK AWS configuration (`aws-region`),
+   otherwise the region must be specified in the reference.
+2. Click **Store a new secret** → **Secret type**: **Other type of secret**.
+3. In **Key/value pairs** add the key `ght` and set the value to the
+   [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+   (the `repo: full control` permission is required for private repositories).
+4. **Encryption key**: keep `aws/secretsmanager` for access within one AWS account. For access from another AWS account
+   select a customer managed KMS key.
+5. Click **Next**, set the **Secret name** (it is used as `<secret_name>` in the reference), then **Next** → **Next** → **Store**
+   (automatic rotation is not required).
+
+The secret is stored as JSON `{"ght": "<token>"}`, so the reference must end with `#/ght`. If the secret is created with
+the **Plaintext** option, omit the `#/ght` part.
+
+The IAM user or role used by RMK requires the `secretsmanager:GetSecretValue` permission for the secret
+(and `kms:Decrypt` for a customer managed key), see [Required permissions](#required-permissions).
+
+#### Make the secret available in another region or AWS account
+
+The secret is not found (`ResourceNotFoundException: Secrets Manager can't find the specified secret`) if it was created
+in another region or AWS account than the one used by the credentials. Choose one of the options:
+
+- **Specify the region in the reference** (recommended): `?region=<secret_region>`.
+- **Replicate the secret to the region of the credentials**: open the secret → **Replication** →
+  **Replicate secret to other AWS Regions**. The replica has the same name, so the reference does not need the region.
+- **Delegate access to another AWS account**: open the secret → **Resource permissions** → **Edit permissions** and
+  allow the principal of the other account to read the secret:
+
+  ```json
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {"AWS": "arn:aws:iam::<other_account_id>:role/<role_name>"},
+        "Action": "secretsmanager:GetSecretValue",
+        "Resource": "*"
+      }
+    ]
+  }
+  ```
+
+  The KMS key policy must also allow `kms:Decrypt` for this principal, and the secret must be referenced by its full
+  ARN (the secret name is not enough for a secret from another account).
+- **Assume a role** with access to the secret by adding the `role_arn` parameter to the reference.
+
+#### Reference examples
+
+| Case                                | Reference                                                                                                         |
+|-------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| Region of the credentials           | `ref+awssecrets://<secret_name>#/ght`                                                                         |
+| Explicit region                     | `ref+awssecrets://<secret_name>?region=us-east-1#/ght`                                                        |
+| Secret from another AWS account     | `ref+awssecrets://arn:aws:secretsmanager:us-east-1:<account_id>:secret:<secret_name>-<suffix>?region=us-east-1#/ght` |
+| Assumed role                        | `ref+awssecrets://<secret_name>?region=us-east-1&role_arn=arn:aws:iam::<account_id>:role/<role_name>#/ght`    |
+| Plaintext secret (no JSON key)      | `ref+awssecrets://<plaintext_secret_name>?region=us-east-1`                                                        |
+
+> Quote the reference in the shell, as `#` and `&` have a special meaning.
+
+#### Usage with RMK
+
+For the `aws` cluster provider, the credentials entered in the same command are used to fetch the token:
+
+```bash
+rmk config init --cluster-provider=aws \
+  --aws-access-key-id=<aws_access_key_id> \
+  --aws-secret-access-key=<aws_secret_access_key> \
+  --aws-region=us-east-1 \
+  --github-token='ref+awssecrets://<secret_name>?region=us-east-1#/ght'
+```
+
+The next `rmk config init` in another environment of the same tenant does not require the token again, the saved
+reference is reused.
+
+For `k3d` and `onprem` cluster providers **export** the credentials for the backend before each command that needs
+the token, as these providers have no cloud credentials of their own:
+
+```bash
+export AWS_ACCESS_KEY_ID=<aws_access_key_id>
+export AWS_SECRET_ACCESS_KEY=<aws_secret_access_key>
+rmk config init --github-token='ref+awssecrets://<secret_name>?region=us-east-1#/ght'
+```
+
+To replace the reference with the token itself, run the command with a regular token:
+
+```bash
+rmk config init --github-token=<github_personal_access_token>
+```
