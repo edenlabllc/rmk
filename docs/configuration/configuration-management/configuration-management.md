@@ -86,6 +86,18 @@ rmk config init
 rmk config init --github-token=<github_personal_access_token>
 ```
 
+The token is not stored in the RMK configuration file. It is saved in the `~/.rmk/sops-age-keys/<tenant>/ght_<tenant>`
+file, and the configuration contains only the path to this file (`github-token-file`). The token is shared by all
+environments of the tenant: the file is created or updated by `rmk config init --github-token=<token>`, and it is not
+deleted by `rmk config delete`.
+
+The `--github-token` value can also be a [Vals](../secrets-management/helmfile-vals-integration.md) backend reference,
+for example `ref+awssecrets://<secret_name>?region=us-east-1`. In this case, only the reference is saved to the file, and
+the token is fetched from the backend each time it is needed. The credentials of the selected cluster provider are used
+for the backend of the same cloud, in other cases export the credentials for the backend before running the command.
+See [GitHub token fetching via Vals backend references](../secrets-management/helmfile-vals-integration.md#github-token-fetching-via-vals-backend-references)
+for the setup in AWS Secrets Manager and examples.
+
 ### Initialization of RMK configuration for different cluster providers
 
 - [AWS](init-aws-provider.md#prerequisites)

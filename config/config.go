@@ -29,6 +29,7 @@ type Config struct {
 	Environment                      string   `yaml:"environment,omitempty"`
 	RootDomain                       string   `yaml:"root-domain,omitempty"`
 	GitHubToken                      string   `yaml:"github-token,omitempty"`
+	GitHubTokenFile                  string   `yaml:"github-token-file,omitempty"`
 	ClusterProvider                  string   `yaml:"cluster-provider"`
 	SlackNotifications               bool     `yaml:"slack-notifications"`
 	SlackWebHook                     string   `yaml:"slack-webhook,omitempty"`
@@ -333,6 +334,98 @@ func (conf *Config) ReadConfigFile(path string) error {
 
 	if _, err := util.YAMLDecodeWithComments(path, data, conf); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// SaveGitHubToken creates or updates the token file next to the SOPS Age keys, only the path to the file is kept
+// in the config. The token is shared by all environments of the tenant. An empty token keeps the existing token file.
+func (conf *Config) SaveGitHubToken(token string) error {
+	path := filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Tenant)
+
+	if len(token) == 0 {
+		if _, err := os.Stat(path); err == nil {
+			conf.GitHubToken = ""
+			conf.GitHubTokenFile = path
+		}
+
+		return nil
+	}
+
+	if err := os.MkdirAll(conf.SopsAgeKeys, 0775); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(path, []byte(token), 0600); err != nil {
+		return err
+	}
+
+	// the mode of an already existing file is not changed by WriteFile
+	if err := os.Chmod(path, 0600); err != nil {
+		return err
+	}
+
+	conf.GitHubToken = ""
+	conf.GitHubTokenFile = path
+
+	return nil
+}
+
+// GetGitHubToken returns the GitHub token from the token file, empty if the token is not set.
+// The GitHubToken field is set only by configs created by RMK versions that stored the token in plain text,
+// such a token is moved to the token file by the next 'rmk config init'.
+// If the token is a Vals backend reference, it is resolved to the secret value.
+func (conf *Config) GetGitHubToken() (string, error) {
+	token := conf.GitHubToken
+
+	if len(conf.GitHubTokenFile) > 0 {
+		data, err := os.ReadFile(conf.GitHubTokenFile)
+		if err != nil {
+			return "", fmt.Errorf("failed to read GitHub token file %s, run 'rmk config init' to create it again: %w",
+				conf.GitHubTokenFile, err)
+		}
+
+		token = strings.TrimSpace(string(data))
+	}
+
+	if !util.ValsIsRef(token) {
+		return token, nil
+	}
+
+	if err := conf.SetProviderCredentialsEnv(); err != nil {
+		return "", err
+	}
+
+	value, err := util.ValsFetchSecretValue(token)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve GitHub token from Vals reference, "+
+			"export credentials for the backend before running the command: %w", err)
+	}
+
+	return strings.TrimSpace(value), nil
+}
+
+// SetProviderCredentialsEnv exports the credentials of the cluster provider to the process environment,
+// they are used by the Vals backends of the same cloud.
+func (conf *Config) SetProviderCredentialsEnv() error {
+	switch conf.ClusterProvider {
+	case aws_provider.AWSClusterProvider:
+		if conf.AwsConfigure != nil {
+			return conf.SetAWSCredentialsEnv(false)
+		}
+	case azure_provider.AzureClusterProvider:
+		if conf.AzureConfigure != nil {
+			if err := conf.AzureConfigure.ReadSPCredentials(conf.Name); err != nil {
+				return err
+			}
+
+			return conf.SetAzureCredentialsEnv(false)
+		}
+	case google_provider.GoogleClusterProvider:
+		if conf.GCPConfigure != nil {
+			return conf.SetGCPCredentialsEnv(false)
+		}
 	}
 
 	return nil

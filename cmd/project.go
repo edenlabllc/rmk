@@ -240,9 +240,14 @@ func (p *ProjectCommands) updateProjectFile(gitSpec *git_handler.GitSpec) error 
 		}
 
 		if !p.Ctx.Bool("skip-commit") {
+			githubToken, err := p.Conf.GetGitHubToken()
+			if err != nil {
+				return err
+			}
+
 			if err := gitSpec.GitCommitPush(
 				util.GetPwdPath(util.TenantProjectFile),
-				p.genMsgCommit(), p.Conf.GitHubToken); err != nil {
+				p.genMsgCommit(), githubToken); err != nil {
 				return err
 			}
 		}

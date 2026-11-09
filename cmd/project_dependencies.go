@@ -65,22 +65,38 @@ func (s *SpecDownload) parseUrlByType() error {
 			return fmt.Errorf("for Git provider in project file %s repository only 'ref' argument can be used", s.PkgName)
 		}
 
+		token, err := s.Conf.GetGitHubToken()
+		if err != nil {
+			return err
+		}
+
 		query := parse.Query()
 		query.Add("depth", "1")
-		s.PkgUrl = getter + parse.Scheme + "://user:" + s.Conf.GitHubToken + "@" + parse.Host + parse.Path + "?" + query.Encode()
+		s.PkgUrl = getter + parse.Scheme + "://user:" + token + "@" + parse.Host + parse.Path + "?" + query.Encode()
 	}
 
 	return nil
 }
 
 func (s *SpecDownload) downloadErrorHandler(err error) error {
-	switch {
-	case err != nil && s.Type == gitProvider:
+	if err == nil {
+		return nil
+	}
+
+	// the error text, e.g. the output of git, must not contain the GitHub token
+	msg := err.Error()
+	if token, tokenErr := s.Conf.GetGitHubToken(); tokenErr == nil && len(token) > 0 {
+		msg = strings.NewReplacer(generateSensEnvs(token)...).Replace(msg)
+	}
+
+	switch s.Type {
+	case gitProvider:
 		return fmt.Errorf("failed to download %s object %s, potential reasons: "+
-			"object not found, permission denied, credentials expired, URL format in project file not correct", s.Type, s.PkgName)
-	case err != nil && s.Type == httpProvider:
+			"object not found, permission denied, credentials expired, URL format in project file not correct: %s",
+			s.Type, s.PkgName, msg)
+	case httpProvider:
 		return fmt.Errorf("failed to download %s object %s, potential reasons: "+
-			"object not found, URL format in project file not correct", s.Type, s.PkgName)
+			"object not found, URL format in project file not correct: %s", s.Type, s.PkgName, msg)
 	}
 
 	return err
