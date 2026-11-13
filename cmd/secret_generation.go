@@ -11,9 +11,6 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh/terminal"
-	"rmk/providers/aws_provider"
-	"rmk/providers/azure_provider"
-	"rmk/providers/google_provider"
 	"rmk/util"
 )
 
@@ -139,29 +136,8 @@ func (g *GenerationSpec) writeSpecSecrets(force bool) error {
 }
 
 func (sc *SecretCommands) genSpecSecrets(specFiles []string) error {
-	switch sc.Conf.ClusterProvider {
-	case aws_provider.AWSClusterProvider:
-		if sc.Conf.AwsConfigure != nil {
-			if err := sc.Conf.SetAWSCredentialsEnv(false); err != nil {
-				return err
-			}
-		}
-	case azure_provider.AzureClusterProvider:
-		if sc.Conf.AzureConfigure != nil {
-			if err := sc.Conf.AzureConfigure.ReadSPCredentials(sc.Conf.Name); err != nil {
-				return err
-			}
-
-			if err := sc.Conf.SetAzureCredentialsEnv(false); err != nil {
-				return err
-			}
-		}
-	case google_provider.GoogleClusterProvider:
-		if sc.Conf.GCPConfigure != nil {
-			if err := sc.Conf.SetGCPCredentialsEnv(false); err != nil {
-				return err
-			}
-		}
+	if err := sc.Conf.SetProviderCredentialsEnv(); err != nil {
+		return err
 	}
 
 	genSpec := &GenerationSpec{}

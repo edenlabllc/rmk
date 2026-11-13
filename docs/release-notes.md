@@ -1,1 +1,4 @@
-- Fixed rmk config view with --log-format=json: the config field was logged as an escaped string instead of a JSON object after the update to Go 1.27.
+- Added migration of the GitHub token stored in plain text in an existing configuration file, the token is moved to the file by the next rmk config init.
+- Added support for a Vals backend reference as the --github-token value, the token is fetched from the backend each time it is needed.
+- Changed rmk config init to store the GitHub token in a separate file next to the SOPS Age keys instead of the configuration file, the token is shared by all environments of the tenant.
+- Changed the error message of a failed dependency download to include the original error, the GitHub token is masked in it.
