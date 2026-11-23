@@ -572,6 +572,14 @@ func configDeleteAction(conf *config.Config) cli.ActionFunc {
 			}
 		}
 
+		// the token file of the config is deleted, the token file shared by the tenant environments
+		// in RMK v0.50.0 is kept
+		if len(conf.SopsAgeKeys) > 0 {
+			if err := os.RemoveAll(filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Name)); err != nil {
+				return err
+			}
+		}
+
 		if err := os.RemoveAll(c.String("config")); err != nil {
 			return err
 		}

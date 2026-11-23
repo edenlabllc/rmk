@@ -426,7 +426,8 @@ third-party Vals backends.
 
 The `--github-token` flag (or the `RMK_GITHUB_TOKEN` variable) of `rmk config init` accepts a Vals backend reference
 instead of the token itself. Only the reference is saved in the
-`~/.rmk/sops-age-keys/<tenant>/ght_<tenant>` file, the token is fetched from the backend each time it is needed.
+`~/.rmk/sops-age-keys/<tenant>/ght_<config_name>` file of the configuration, the token is fetched from the backend
+each time it is needed.
 
 > Unlike the SOPS Age keys, which are fetched once during `rmk config init`, the token is resolved by every command that
 > uses it (dependencies download, `rmk project update`, `rmk release ...`). The credentials for the backend must be
