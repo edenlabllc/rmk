@@ -1,4 +1,1 @@
-- Added migration of the GitHub token stored in plain text in an existing configuration file, the token is moved to the file by the next rmk config init.
-- Added support for a Vals backend reference as the --github-token value, the token is fetched from the backend each time it is needed.
-- Changed rmk config init to store the GitHub token in a separate file next to the SOPS Age keys instead of the configuration file, the token is shared by all environments of the tenant.
-- Changed the error message of a failed dependency download to include the original error, the GitHub token is masked in it.
+- Fixed rmk config init of one environment overwriting the GitHub token of all environments of the tenant: the token file is now created per configuration (ght_<config_name>) and deleted by rmk config delete. The shared ght_<tenant> file of v0.50.0 is moved by the first rmk config init, the other configurations of the tenant require --github-token once.

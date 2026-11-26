@@ -339,18 +339,34 @@ func (conf *Config) ReadConfigFile(path string) error {
 	return nil
 }
 
-// SaveGitHubToken creates or updates the token file next to the SOPS Age keys, only the path to the file is kept
-// in the config. The token is shared by all environments of the tenant. An empty token keeps the existing token file.
+// SaveGitHubToken creates or updates the token file of the config next to the SOPS Age keys, only the path to the file
+// is kept in the config. Each config has its own token file, so the environments do not affect each other.
+// An empty token keeps the existing token file of the config or, if there is none, moves the token file
+// shared by all environments of the tenant in RMK v0.50.0, so it is migrated only once.
 func (conf *Config) SaveGitHubToken(token string) error {
-	path := filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Tenant)
+	var tenantPath string
+
+	path := filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Name)
 
 	if len(token) == 0 {
 		if _, err := os.Stat(path); err == nil {
 			conf.GitHubToken = ""
 			conf.GitHubTokenFile = path
+
+			return nil
 		}
 
-		return nil
+		tenantPath = filepath.Join(conf.SopsAgeKeys, util.GitHubTokenFilePrefix+conf.Tenant)
+		data, err := os.ReadFile(tenantPath)
+		if os.IsNotExist(err) {
+			return nil
+		} else if err != nil {
+			return err
+		}
+
+		if token = strings.TrimSpace(string(data)); len(token) == 0 {
+			return nil
+		}
 	}
 
 	if err := os.MkdirAll(conf.SopsAgeKeys, 0775); err != nil {
@@ -364,6 +380,12 @@ func (conf *Config) SaveGitHubToken(token string) error {
 	// the mode of an already existing file is not changed by WriteFile
 	if err := os.Chmod(path, 0600); err != nil {
 		return err
+	}
+
+	if len(tenantPath) > 0 {
+		if err := os.Remove(tenantPath); err != nil {
+			return err
+		}
 	}
 
 	conf.GitHubToken = ""
